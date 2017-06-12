@@ -13,31 +13,29 @@ domains.push('Warterloo')
 
 
 let city = new Variable(variable, domains)
-
-
 let party = new Variable('party', ['Yes', 'No'])
 
 
-let a = new Variable('a', ['a', 'A'])
-
-
-
-
 let map = {}
-map[['a', 'sunny', 'Regina', 'Yes']] = 0.4
-map[['A', 'sunny', 'Toronto', 'No']] = 0.5
+map[['sunny', 'Regina', 'Yes']] = 0.4
+map[['sunny', 'Toronto', 'No']] = 0.5
+map[['sunny', 'Toronto', 'Yes']] = 0.1
+map[['sunny', 'Regina', 'No']] = 0
 
-let dis = new Distribution(map, a, weather, city, party)
+let dis = new Distribution(map, weather, city, party)
+dis.name = 'P(w,c,p)'
 
 dis.print()
 
 map = {}
-map[['Yes', 'winndy', 'b']] = 0.7
-map[['No', 'sunny', 'B']] = 0.3
-map[['Yes', 'sunny', 'b']] = 0.2
+map[['Yes', 'winndy']] = 0.7
+map[['No', 'sunny']] = 0.3
+map[['Yes', 'sunny']] = 0.2
 
-let b = new Variable('b', ['b', 'B'])
+let dis2 = new Distribution(map, party, weather)
 
-let dis2 = new Distribution(map, party, weather, b)
+dis2.name = 'P(p,w)'
 dis2.print()
-dis.multiply(dis2)
+dis.multiply(dis2).print()
+dis.divide(dis2).print()
+dis.marginalOnto([party, weather]).print()

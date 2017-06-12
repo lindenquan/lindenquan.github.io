@@ -6,25 +6,89 @@ class Distribution {
             // key consists of domain values seperated with comma ','
         this.map = map
         this.varNames = []
-        this.name = ''
+        this.name = 'unknown'
         vars.forEach((v) => this.varNames.push(v.name))
     }
 
-    multiply(dis) {
-        let commonVarNames = Tool.arrayIntersect(this.varNames, dis.varNames)
-        let commonVarIndices = this.getIndices(commonVarNames)
-        let vars = Tool.varUnion(this.vars, dis.vars)
+    static calculate(dis1, dis2, operator) {
+        let commonVarNames = Tool.arrayIntersect(dis1.varNames, dis2.varNames)
+        let commonVarIndices = dis1.getIndices(commonVarNames)
+        let vars = Tool.varUnion(dis1.vars, dis2.vars)
         let map = {}
-        for (let key in this.map) {
-            let commonValues = this.getValues(commonVarIndices, key)
-            let matchingMap = dis.subMap(commonVarNames, commonValues)
+        for (let key in dis1.map) {
+            let commonValues = dis1.getValues(commonVarIndices, key)
+            let matchingMap = dis2.subMap(commonVarNames, commonValues)
             for (let subKey in matchingMap) {
-                map[Tool.stringUnion(key, subKey)] = Tool.productDecimals(this.map[key], matchingMap[subKey])
+                map[Tool.stringUnion(key, subKey)] = operator(dis1.map[key], matchingMap[subKey])
 
             }
         }
         let product = new Distribution(map, ...vars)
-        product.print()
+        return product
+
+    }
+
+    indicesOn(vars) {
+        let indices = []
+        let l = this.varNames.length
+        let l1 = vars.length
+        for (let i = 0; i < l1; i++) {
+            for (let index = 0; index < l; index++) {
+                if (vars[i].name === this.varNames[index]) {
+                    indices.push(index)
+                    break
+                }
+            }
+        }
+        return indices
+    }
+
+    valuesOn(key, indices) {
+        let l = indices.length
+        let values = key.split(',')
+        let results = []
+        for (let i = 0; i < l; i++) {
+            results.push(values[indices[i]])
+        }
+
+        return results
+    }
+
+    marginalOnto(vars) {
+        let map = {}
+        let set = new Set()
+        let indices = this.indicesOn(vars)
+        for (let key in this.map) {
+            let values = this.valuesOn(key, indices)
+            let strV = values.toString()
+
+            if (set.has(strV)) {
+                continue
+            } else {
+                set.add(strV)
+
+                let sum = 0
+                for (let key in this.map) {
+                    if (strV === this.valuesOn(key, indices).toString()) {
+                        sum = Tool.addDecimal(sum, this.map[key])
+                    }
+                }
+                map[strV] = sum
+            }
+        }
+        return new Distribution(map, ...vars)
+    }
+
+    divide(dis) {
+        let result = Distribution.calculate(this, dis, Tool.divisionDecimals)
+        result.name = `${this.name}/${dis.name}`
+        return result
+    }
+
+    multiply(dis) {
+        let result = Distribution.calculate(this, dis, Tool.productDecimals)
+        result.name = `${this.name}*${dis.name}`
+        return result
     }
 
     // varNames is an array containing variable indices
