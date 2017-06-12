@@ -76,7 +76,9 @@ class Distribution {
                 map[strV] = sum
             }
         }
-        return new Distribution(map, ...vars)
+        let dis = new Distribution(map, ...vars)
+        dis.name = `ϕ(${vars.map((v)=>v.name)})`
+        return dis
     }
 
     divide(dis) {
