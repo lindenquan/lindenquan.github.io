@@ -1,3 +1,7 @@
+// Start: constant variables
+let DEBUG = true
+    // End: constant variables 
+
 let A = new Variable('A', ['a', '-a'])
 let B = new Variable('B', ['b', '-b'])
 let C = new Variable('C', ['c', '-c'])
@@ -45,7 +49,6 @@ map[['-d', '-e', '-f']] = 0.2
 let DEF = new Distribution(map, D, E, F)
 DEF.name = 'P(F|D,E)'
 
-
 let tree = new JoinTree()
 tree.addNode(EC, [C, D, E])
 tree.addNode(BD, [B, C, D])
@@ -58,4 +61,16 @@ tree.addEdge(EC, DEF)
 
 tree.printTree()
 tree.runHugin()
+tree.printNodes()
+
+tree = new JoinTree()
+tree.addNode(EC, [C, D, E])
+tree.addNode(BD, [B, C, D])
+tree.addNode(ABC, [A, B, C])
+tree.addNode(DEF, [D, E, F])
+
+tree.addEdge(EC, BD)
+tree.addEdge(BD, ABC)
+tree.addEdge(EC, DEF)
+tree.runShaferShenoy()
 tree.printNodes()

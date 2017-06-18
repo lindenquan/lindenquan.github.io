@@ -1,7 +1,7 @@
 class Tool {
 
     static get PRECISION() {
-        return 5
+        return 7
     }
 
     static arrayIntersect(arry1, arry2) {

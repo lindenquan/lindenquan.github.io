@@ -11,6 +11,19 @@ class Distribution {
         vars.forEach((v) => this.varNames.push(v.name))
     }
 
+    // return a cloned distribution.
+    // caution: it doesn't clone vars
+    clone() {
+        let map = {}
+        for (let key in this.map) {
+            map[key] = this.map[key]
+        }
+        let clone = new Distribution(map, ...this.vars)
+        clone.name = this.name
+        clone.isUnitDistr = this.isUnitDistr
+        return clone
+    }
+
     static get UNIT() {
         let dis = new Distribution()
         dis.isUnitDistr = true
@@ -20,10 +33,10 @@ class Distribution {
 
     static calculate(dis1, dis2, operator) {
         if (dis1.isUnitDistr) {
-            return dis2
+            return dis2.clone()
         }
         if (dis2.isUnitDistr) {
-            return dis1
+            return dis1.clone()
         }
         let commonVarNames = Tool.arrayIntersect(dis1.varNames, dis2.varNames)
         let commonVarIndices = dis1.getIndices(commonVarNames)
