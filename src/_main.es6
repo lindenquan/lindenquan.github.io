@@ -47,10 +47,10 @@ DEF.name = 'P(F|D,E)'
 
 
 let tree = new JoinTree()
-tree.addNode(EC)
-tree.addNode(BD)
-tree.addNode(ABC)
-tree.addNode(DEF)
+tree.addNode(EC, [C, D, E])
+tree.addNode(BD, [B, C, D])
+tree.addNode(ABC, [A, B, C])
+tree.addNode(DEF, [D, E, F])
 
 tree.addEdge(EC, BD)
 tree.addEdge(BD, ABC)

@@ -8,7 +8,10 @@ class Seperator {
 }
 
 class Node {
-    constructor(distr) {
+    constructor(distr, vars) {
+        this.varNames = []
+        vars.forEach(v => this.varNames.push(v.name))
+
         this.distr = distr
             //edges contains all neighbour nodes
         this.edges = new Set()
@@ -19,7 +22,7 @@ class Node {
     }
 
     sendMessage(node, seperator) {
-        let commonVarNames = Tool.arrayIntersect(this.distr.varNames, node.distr.varNames)
+        let commonVarNames = Tool.arrayIntersect(this.varNames, node.varNames)
         let dist = this.distr.sumOnto(commonVarNames)
         seperator.distr = dist.divide(seperator.distr)
         node.distr = node.distr.multiply(seperator.distr)
@@ -32,8 +35,8 @@ class JoinTree {
         this.seperators = new Set()
     }
 
-    addNode(distr) {
-        this.nodes.push(new Node(distr))
+    addNode(distr, vars) {
+        this.nodes.push(new Node(distr, vars))
     }
 
     addEdge(dis1, dis2) {
