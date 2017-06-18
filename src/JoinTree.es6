@@ -157,6 +157,7 @@ class JoinTree {
             let newChildren = new Set()
             children.forEach(child => {
                 child.father.sendMessage(child, this.findSeperator(child.father, child))
+                    //child.distr.normalize()
                 child.children.forEach(child => {
                     newChildren.add(child)
                 })
@@ -280,6 +281,7 @@ class JoinTree {
             seps.forEach(sep => {
                 node.distr = node.distr.multiply(sep.distr)
             })
+            node.distr.normalize()
         })
     }
 

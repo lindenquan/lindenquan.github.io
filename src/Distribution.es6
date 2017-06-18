@@ -24,6 +24,25 @@ class Distribution {
         return clone
     }
 
+    normalize() {
+        let sum = 0
+        for (let key in this.map) {
+            sum = Tool.addDecimal(sum, this.map[key])
+        }
+
+        if (sum === 1) {
+            return
+        } else {
+            if (DEBUG) {
+                console.log(`Normalization on ${this.name} because the sum is:${sum}`)
+            }
+            for (let key in this.map) {
+                let v = this.map[key]
+                this.map[key] = Tool.divisionDecimals(v, sum)
+            }
+        }
+    }
+
     static get UNIT() {
         let dis = new Distribution()
         dis.isUnitDistr = true
