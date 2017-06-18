@@ -7,10 +7,24 @@ class Distribution {
         this.map = map
         this.varNames = []
         this.name = 'unknown'
+        this.isUnitDistr = false
         vars.forEach((v) => this.varNames.push(v.name))
     }
 
+    static get UNIT() {
+        let dis = new Distribution()
+        dis.isUnitDistr = true
+        dis.name = '1'
+        return dis
+    }
+
     static calculate(dis1, dis2, operator) {
+        if (dis1.isUnitDistr) {
+            return dis2
+        }
+        if (dis2.isUnitDistr) {
+            return dis1
+        }
         let commonVarNames = Tool.arrayIntersect(dis1.varNames, dis2.varNames)
         let commonVarIndices = dis1.getIndices(commonVarNames)
         let vars = Tool.varUnion(dis1.vars, dis2.vars)
@@ -54,6 +68,22 @@ class Distribution {
         return results
     }
 
+    // varNames is an array containing names of variables
+    sumOnto(varNames) {
+        let vars = []
+        varNames.forEach(name => {
+            let length = this.vars.length
+            for (let i = 0; i < length; i++) {
+                if (this.vars[i].name === name) {
+                    vars.push(this.vars[i])
+                    return
+                }
+            }
+        })
+        return this.marginalOnto(vars)
+    }
+
+    // vars is an array of Variable objects 
     marginalOnto(vars) {
         let map = {}
         let set = new Set()

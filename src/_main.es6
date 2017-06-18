@@ -1,41 +1,61 @@
-let variable = ''
-let domains = []
-
-variable = 'weather'
-
-let weather = new Variable(variable, ['sunny', 'winndy'])
-
-variable = 'city'
-domains = []
-domains.push('Regina')
-domains.push('Toronto')
-domains.push('Warterloo')
-
-
-let city = new Variable(variable, domains)
-let party = new Variable('party', ['Yes', 'No'])
-
+let A = new Variable('A', ['a', '-a'])
+let B = new Variable('B', ['b', '-b'])
+let C = new Variable('C', ['c', '-c'])
+let D = new Variable('D', ['d', '-d'])
+let E = new Variable('E', ['e', '-e'])
+let F = new Variable('F', ['f', '-f'])
 
 let map = {}
-map[['sunny', 'Regina', 'Yes']] = 0.4
-map[['sunny', 'Toronto', 'No']] = 0.5
-map[['sunny', 'Toronto', 'Yes']] = 0.1
-map[['sunny', 'Regina', 'No']] = 0
-
-let dis = new Distribution(map, weather, city, party)
-dis.name = 'P(w,c,p)'
-
-dis.print()
+map[['e', 'c']] = 0.5
+map[['e', '-c']] = 0.4
+map[['-e', 'c']] = 0.5
+map[['-e', '-c']] = 0.6
+let EC = new Distribution(map, E, C)
+EC.name = 'P(E|C)'
 
 map = {}
-map[['Yes', 'winndy']] = 0.7
-map[['No', 'sunny']] = 0.3
-map[['Yes', 'sunny']] = 0.2
+map[['b', 'd']] = 0.4
+map[['b', '-d']] = 0.6
+map[['-b', 'd']] = 0.7
+map[['-b', '-d']] = 0.3
+let BD = new Distribution(map, B, D)
+BD.name = 'P(D|B)'
 
-let dis2 = new Distribution(map, party, weather)
+map = {}
+map[['a', 'b', 'c']] = 0.007
+map[['a', 'b', '-c']] = 0.003
+map[['a', '-b', 'c']] = 0.063
+map[['a', '-b', '-c']] = 0.027
+map[['-a', 'b', 'c']] = 0.162
+map[['-a', 'b', '-c']] = 0.648
+map[['-a', '-b', 'c']] = 0.018
+map[['-a', '-b', '-c']] = 0.072
+let ABC = new Distribution(map, A, B, C)
+ABC.name = 'P(A,B,C)'
 
-dis2.name = 'P(p,w)'
-dis2.print()
-dis.multiply(dis2).print()
-dis.divide(dis2).print()
-dis.marginalOnto([party, weather]).print()
+map = {}
+map[['d', 'e', 'f']] = 0.1
+map[['d', 'e', '-f']] = 0.9
+map[['d', '-e', 'f']] = 0.5
+map[['d', '-e', '-f']] = 0.5
+map[['-d', 'e', 'f']] = 0.4
+map[['-d', 'e', '-f']] = 0.6
+map[['-d', '-e', 'f']] = 0.8
+map[['-d', '-e', '-f']] = 0.2
+let DEF = new Distribution(map, D, E, F)
+DEF.name = 'P(F|D,E)'
+
+
+let tree = new JoinTree()
+tree.addNode(EC)
+tree.addNode(BD)
+tree.addNode(ABC)
+tree.addNode(DEF)
+
+tree.addEdge(EC, BD)
+tree.addEdge(BD, ABC)
+tree.addEdge(EC, DEF)
+
+tree.printTree()
+tree.runHugin()
+tree.printNodes()

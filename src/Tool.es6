@@ -1,4 +1,9 @@
 class Tool {
+
+    static get PRECISION() {
+        return 5
+    }
+
     static arrayIntersect(arry1, arry2) {
         let set1 = new Set(arry1);
         let set2 = new Set(arry2);
@@ -24,13 +29,17 @@ class Tool {
 
     }
 
+    static formatFloat(num) {
+        return parseFloat(num.toFixed(Tool.PRECISION))
+    }
+
     static productDecimals(d1, d2) {
         let a1 = Tool.getDecimalLength(d1)
         let a2 = Tool.getDecimalLength(d2)
         let c1 = Math.pow(10, a1)
         let c2 = Math.pow(10, a2)
 
-        return (d1 * c1) * (d2 * c2) / (c1 * c2)
+        return Tool.formatFloat((d1 * c1) * (d2 * c2) / (c1 * c2))
     }
 
     static divisionDecimals(d1, d2) {
@@ -41,7 +50,7 @@ class Tool {
         }
         let c1 = Math.pow(10, a1)
 
-        return (d1 * c1) / (d2 * c1)
+        return Tool.formatFloat((d1 * c1) / (d2 * c1))
     }
 
     static addDecimal(d1, d2) {
@@ -52,7 +61,7 @@ class Tool {
         }
         let c1 = Math.pow(10, a1)
 
-        return ((d1 * c1) + (d2 * c1)) / c1
+        return Tool.formatFloat(((d1 * c1) + (d2 * c1)) / c1)
     }
 
     static stringUnion(str1, str2) {
