@@ -54,6 +54,7 @@ class JoinTree {
         this.nodes = []
         this.seperators = new Set()
         this.shaferSeperators = new Set()
+        this.root = null
     }
 
     addNode(distr, vars) {
@@ -136,34 +137,26 @@ class JoinTree {
     }
 
     runHugin() {
-        let root = this.nodes[0]
-        let leaves = this.buildHierarchyReturnLeaves(root)
+        this.root = this.nodes[0]
+        this.buildHierarchy()
+        this.sort()
 
-        while (leaves.size != 0) {
-            let newLeaves = new Set()
-            leaves.forEach(leaf => {
-                let father = leaf.father
-                leaf.sendMessage(father, this.findSeperator(leaf, father))
-                if (father != root) {
-                    newLeaves.add(father)
-                }
-            })
-            leaves = newLeaves
-            this.sortLeaves(leaves, root)
-        }
+        // set sperators from leaves to root
+        this.nodes.forEach(node => {
+            let father = node.father
+            if (father != null) {
+                node.sendMessage(father, this.findSeperator(node, father))
+            }
+        })
 
-        let children = root.children
-        while (children.size != 0) {
-            let newChildren = new Set()
+        // set sperators from root to leaves
+        this.nodes.reverse().forEach(node => {
+            let children = node.children
             children.forEach(child => {
-                child.father.sendMessage(child, this.findSeperator(child.father, child))
-                    //child.distr.normalize()
-                child.children.forEach(child => {
-                    newChildren.add(child)
-                })
+                let father = node
+                father.sendMessage(child, this.findSeperator(father, child))
             })
-            children = newChildren
-        }
+        })
     }
 
     /** ${from} a Node object denoting start node
@@ -171,6 +164,9 @@ class JoinTree {
      *  return an array contains path nodes from $ { from } to $ { to }
      */
     getPath(from, to) {
+        if (from === to) {
+            return [from]
+        }
         let s = []
         let q = []
         s.push(from)
@@ -221,59 +217,77 @@ class JoinTree {
     }
 
     length(from, to) {
+        if (from === to) {
+            return 0
+        }
         return this.getPath(from, to).length
     }
 
-    sortLeaves(leaves, root) {
-        let array = Array.from(leaves)
+    // sort ${nodes} by the descending distance to ${root}. 
+    // after this function the nodes in ${node} will be sorted
+    // ${nodes} is a Set object or an Array object containing Node objects
+    sortNodes(nodes, root) {
+        let array = null
+        let notArray = !Array.isArray(nodes)
+
+        if (notArray) {
+            array = Array.from(nodes)
+        } else {
+            array = nodes
+        }
+
         if (DEBUG) {
             console.log("before sort:")
-            array.forEach(v => console.log(v.distr.name))
+            array.forEach(n => console.log(n.varNames))
         }
+
         array.sort((a, b) => {
             a = this.length(a, root)
             b = this.length(b, root)
             return b - a
         })
+
         if (DEBUG) {
             console.log("after sort:")
-            array.forEach(v => console.log(v.distr.name))
+            array.forEach(n => console.log(n.varNames))
         }
-        leaves.clear()
-        array.forEach(v => leaves.add(v))
+
+        if (notArray) {
+            nodes.clear()
+            array.forEach(v => nodes.add(v))
+        }
+
+    }
+
+    sort() {
+        this.sortNodes(this.nodes, this.root)
+    }
+
+    buildHierarchy() {
+        this.buildHierarchyReturnLeaves(this.root)
     }
 
     runShaferShenoy() {
-        let root = this.nodes[0]
-        let leaves = this.buildHierarchyReturnLeaves(root)
+        this.root = this.nodes[0]
+        this.buildHierarchy()
+        this.sort()
 
         // set sperators from leaves to root
-        while (leaves.size != 0) {
-            let newLeaves = new Set()
-            leaves.forEach(leaf => {
-                let father = leaf.father
-                leaf.setShaferMessage(father, this.findShaferSeperator(leaf, father), this.findAllShaferSeperators(leaf))
-                if (father != root) {
-                    newLeaves.add(father)
-                }
-            })
-            leaves = newLeaves
-            this.sortLeaves(leaves, root)
-        }
+        this.nodes.forEach(node => {
+            let father = node.father
+            if (father != null) {
+                node.setShaferMessage(father, this.findShaferSeperator(node, father), this.findAllShaferSeperators(node))
+            }
+        })
 
         // set sperators from root to leaves
-        let children = root.children
-        while (children.size != 0) {
-            let newChildren = new Set()
+        this.nodes.reverse().forEach(node => {
+            let children = node.children
             children.forEach(child => {
-                let father = child.father
+                let father = node
                 father.setShaferMessage(child, this.findShaferSeperator(father, child), this.findAllShaferSeperators(father))
-                child.children.forEach(child => {
-                    newChildren.add(child)
-                })
             })
-            children = newChildren
-        }
+        })
 
         // update each node's distribution
         this.nodes.forEach(node => {
