@@ -32,8 +32,15 @@ class Node {
     sendMessage(node, seperator) {
         let commonVarNames = Tool.arrayIntersect(this.varNames, node.varNames)
         let distr = this.distr.sumOnto(commonVarNames)
-        seperator.distr = distr.divide(seperator.distr)
-        node.distr = node.distr.multiply(seperator.distr)
+        node.distr = node.distr.multiply(distr.divide(seperator.distr))
+        seperator.distr = distr
+        if (DEBUG) {
+            let node1 = seperator.between[0]
+            let node2 = seperator.between[1]
+            console.log(`seperator between ${node1.varNames} and ${node2.varNames}`)
+            seperator.distr.print()
+        }
+
     }
 
     setShaferMessage(node, seperator, seps) {
