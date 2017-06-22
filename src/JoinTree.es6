@@ -300,9 +300,9 @@ class JoinTree {
         this.nodes.forEach(node => {
             let seps = this.findAllShaferSeperators(node)
             seps.forEach(sep => {
-                node.distr = node.distr.multiply(sep.distr)
-            })
-            node.distr.normalize()
+                    node.distr = node.distr.multiply(sep.distr)
+                })
+                //node.distr.normalize()
         })
     }
 
