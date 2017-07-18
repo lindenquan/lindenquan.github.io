@@ -566,18 +566,18 @@ var JoinTree = function () {
 
             this.root = this.nodes[0];
             this.buildHierarchy();
-            this.sort
+            this.sort();
 
             // set sperators from leaves to root
-            ();this.nodes.forEach(function (node) {
+            this.nodes.forEach(function (node) {
                 var father = node.father;
                 if (father != null) {
                     node.sendMessage(father, _this2.findSeperator(node, father));
                 }
-            }
+            });
 
             // set sperators from root to leaves
-            );this.nodes.reverse().forEach(function (node) {
+            this.nodes.reverse().forEach(function (node) {
                 var children = node.children;
                 children.forEach(function (child) {
                     var father = node;
@@ -771,33 +771,32 @@ var JoinTree = function () {
 
             this.root = this.nodes[0];
             this.buildHierarchy();
-            this.sort
+            this.sort();
 
             // set sperators from leaves to root
-            ();this.nodes.forEach(function (node) {
+            this.nodes.forEach(function (node) {
                 var father = node.father;
                 if (father != null) {
                     node.setShaferMessage(father, _this4.findShaferSeperator(node, father), _this4.findAllShaferSeperators(node));
                 }
-            }
+            });
 
             // set sperators from root to leaves
-            );this.nodes.reverse().forEach(function (node) {
+            this.nodes.reverse().forEach(function (node) {
                 var children = node.children;
                 children.forEach(function (child) {
                     var father = node;
                     father.setShaferMessage(child, _this4.findShaferSeperator(father, child), _this4.findAllShaferSeperators(father));
                 });
-            }
+            });
 
             // update each node's distribution
-            );this.nodes.forEach(function (node) {
+            this.nodes.forEach(function (node) {
                 var seps = _this4.findAllShaferSeperators(node);
                 seps.forEach(function (sep) {
                     node.distr = node.distr.multiply(sep.distr);
-                }
+                });
                 //node.distr.normalize()
-                );
             });
         }
     }, {
