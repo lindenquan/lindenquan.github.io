@@ -1,9 +1,19 @@
+<style>
+#consturction {
+	display: block;
+    height: 80%;
+    width: auto;
+    margin: auto;
+}
+</style>
+<!DOCTYPE html>
 <html>
 
 <head>
     <intercept-url pattern="/favicon.ico" access="ROLE_ANONYMOUS"></intercept-url>
     <script src="lib/jquery-3.2.1.min.js"></script>
     <script src="lib/ui.js"></script>
+    <script src="lib/bayesian.js" async></script>
     <script>
     $(function() {
         $("body").load_update_url("html/template_frame.html");
@@ -12,6 +22,7 @@
 </head>
 
 <body>
+    <img id="consturction" src="res/under_construction.png">
 </body>
 
 </html>
