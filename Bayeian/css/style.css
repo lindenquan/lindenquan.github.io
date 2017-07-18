@@ -1,0 +1,55 @@
+button {
+    display: inline-block;
+    margin: 0 0 0 0;
+    padding: 0.5em 1em;
+    font-size: 15px;
+    font-family: "Bitter", serif;
+    vertical-align: bottom;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    -webkit-box-shadow: none;
+    -moz-box-shadow: none;
+    box-shadow: none;
+    -webkit-border-radius: 0;
+    -moz-border-radius: 0;
+    border-radius: 0;
+}
+
+button:focus {
+    outline: none
+}
+
+button.gradient {
+    color: #fff;
+    text-shadow: -2px 2px #346392;
+    background-color: #ff9664;
+    background-image: -webkit-gradient(linear, left top, left bottom, from(#6496c8), to(#346392));
+    background-image: -webkit-linear-gradient(top, #6496c8, #346392);
+    background-image: -moz-linear-gradient(top, #6496c8, #346392);
+    background-image: -o-linear-gradient(top, #6496c8, #346392);
+    background-image: -ms-linear-gradient(top, #6496c8, #346392);
+    background-image: linear-gradient(top, #6496c8, #346392);
+    filter: progid:DXImageTransform.Microsoft.gradient(GradientType=0, StartColorStr='#ff9664', EndColorStr='#c86432');
+    -webkit-box-shadow: inset 0 0 0 1px #27496d;
+    -moz-box-shadow: inset 0 0 0 1px #27496d;
+    box-shadow: inset 0 0 0 1px #27496d;
+    border: none;
+    -webkit-border-radius: 8px;
+    -moz-border-radius: 8px;
+    border-radius: 8px;
+}
+
+button.gradient:hover,
+button.gradient.hover {
+    -webkit-box-shadow: inset 0 0 0 1px #27496d, 0 5px 15px #193047;
+    -moz-box-shadow: inset 0 0 0 1px #27496d, 0 5px 15px #193047;
+    box-shadow: inset 0 0 0 1px #27496d, 0 5px 15px #193047;
+}
+
+button.gradient:active,
+button.gradient.active {
+    -webkit-box-shadow: inset 0 0 0 1px #27496d, inset 0 5px 30px #193047;
+    -moz-box-shadow: inset 0 0 0 1px #27496d, inset 0 5px 30px #193047;
+    box-shadow: inset 0 0 0 1px #27496d, inset 0 5px 30px #193047;
+}

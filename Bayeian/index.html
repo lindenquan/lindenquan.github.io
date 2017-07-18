@@ -1,0 +1,17 @@
+<html>
+
+<head>
+    <intercept-url pattern="/favicon.ico" access="ROLE_ANONYMOUS"></intercept-url>
+    <script src="lib/jquery-3.2.1.min.js"></script>
+    <script src="lib/ui.js"></script>
+    <script>
+    $(function() {
+        $("body").load_update_url("html/template_frame.html");
+    });
+    </script>
+</head>
+
+<body>
+</body>
+
+</html>
