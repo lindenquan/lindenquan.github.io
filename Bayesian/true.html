@@ -18,7 +18,6 @@
         <div menu="Intro">
             <h1>Introduction</h1>
             <p>What is Bayesian inference</p>
-            <a href="#" target="_blank" class="article">Article</a>
         </div>
         <div>
             <button id="btn-start" type="button" class="btn nextPage">Let's start!</button>
@@ -37,37 +36,6 @@
             <p>Explanation for step 2</p>
         </div>
     </div>
-    <!-- The JavaScript -->
-    <script type="text/javascript">
-    var ms = {};
-
-    $(function() {
-        ms.book = $('.book:first');
-
-        ms.book.booklet({
-            width: 900, // container width
-            height: 550, // container height
-
-            pagePadding: 10, // padding for each page wrapper
-            pageNumbers: true, // display page numbers on each page
-
-            next: $('#btn-start:first'),
-
-            before: function() {}, // callback invoked before each page turn animation
-            after: function() {} // callback invoked after each page turn animation
-
-        });
-
-        $('.book .prevPage').click(function() {
-            ms.book.booklet('prev');
-        });
-
-        $('.book .nextPage').click(function() {
-            ms.book.booklet('next');
-        });
-
-    });
-    </script>
 </body>
 
 </html>

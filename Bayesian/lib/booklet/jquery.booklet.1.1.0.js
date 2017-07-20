@@ -84,7 +84,7 @@
             empty = '<div class="b-page-empty" title="" rel=""></div>',
             blank = '<div class="b-page-blank" title="" rel=""></div>';
 
-        var sideMenus, loading, sideMenu;
+        var sideMenus, loading, sideMenu, pageItemMap;
 
         busy = false;
         init = false;
@@ -96,28 +96,47 @@
         opts = self.options;
 
         if (opts.sideMenu) {
-            sideMenus = target.children('[menu]').attrs('menu');
+            sideMenus = [];
+            var pages = target.children();
+            var _this;
+            $.each(pages, function(i, item) {
+                _this = $(this);
+                if (_this.is('[menu]')) {
+                    sideMenus.push({ p: i, n: _this.attr('menu') });
+                }
+            });
         }
 
         src = target.html();
         target.html('');
-        target.append('<div class="loading">Loading pages...</div>');
-
+        loading = $('<div class="loading">Loading pages...</div>');
+        target.append(loading);
         if (opts.sideMenu) {
             if (sideMenus.length > 0) {
-                target.append('<div class="sideMenu"></div>');
-                sideMenu = target.children('.sideMenu:first');
+                pageItemMap = [];
+                sideMenu = $('<div class="sideMenu"></div>');
+                target.append(sideMenu);
                 sideMenus.forEach(function(i) {
-                    sideMenu.append('<button type="button" class="btn">' + i + '</button>');
+                    var _item = $('<button type="button" class="btn-pen three-d">' + i['n'] + '</button>');
+                    sideMenu.append(_item);
+                    _item.click((function() {
+                        var _p = i['p'];
+                        return function() {
+                            $(this).addClass('btn-pen-active');
+                            $(this).siblings().removeClass('btn-pen-active');
+                            pageItemMap[_p] = $(this);
+                            self.gotoPage(_p);
+                        };
+                    })());
                 });
             }
         }
 
-        target.append('<div class="booklet"><div class="b-load">' + src + '</div></div>');
-
-        loading = target.children('.loading:first');
-        b = target.children('.booklet:first');
+        b = $('<div class="booklet"><div class="b-load">' + src + '</div></div>');
+        target.append(b);
         src = b.children('.b-load:first');
+
+
 
         //save page titles and chapter names, add page numbers
         initPages();
@@ -142,10 +161,10 @@
         b.height(opts.height);
 
         var width = (opts.width * 1.11) | 0;
-        var height = (0.625 * width)|0 ;
-        var str = 'width:' + width  + 'px;';
-        str += 'height:'+height+'px;';
-        str += 'left:' + (-opts.width * 0.052)  + 'px;';
+        var height = (0.625 * width) | 0;
+        var str = 'width:' + width + 'px;';
+        str += 'height:' + height + 'px;';
+        str += 'left:' + (-opts.width * 0.052) + 'px;';
         str += 'top:' + (-opts.height * 0.055) + 'px;';
         $('<style>.booklet::before{' + str + '}</style>').appendTo(target);
 
@@ -305,6 +324,9 @@
                 }
             },
             gotoPage: function(num) {
+                var _item = pageItemMap[num];
+                _item.addClass('btn-pen-active');
+                _item.siblings().removeClass('btn-pen-active');
                 //moving forward (increasing number)
                 if (num > opts.curr && num < opts.pTotal && num >= 0 && !busy) {
                     busy = true;
