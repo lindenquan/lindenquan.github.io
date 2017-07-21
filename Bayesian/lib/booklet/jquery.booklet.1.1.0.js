@@ -116,15 +116,18 @@
                 pageItemMap = [];
                 sideMenu = $('<div class="sideMenu"></div>');
                 target.append(sideMenu);
-                sideMenus.forEach(function(i) {
+                sideMenus.forEach(function(i, index) {
                     var _item = $('<button type="button" class="btn-pen three-d">' + i['n'] + '</button>');
+                    if (index === 0) {
+                        _item.addClass('btn-pen-active');
+                    }
                     sideMenu.append(_item);
+                    var _p = i['p'];
+                    pageItemMap[_p] = _item;
                     _item.click((function() {
-                        var _p = i['p'];
                         return function() {
                             $(this).addClass('btn-pen-active');
                             $(this).siblings().removeClass('btn-pen-active');
-                            pageItemMap[_p] = $(this);
                             self.gotoPage(_p);
                         };
                     })());
@@ -140,7 +143,6 @@
 
         //save page titles and chapter names, add page numbers
         initPages();
-
         //store data for api calls
         target.data('booklet', true);
         target.data('id', id);
@@ -370,7 +372,7 @@
                 }
             }
         });
-
+        
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////	
         // SETUP CONTROLS
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -859,7 +861,6 @@
                 window.location.hash = "/page/" + hash;
             }
         }
-
     }
 
     //define empty array to hold API references
