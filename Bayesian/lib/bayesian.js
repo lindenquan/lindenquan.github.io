@@ -1044,11 +1044,11 @@ tree.addEdge(node3, node4);
 tree.addEdge(node4, node5);
 tree.addEdge(node5, node6);
 
-tree.printTree();
+//tree.printTree();
 tree.runHugin();
-tree.printNodes();
+//tree.printNodes();
 
-console.log("Shafer Shenoy:");
+//console.log("Shafer Shenoy:");
 tree = new JoinTree();
 tree.addNode(node1, [H, Z]);
 tree.addNode(node2, [H, K, I, G]);
@@ -1063,4 +1063,4 @@ tree.addEdge(node3, node4);
 tree.addEdge(node4, node5);
 tree.addEdge(node5, node6);
 tree.runShaferShenoy();
-tree.printNodes();
+//tree.printNodes();

@@ -139,8 +139,6 @@
         target.append(b);
         src = b.children('.b-load:first');
 
-
-
         //save page titles and chapter names, add page numbers
         initPages();
         //store data for api calls
@@ -313,7 +311,7 @@
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         // API METHODS
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
+        
         $.extend(self, {
             next: function() {
                 if (!busy) {
@@ -372,7 +370,7 @@
                 }
             }
         });
-        
+
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////	
         // SETUP CONTROLS
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -608,7 +606,6 @@
                     if (opts.direction == 'RTL') { j--; }
                 }
             });
-
         }
 
         function resetPages() {
@@ -886,7 +883,7 @@
         covers: false, // used with  "closed", makes first and last pages into covers, without page numbers (if enabled)
 
         pagePadding: 10, // padding for each page wrapper
-        pageNumbers: true, // display page numbers on each page
+        pageNumbers: false, // display page numbers on each page
 
         hovers: false, // enables preview pageturn hover animation, shows a small preview of previous or next page on hover
         overlays: false, // enables navigation using a page sized overlay, when enabled links inside the content will not be clickable

@@ -47,6 +47,8 @@ span.reference a:hover {
 
 
 
+
+
 /* Booklet jQuery Plugin Style*/
 
 .booklet {
@@ -218,3 +220,25 @@ a#prev_page_button:hover {
     border-radius: 20px;
     filter: progid:DXImageTransform.Microsoft.Alpha(opacity=70);
 }
+
+.book .prevPage {
+    position: absolute;
+    bottom: 15px;
+    left: 2px;
+}
+
+.book .nextPage {
+    position: absolute;
+    bottom: 15px;
+    right: 15px;
+}
+
+.b-page-3 {
+    visibility: hidden;
+}
+
+#btn-start {
+    position: static;
+    margin-left: 50%;
+}
+
