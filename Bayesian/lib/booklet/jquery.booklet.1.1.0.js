@@ -63,6 +63,7 @@
 
                 // Add API references
                 $.fn.booklet.interfaces[id] = obj;
+                obj.options.finish();
             }
         });
     }
@@ -84,7 +85,7 @@
             empty = '<div class="b-page-empty" title="" rel=""></div>',
             blank = '<div class="b-page-blank" title="" rel=""></div>';
 
-        var sideMenus, loading, sideMenu, pageItemMap;
+        var sideMenus, sideMenu, pageItemMap;
 
         busy = false;
         init = false;
@@ -109,8 +110,7 @@
 
         src = target.html();
         target.html('');
-        loading = $('<div class="loading">Loading pages...</div>');
-        target.append(loading);
+
         if (opts.sideMenu) {
             if (sideMenus.length > 0) {
                 pageItemMap = [];
@@ -311,7 +311,7 @@
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         // API METHODS
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-        
+
         $.extend(self, {
             next: function() {
                 if (!busy) {
@@ -324,7 +324,7 @@
                 }
             },
             gotoPage: function(num) {
-            	$('.b-page-3').css('visibility', 'visible');
+                $('.b-page-3').css('visibility', 'visible');
                 var _item = pageItemMap[num];
                 _item.addClass('btn-pen-active');
                 _item.siblings().removeClass('btn-pen-active');
@@ -542,7 +542,7 @@
         //first time setup
         resetPages();
 
-        loading.hide();
+        target.css('display', 'block');
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////	
         //General Functions	
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -911,7 +911,8 @@
         sideMenu: true,
 
         before: function() {}, // callback invoked before each page turn animation
-        after: function() {} // callback invoked after each page turn animation
+        after: function() {}, // callback invoked after each page turn animation
+        finish: function() {} // callback invoked after finishing initialization
     }
 
 })(jQuery);
