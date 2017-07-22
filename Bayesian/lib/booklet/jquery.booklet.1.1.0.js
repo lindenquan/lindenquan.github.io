@@ -324,6 +324,7 @@
                 }
             },
             gotoPage: function(num) {
+            	$('.b-page-3').css('visibility', 'visible');
                 var _item = pageItemMap[num];
                 _item.addClass('btn-pen-active');
                 _item.siblings().removeClass('btn-pen-active');

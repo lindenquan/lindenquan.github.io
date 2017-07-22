@@ -199,10 +199,20 @@ button::-moz-focus-inner {
     border-radius: 10px;
     box-shadow: 0 4px #999;
     transition: all 0.3s;
+    outline: none;
 }
 
-.btn:hover {
+.btn:active:focus {
+    outline: none;
+    box-shadow: 0 5px #666;
+    transform: translateY(4px);
+}
+
+.btn:hover,
+.btn:focus {
     background-color: #ff0000;
+    outline: none;
+    color: #ffffff;
 }
 
 .btn:hover:after {
@@ -216,11 +226,6 @@ button::-moz-focus-inner {
 .btn:disabled {
     color: grey;
     background-color: #dddddd;
-}
-
-.btn:active {
-    box-shadow: 0 5px #666;
-    transform: translateY(4px);
 }
 
 

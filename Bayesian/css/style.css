@@ -85,10 +85,20 @@ button.gradient.active {
     border-radius: 10px;
     box-shadow: 0 4px #999;
     transition: all 0.3s;
+    outline: none;
 }
 
-.btn:hover {
+.btn:active:focus {
+    outline: none;
+    box-shadow: 0 5px #666;
+    transform: translateY(4px);
+}
+
+.btn:hover,
+.btn:focus {
     background-color: #ff0000;
+    outline: none;
+    color: #ffffff;
 }
 
 .btn:hover:after {
@@ -104,10 +114,6 @@ button.gradient.active {
     background-color: #dddddd;
 }
 
-.btn:active {
-    box-shadow: 0 5px #666;
-    transform: translateY(4px);
-}
 
 .btn-pen {
     padding: 0 0;
@@ -126,6 +132,7 @@ button.gradient.active {
     text-decoration: none;
     outline: none;
     color: #000;
+    transition: color 0.3s;
 }
 
 .btn-pen:hover,
@@ -146,8 +153,106 @@ button.gradient.active {
 
 .DAG {
     height: 100%;
-    border-color:rgba(0, 0, 0, .8);
+    border-color: rgba(0, 0, 0, .8);
     border-width: 2px;
     border-style: dotted;
     border-radius: 8px;
+}
+
+div.cs-select {
+    margin-left: 5px;
+    font-size: 1em;
+}
+
+.cs-select span {
+    padding: 0.3em 0.5em;
+}
+
+.cs-select .cs-options {
+    width: auto;
+    height: auto;
+    position: absolute;
+    overflow: visible;
+}
+
+.cs-skin-boxes .cs-options ul {
+    background-color: rgba(0, 0, 0, 0.8);
+    padding: 5px;
+    width: 160px;
+    height: auto;
+    border-radius: 8px;
+}
+
+.cs-skin-boxes .cs-options li {
+    border-width: 1px;
+    width: 28px;
+    height: 28px;
+    font-size: 24px;
+}
+
+.cs-select ul span {
+    padding: 0;
+}
+
+.cs-skin-boxes .cs-options span {
+    text-transform: lowercase;
+    line-height: normal;
+    vertical-align: middle;
+    height: 100%;
+    text-align: center;
+}
+
+.cs-skin-boxes .cs-options span:before {
+    content: '';
+    display: inline-block;
+    height: 100%;
+    vertical-align: middle;
+}
+
+.cs-skin-boxes>span {
+    padding-right: 2em;
+    text-align: center;
+}
+
+#btn-spawn {
+    position: absolute;
+    right: 3em;
+}
+
+div.cs-skin-boxes {
+    font-weight: normal;
+}
+
+.hvr-back-pulse,
+.hvr-back-pulse:focus {
+    display: inline-block;
+    vertical-align: middle;
+    -webkit-transform: perspective(1px) translateZ(0);
+    transform: perspective(1px) translateZ(0);
+    box-shadow: 0 0 1px transparent;
+    overflow: hidden;
+    -webkit-transition-duration: 0.5s;
+    transition-duration: 0.5s;
+    -webkit-transition-property: color, background-color;
+    transition-property: color, background-color;
+    background-color: rgba(0, 0, 0, .7);
+    border-radius: 25px;
+    color: white;
+    font-weight: 800;
+}
+
+.hvr-back-pulse:hover,
+.hvr-back-pulse:active {
+    -webkit-animation-name: hvr-back-pulse;
+    animation-name: hvr-back-pulse;
+    -webkit-animation-duration: 1s;
+    animation-duration: 1s;
+    -webkit-animation-delay: 0.5s;
+    animation-delay: 0.5s;
+    -webkit-animation-timing-function: linear;
+    animation-timing-function: linear;
+    -webkit-animation-iteration-count: infinite;
+    animation-iteration-count: infinite;
+    background-color: rgba(220, 220, 220, .7);
+    color: black;
 }

@@ -3,29 +3,37 @@
 
 <head>
     <intercept-url pattern="/favicon.ico" access="ROLE_ANONYMOUS"></intercept-url>
+    <meta name="description" content="tutorial for junction tree algorithm, Hugin algorithm, Shafer-Shenoy algorith." />
+    <meta name="keywords" content="bayesian network, junction tree algorithm, hugin algorithm, Shafer-Shenoy algorithm" />
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-    <script src="lib/jquery-1.4.4.min.js"></script>
-    <script src="lib/jquery.easing.1.3.js"></script>
-    <script src="lib/booklet/jquery.booklet.1.1.0.js"></script>
-    <script src="lib/ui.js"></script>
+    <script src="lib/jquery-1.4.4.min.js" defer></script>
+    <script src="lib/jquery.easing.1.3.js" defer></script>
+    <script src="lib/booklet/jquery.booklet.1.1.0.js" defer></script>
+    <script src="lib/ui.js" defer></script>
     <script src="lib/bayesian.js" async></script>
-    <link rel="stylesheet" href="css/base.css" type="text/css" media="screen" />
-    <link rel="stylesheet" href="css/style.css" type="text/css" media="screen" />
-    <link rel="stylesheet" href="css/booklet/jquery.booklet.1.1.0.css" type="text/css" media="screen" />
-    <link rel="stylesheet" href="css/booklet/style.css" type="text/css" media="screen" />
+    <script src="lib/classie.js" defer></script>
+    <script src="lib/selectFx.js" defer></script>
+    <link rel="stylesheet" type="text/css" href="css/base.css" media="screen" />
+    <link rel="stylesheet" type="text/css" href="css/bootstrap.3.3.7.min.css">
+    <link rel="stylesheet" type="text/css" href="css/cs-select.css" />
+    <link rel="stylesheet" type="text/css" href="css/booklet/jquery.booklet.1.1.0.css" media="screen" />
+    <link rel="stylesheet" type="text/css" href="css/booklet/style.css" media="screen" />
+    <link rel="stylesheet" type="text/css" href="css/cs-select.css" />
+    <link rel="stylesheet" type="text/css" href="css/cs-skin-boxes.css" />
+    <link rel="stylesheet" type="text/css" href="css/style.css" media="screen" />
 </head>
 
 <body>
     <div class="book">
         <div menu="Intro">
             <h1>Introduction</h1>
-            <h2><strong>Bayesian network</strong></h2>
+            <h3><strong>Bayesian network</strong></h3>
             <p>A Bayesian network, also called Bayes network, belief network, Bayes(ian) model or probabilistic directed acyclic graphical model is a probabilistic graphical model (a type of statistical model) that represents a set of random variables and their conditional dependencies via a directed acyclic graph (DAG).[From Wikipedia]</p>
-            <h2><strong>Bayesian inference</strong></h2>
+            <h3><strong>Bayesian inference</strong></h3>
             <p>
                 Bayesian inference is an approach to answer probability queries about the underlying probability distribution.
             </p>
-            <h2><strong>Junction tree algorithm</strong></h2>
+            <h3><strong>Junction tree algorithm</strong></h3>
             <p>
                 The junction tree algorithm (also known as 'Clique Tree' or 'Join Tree') is a method to extract marginalization. In essence, it entails performing belief propagation on a modified graph called a junction tree.[From Wikipedia]
             </p>
@@ -48,16 +56,48 @@
         <div menu="Step 1">
             <button type="button" class="btn prevPage">Prev</button>
             <h1>Draw a DAG and enter CPTs</h1>
-            <p>For the sake of simplicity, the name of a variable must be a single letter in lowercase, which means there are 26 variables at most. All of the variables are binary-valued, and all value is in uppercase.<br>For example: a = {A, -A}, t = {T, -T}.</p>
+            <p>For the sake of simplicity, the name of a variable must be a single letter in lowercase, which means there are 26 variables at most. All of the variables are binary-valued, and all value is in uppercase.
+                <br>For example: a = {A, -A}, t = {T, -T}.</p>
             <p>
-            	Please, draw your DAG in the right page, then CTPs will appear in the area below.
+                Please, draw your DAG in the right page, then CTPs will appear in the area below.
             </p>
         </div>
         <div class="DAG">
             <button type="button" class="btn nextPage">Next</button>
             <h1>DAG:</h1>
+            <p>
+                <select id="v-selector" class="cs-select cs-skin-boxes">
+                    <option value="" disabled selected>variable</option>
+                    <option value="a">a</option>
+                    <option value="b">b</option>
+                    <option value="c">c</option>
+                    <option value="d">d</option>
+                    <option value="e">e</option>
+                    <option value="f">f</option>
+                    <option value="g">g</option>
+                    <option value="h">h</option>
+                    <option value="i">i</option>
+                    <option value="j">j</option>
+                    <option value="k">k</option>
+                    <option value="l">l</option>
+                    <option value="m">m</option>
+                    <option value="n">n</option>
+                    <option value="o">o</option>
+                    <option value="p">p</option>
+                    <option value="q">q</option>
+                    <option value="r">r</option>
+                    <option value="s">s</option>
+                    <option value="t">t</option>
+                    <option value="u">u</option>
+                    <option value="v">v</option>
+                    <option value="w">w</option>
+                    <option value="x">x</option>
+                    <option value="y">y</option>
+                    <option value="z">z</option>
+                </select>
+                <button id="btn-spawn" class="hvr-back-pulse">spawn</button>
+            </p>
             <div>
-            	
             </div>
         </div>
         <div menu="Step 2">
