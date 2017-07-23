@@ -39,20 +39,12 @@ $(function() {
         $('.b-page-3').css('visibility', 'visible');
     });
 
-    [].slice.call(document.querySelectorAll('select.cs-select')).forEach(function(el) {
-        new SelectFx(el, {
-            stickyPlaceholder: false,
-            onChange: function(val) {
-                document.querySelector('span.cs-placeholder').style.backgroundColor = val;
-            }
-        });
-    });
-
     $('#btn-spawn').click(ms.onSpawn);
 
     $(document).on('click', '#parents input', ms.onParentSelect);
 
     $('#parents .confirm').click(ms.onParentConfirm);
+
 });
 
 function _init() {
