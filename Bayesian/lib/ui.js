@@ -1,7 +1,5 @@
-var ms = {};
-ms.vars = {}; // key is string variable name, value is a Variable object.
-ms.varParents = {}; // key is string variable name, value is string array including parents names
-ms.c_var = ''; // current variable
+var ms = {}; // main scope object
+_init();
 
 jQuery.fn.extend({
     attrs: function(attributeName) {
@@ -15,7 +13,7 @@ jQuery.fn.extend({
         });
         return results;
     }
-});;
+});
 
 $(function() {
 
@@ -50,52 +48,97 @@ $(function() {
         });
     });
 
-    $('#btn-spawn').click(function() {
-        var _selector = $('#v-selector');
-        var _var = _selector.val();
-        if (typeof _var === 'string') {
-            var _varObj = ms.vars[_var];
-            if (_varObj === undefined || _varObj === null) {
-                ms.c_var = _var;
-                var _otherVars = Object.keys(ms.vars);
-                var _modal_body = $('#parents .modal-body');
-                _modal_body.html('');
-                _otherVars.forEach(function(i) {
-                    var _input = $('<input id="toggle_p_' + i + '" type="checkbox">');
-                    var _lable = $('<label for="toggle_p_' + i + '">' + i + '</label>');
-                    _modal_body.append(_input);
-                    _modal_body.append(_lable);
+    $('#btn-spawn').click(ms.onSpawn);
+
+    $(document).on('click', '#parents input', ms.onParentSelect);
+
+    $('#parents .confirm').click(ms.onParentConfirm);
+});
+
+function _init() {
+
+    ms.vars = {}; // key is string variable name, value is a Variable object.
+    ms.varParents = {}; // key is string variable name, value is string array including parents names
+    ms.c_var = ''; // current variable
+
+    ms.creatCPTtable = function() {
+        var table = $('#table-cpt');
+        var str = '';
+        var parents = ms.varParents[ms.c_var];
+        parents.push(ms.c_var);
+        parents.forEach(function(item) {
+            str += '<th>' + item + '</th>'
+        });
+
+        var th = '<tr>' + str + '</tr>';
+        var permute = Tool.permute(parents.map(function(x){ return x.toUpperCase() }));
+        
+        str = '';
+        permute.forEach(function(tr){
+            str += '<tr>';
+            tr.forEach(function(td){
+                str += '<td>'+td+'</td>'
+            });
+            str += '</tr>';
+        });
+        table.html(th+str);
+    };
+
+    ms.onSpawn = function() {
+        var selector = $('#v-selector');
+        var c_var = selector.val();
+        if (typeof c_var === 'string') {
+            var varObj = ms.vars[c_var];
+            if (varObj === undefined || varObj === null) {
+                ms.c_var = c_var;
+                var otherVars = Object.keys(ms.vars);
+                var modal_body = $('#parents .modal-body');
+                modal_body.html('');
+                otherVars.forEach(function(i) {
+                    var input = $('<input id="toggle_p_' + i + '" type="checkbox">');
+                    var lable = $('<label for="toggle_p_' + i + '">' + i + '</label>');
+                    modal_body.append(input);
+                    modal_body.append(lable);
                 });
-                var _upper = _var.toUpperCase();
-                ms.vars[_var] = new Variable(_var, [_upper, '-' + _upper]);
+                var upper = c_var.toUpperCase();
+                ms.vars[c_var] = new Variable(c_var, [upper, '-' + upper]);
+
             } else {
                 // already has this variable, select another one.
                 console.log('already has this variable, select another one.');
             }
+
+            ms.varParents[c_var] = [];
+
+            if (Object.keys(ms.vars).length === 1) {
+                // first node
+                ms.creatCPTtable();
+                $('#modal-cpt').modal();
+            } else {
+                $('#parents').modal();
+            }
         } else {
             // no variable is selected
         }
-    });
+    };
 
-    $(document).on('click', '#parents input', function() {
-        var _p = $(this).attr('id').slice(-1);
-        var _parents = ms.varParents[ms.c_var];
-        if (_parents === undefined) {
-            _parents = [];
-        }
+    ms.onParentSelect = function() {
+        var p = $(this).attr('id').slice(-1);
+        var parents = ms.varParents[ms.c_var];
 
         if (!$(this).is(':checked')) {
             // remove parent
-            var _index = _parents.indexOf(_p);
-            _parents.splice(_index, 1);
+            var index = parents.indexOf(p);
+            parents.splice(index, 1);
         } else {
             // add parent
-            _parents.push(_p);
-            ms.varParents[ms.c_var] = _parents;
+            parents.push(p);
         }
-    });
+    };
 
-    $('#parents .confirm').click(function() {
+    ms.onParentConfirm = function() {
+        ms.creatCPTtable();
+        $('#modal-cpt').modal();
         console.log(ms.varParents[ms.c_var]);
-    })
-});
+    };
+}

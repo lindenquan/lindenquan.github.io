@@ -913,6 +913,36 @@ var Tool = function () {
             return Array.from(union).join(',');
         }
     }, {
+        key: 'permute',
+        value: function permute(arr) {
+            var result = [];
+            if (arr.length === 1) {
+                result[0] = [];
+                result[0][0] = arr[0];
+                result[1] = [];
+                result[1][0] = '-' + arr[0];
+                return result;
+            }
+
+            var first = arr.splice(0, 1)[0];
+            var sub = Tool.permute(arr);
+            sub.forEach(function (item) {
+                var row = [];
+                row[0] = first;
+                row = row.concat(item);
+                result.push(row);
+            });
+
+            sub.forEach(function (item) {
+                var row = [];
+                row[0] = '-' + first;
+                row = row.concat(item);
+                result.push(row);
+            });
+
+            return result;
+        }
+    }, {
         key: 'PRECISION',
         get: function get() {
             return 7;
@@ -1044,11 +1074,11 @@ tree.addEdge(node3, node4);
 tree.addEdge(node4, node5);
 tree.addEdge(node5, node6);
 
-//tree.printTree();
+//tree.printTree()
 tree.runHugin();
-//tree.printNodes();
+//tree.printNodes()
 
-//console.log("Shafer Shenoy:");
+//console.log("Shafer Shenoy:")
 tree = new JoinTree();
 tree.addNode(node1, [H, Z]);
 tree.addNode(node2, [H, K, I, G]);
@@ -1063,4 +1093,4 @@ tree.addEdge(node3, node4);
 tree.addEdge(node4, node5);
 tree.addEdge(node5, node6);
 tree.runShaferShenoy();
-//tree.printNodes();
+//tree.printNodes()

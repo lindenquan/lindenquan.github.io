@@ -70,4 +70,33 @@ class Tool {
         let union = new Set([...set1, ...set2]);
         return Array.from(union).join(',');
     }
+
+    static permute(arr) {
+        let result = [];
+        if (arr.length === 1) {
+            result[0] = [];
+            result[0][0] = arr[0];
+            result[1] = [];
+            result[1][0] = '-' + arr[0];
+            return result;
+        }
+
+        let first = arr.splice(0, 1)[0];
+        let sub = Tool.permute(arr);
+        sub.forEach(function(item) {
+            let row = [];
+            row[0] = first;
+            row = row.concat(item);
+            result.push(row);
+        });
+
+        sub.forEach(function(item) {
+            let row = [];
+            row[0] = '-'+first;
+            row = row.concat(item);
+            result.push(row);
+        });
+
+        return result;
+    }
 }
