@@ -257,24 +257,13 @@ div.cs-skin-boxes {
     color: black;
 }
 
-.modal-open {
-    overflow: auto;
-}
-
-.modal {
+.modal-body {
     text-align: center;
 }
 
-.modal:before {
-    display: inline-block;
-    vertical-align: middle;
-    content: '';
-    height: 100%;
-}
-
 .modal-dialog {
-    display: inline-block;
-    vertical-align: 200%;
+    width: 600px;
+    margin: 30px auto;
 }
 
 .modal-header {
@@ -291,10 +280,12 @@ div.cs-skin-boxes {
     border-top: none;
 }
 
-.modal-dialog {
-    width: 600px;
-    margin: 30px auto;
+.modal-content {
+    border: none;
+    border-radius: 5px;
+    box-shadow: 0 16px 28px 0 rgba(0, 0, 0, 0.22), 0 25px 55px 0 rgba(0, 0, 0, 0.21);
 }
+
 
 input[type=checkbox] {
     display: none;
@@ -376,6 +367,10 @@ input:checked+label::before {
     text-align: center;
     background-color: #4CAF50;
     color: white;
+}
+
+.cs-placeholder {
+    border-radius: 5px;
 }
 
 </style>

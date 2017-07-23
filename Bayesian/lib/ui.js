@@ -71,17 +71,17 @@ function _init() {
         });
 
         var th = '<tr>' + str + '</tr>';
-        var permute = Tool.permute(parents.map(function(x){ return x.toUpperCase() }));
-        
+        var permute = Tool.permute(parents.map(function(x) { return x.toUpperCase() }));
+
         str = '';
-        permute.forEach(function(tr){
+        permute.forEach(function(tr) {
             str += '<tr>';
-            tr.forEach(function(td){
-                str += '<td>'+td+'</td>'
+            tr.forEach(function(td) {
+                str += '<td>' + td + '</td>'
             });
             str += '</tr>';
         });
-        table.html(th+str);
+        table.html(th + str);
     };
 
     ms.onSpawn = function() {
