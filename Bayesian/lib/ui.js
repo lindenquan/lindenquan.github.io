@@ -56,14 +56,31 @@ function _init() {
     ms.creatCPTtable = function() {
         var table = $('#table-cpt');
         var str = '';
-        var parents = ms.varParents[ms.c_var];
-        parents.push(ms.c_var);
-        parents.forEach(function(item) {
-            str += '<th>' + item + '</th>'
-        });
+        var p_c = ms.varParents[ms.c_var]; // parents + current variable
+        p_c.push(ms.c_var);
+        var last_th = '<th>p(' + ms.c_var;
 
-        var th = '<tr>' + str + '</tr>';
-        var permute = Tool.permute(parents.map(function(x) { return x.toUpperCase() }));
+        if (p_c.length === 1) {
+            str += '<th>' + ms.c_var + '</th>'
+            last_th += ')</th>';
+
+        } else {
+            last_th += '|';
+            var len = p_c.length;
+            p_c.forEach(function(item, index) {
+                if (index + 1 != len) {
+                    str += '<th>' + item + '<button type="button" class="btn-x">×</button></th>'
+                    last_th += item + ',';
+                } else {
+                    str += '<th>' + item + '</th>'
+                }
+            });
+            last_th = last_th.slice(0, -1); // remove last comma ','
+            last_th += ')</th>';
+        }
+
+        var th = '<tr>' + str + last_th + '</tr>';
+        var permute = Tool.permute(p_c.map(function(x) { return x.toUpperCase() }));
 
         str = '';
         permute.forEach(function(tr) {
@@ -71,7 +88,7 @@ function _init() {
             tr.forEach(function(td) {
                 str += '<td>' + td + '</td>'
             });
-            str += '</tr>';
+            str += '<td><input type="text"></td></tr>';
         });
         table.html(th + str);
     };
