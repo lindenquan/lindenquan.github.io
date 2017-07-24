@@ -13,6 +13,13 @@ class Distribution {
         }
     }
 
+    getMapValue(keyIndex) {
+        let keys = Object.keys(this.map);
+        if (keys.length > keyIndex) {
+            return this.map[keys[keyIndex]];
+        }
+    }
+
     // return a cloned distribution.
     // caution: it doesn't clone vars
     clone() {

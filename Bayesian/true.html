@@ -7,6 +7,8 @@
     <meta name="keywords" content="bayesian network, junction tree algorithm, hugin algorithm, Shafer-Shenoy algorithm" />
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <script src="lib/jquery-3.2.1.min.js" defer></script>
+    <script src="lib/jquery.contextMenu.js" defer></script>
+    <script src="lib/jquery.ui.position.min.js" defer></script>
     <script src="lib/custom_jquery.js" defer></script>
     <script src="lib/jquery.easing.1.3.js" defer></script>
     <script src="lib/booklet/jquery.booklet.1.1.0.js" defer></script>
@@ -20,6 +22,7 @@
     <script src="lib/ui.js" defer></script>
     <script src="lib/select.js" defer></script>
     <link rel="stylesheet" type="text/css" href="css/bootstrap.3.3.7.min.css" />
+    <link rel="stylesheet" type="text/css" href="css/jquery.contextMenu.css" />
     <link rel="stylesheet" type="text/css" href="css/cs-select.css" />
     <link rel="stylesheet" type="text/css" href="css/booklet/jquery.booklet.1.1.0.css" />
     <link rel="stylesheet" type="text/css" href="css/booklet/style.css" />
@@ -67,7 +70,9 @@
             <p>For example: a = {A, -A}, t = {T, -T}.</p>
             <br>
             <p>
-                Please select a variable name from a to z, and create a new variable by clicking "spawn" button.
+                Please select a variable name from a to z, and create a new variable by clicking "spawn" button.<br>
+                Click on a node, hold and drag in the dotted area.<br>
+                Double click a node to change the CPT.
             </p>
         </div>
         <div class="DAG">

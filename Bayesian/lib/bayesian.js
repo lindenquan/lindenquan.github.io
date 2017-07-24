@@ -25,11 +25,19 @@ var Distribution = function () {
         }
     }
 
-    // return a cloned distribution.
-    // caution: it doesn't clone vars
-
-
     _createClass(Distribution, [{
+        key: 'getMapValue',
+        value: function getMapValue(keyIndex) {
+            var keys = Object.keys(this.map);
+            if (keys.length > keyIndex) {
+                return this.map[keys[keyIndex]];
+            }
+        }
+
+        // return a cloned distribution.
+        // caution: it doesn't clone vars
+
+    }, {
         key: 'clone',
         value: function clone() {
             var map = {};

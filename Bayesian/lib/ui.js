@@ -32,8 +32,13 @@ $(function() {
         $('#modal-cpt .confirm').click(mc.onCPTConfirm);
 
         $(document).on('mousedown', 'svg circle', mc.svgCircleMouseDown);
-        $(document).on('mousemove', 'svg circle', mc.svgCircleMouseMove);
-        $(document).on('mouseup', 'svg circle', mc.svgCircleMouseUp);
+        //$(document).on('mousemove', 'svg circle', mc.svgCircleMouseMove);
+        //$(document).on('mouseup', 'svg circle', mc.svgCircleMouseUp);
+        $(document).on('mousemove', 'svg', mc.svgMouseMove);
+        $(document).on('mouseup', 'svg', mc.svgMouseUp);
+        $(document).on('dblclick', 'svg circle', mc.svgCircleDoubleClick);
+
+        mc.addContextMenu();
 
         $('.loading').css('display', 'none');
         $('.book').css('display', 'block');
@@ -54,6 +59,7 @@ function MainController() {
         this.clientX = 0;
         this.clientY = 0;
         this.isClicked = false;
+        this.svg = []; // corresponding svg object array. for example: circle text
     }
 
     CPT_var.c_var = null; // current CPT_var object
@@ -62,10 +68,12 @@ function MainController() {
     var CPT_vars = {}; // key is string variable name, value is a CPT_var object.
     CPT_var.c_var = null; // current CPT_var object
 
-    function creatCPTtable() {
+    function createCPTtable() {
         var table = $('#table-cpt');
         var str = '';
         var c_name = CPT_var.c_var.name;
+        var dist = CPT_vars[c_name].dist;
+        var isNew = dist === null;
         var p_c = []; // parents + current variable
         p_c = p_c.concat(CPT_var.c_var.parents);
         p_c.push(c_name);
@@ -95,14 +103,21 @@ function MainController() {
         var permute = Tool.permute(p_c.map(function(x) { return x.toUpperCase() }));
 
         str = '';
-        permute.forEach(function(tr) {
+        var default_p = 1 / permute.length;
+        permute.forEach(function(tr, index) {
             str += '<tr>';
             tr.forEach(function(td) {
                 str += '<td>' + td + '</td>'
             });
-            str += '<td><input type="text"></td></tr>';
+
+            if (isNew) {
+                str += '<td><input type="text" value="' + default_p + '"></td></tr>';
+            } else {
+                str += '<td><input type="text" value="' + dist.getMapValue(index) + '"></td></tr>';
+            }
         });
         table.html(th + str);
+        $('#modal-cpt').modal();
     }
 
     this.onSpawn = function() {
@@ -134,8 +149,7 @@ function MainController() {
 
             if (Object.keys(CPT_vars).length === 1) {
                 // first node
-                creatCPTtable();
-                $('#modal-cpt').modal();
+                createCPTtable();
             } else {
                 $('#parents').modal();
             }
@@ -163,8 +177,7 @@ function MainController() {
             c_objs.push(c_obj);
         });
 
-        creatCPTtable();
-        $('#modal-cpt').modal();
+        createCPTtable();
     }
 
     function toDistMap(tds) {
@@ -185,14 +198,39 @@ function MainController() {
         return vars;
     }
 
-    function addNode(svgSelector, varName) {
+    function calcXY(svgID, node) {
+        var svg = $('#' + svgID);
+        var p = node.p_objs;
+        var minX = svg.width();
+        var maxX = 0;
+        var maxY = 0;
+
+        var x, y;
+        p.forEach(function(item) {
+            x = item.cx;
+            y = item.cy;
+            if (x < minX) {
+                minX = x;
+            }
+            if (x > maxX) {
+                maxX = x;
+            }
+            if (y > maxY) {
+                maxY = y;
+            }
+        });
+
+        node.cx = minX + (((maxX - minX) / 2) | 0);
+        node.cy = maxY + CPT_var.r * 4;
+    }
+
+    function addNode(svgID, varName) {
         var node = CPT_vars[varName];
-        var svg = document.getElementById(svgSelector);
+        var svg = document.getElementById(svgID);
         var newElement = document.createElementNS('http://www.w3.org/2000/svg', 'circle'); //Create a path in SVG's namespace
 
-        node.cx = 50;
-        node.cy = 50;
-        newElement.setAttribute('class', 'draggable');
+        calcXY(svgID, node);
+        newElement.setAttribute('class', 'draggable context-menu-node');
         newElement.setAttribute('cx', node.cx);
         newElement.setAttribute('cy', node.cy);
         newElement.setAttribute('r', CPT_var.r);
@@ -201,9 +239,10 @@ function MainController() {
         newElement.setAttribute('name', varName);
         newElement.setAttribute('fill', 'white');
 
+        node.svg.push($(newElement));
         svg.appendChild(newElement);
 
-        var newElement = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        newElement = document.createElementNS('http://www.w3.org/2000/svg', 'text');
 
         newElement.setAttribute('x', node.cx);
         newElement.setAttribute('y', node.cy);
@@ -215,18 +254,19 @@ function MainController() {
         newElement.setAttribute('text-anchor', 'middle');
         newElement.setAttribute('alignment-baseline', 'middle');
 
+        node.svg.push($(newElement));
         svg.appendChild(newElement);
     }
 
-    function drawNodePath(svgSelector, varName) {
-        var svg = document.getElementById(svgSelector);
+    function drawNodePath(svgID, varName) {
+        var svg = document.getElementById(svgID);
         var c_obj = CPT_vars[varName];
         var p = c_obj.p_objs;
         var c = c_obj.c_objs;
         var newElement;
 
-        var p_line_str = '#' + svgSelector + ' line[name=' + varName + ']';
-        var c_line_str = '#' + svgSelector + ' line[p-name=' + varName + ']';
+        var p_line_str = '#' + svgID + ' line[name=' + varName + ']';
+        var c_line_str = '#' + svgID + ' line[p-name=' + varName + ']';
         $(p_line_str).remove();
         $(c_line_str).remove();
 
@@ -266,11 +306,11 @@ function MainController() {
         // change z-index, so that circles cover lines 
         //       svg.insertBefore(nodes[i], svg.firstChild);
         // }
-        $(p_line_str).prependTo('#' + svgSelector);
-        $(c_line_str).prependTo('#' + svgSelector);
+        $(p_line_str).prependTo('#' + svgID);
+        $(c_line_str).prependTo('#' + svgID);
     }
 
-    this.onCPTConfirm = function() {
+    this.onCPTConfirm = function(e) {
         var rows = $('#table-cpt tr');
         var ths = [];
         var tds = [];
@@ -296,11 +336,13 @@ function MainController() {
 
         var map = toDistMap(tds);
         var vars = toVar(ths);
+        var name = CPT_var.c_var.name;
 
+        if (CPT_var.c_var.dist === null) {
+            addNode('step1-svg', name);
+            drawNodePath('step1-svg', name);
+        }
         CPT_var.c_var.dist = new Distribution(map, vars);
-
-        addNode('step1-svg', CPT_var.c_var.name);
-        drawNodePath('step1-svg', CPT_var.c_var.name);
     }
 
     this.svgCircleMouseDown = function(e) {
@@ -308,6 +350,19 @@ function MainController() {
         var name = target.attr('name');
         var varObj = CPT_vars[name];
         CPT_var.c_var = varObj;
+
+        switch (event.which) {
+            case 1:
+                // Left Mouse button pressed.
+                break;
+            case 2:
+                // Middle Mouse button pressed.
+            case 3:
+                // Right Mouse button pressed.
+            default:
+                //'You have a strange Mouse!
+                return;
+        }
 
         varObj.cx = parseInt(target.attr('cx'));
         varObj.cy = parseInt(target.attr('cy'));
@@ -318,14 +373,20 @@ function MainController() {
         varObj.isClicked = true;
     }
 
-    this.svgCircleMouseMove = function(e) {
-        var target = $(e.target);
-        var text = target.next();
-        var varObj = CPT_var.c_var;
-        var newCx = varObj.cx + e.clientX - varObj.clientX;
-        var newCy = varObj.cy + e.clientY - varObj.clientY;
+    this.svgCircleMouseMove = function(e) {}
 
-        if (varObj.isClicked) {
+
+    this.svgCircleMouseUp = function(e) {}
+
+    this.svgMouseMove = function(e) {
+        var varObj = CPT_var.c_var;
+
+        if (varObj instanceof CPT_var && varObj.isClicked) {
+            var target = varObj.svg[0];
+            var text = varObj.svg[1];
+            var newCx = varObj.cx + e.clientX - varObj.clientX;
+            var newCy = varObj.cy + e.clientY - varObj.clientY;
+
             target.attr('cx', newCx);
             target.attr('cy', newCy);
             text.attr('x', newCx);
@@ -339,11 +400,43 @@ function MainController() {
         }
     }
 
-    this.svgCircleMouseUp = function(e) {
-        CPT_var.c_var.isClicked = false;
-        var target = $(e.target);
+    this.svgMouseUp = function(e) {
+        var varObj = CPT_var.c_var;
+        if (varObj !== undefined && varObj !== null && CPT_var.c_var.isClicked) {
+            CPT_var.c_var.isClicked = false;
+        }
+    }
 
-        CPT_var.c_var.cx = parseInt(target.attr('cx'));
-        CPT_var.c_var.cy = parseInt(target.attr('cy'));
+    this.svgCircleDoubleClick = function(e) {
+        createCPTtable();
+    }
+
+    this.addContextMenu = function() {
+        $.contextMenu({
+            selector: '.context-menu-node',
+            callback: function(key, options) {
+                switch (key) {
+                    case 'quit':
+                        $(this).contextMenu('hide');
+                        break;
+                    case 'edit':
+                        createCPTtable();
+                        break;
+                }
+            },
+            items: {
+                'edit': { name: 'Edit CPT', icon: 'edit' },
+                'delete': { name: 'Delete', icon: 'delete' },
+                'sep1': '---------',
+                'quit': {
+                    name: 'Quit',
+                    icon: 'context-menu-icon context-menu-icon-quit'
+                }
+            }
+        });
+
+        $('.context-menu-one').on('click', function(e) {
+            console.log('clicked', this);
+        });
     }
 }
