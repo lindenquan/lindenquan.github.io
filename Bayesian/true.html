@@ -18,14 +18,13 @@
     <script src="lib/modal.js" defer></script>
     <script src="lib/ui.js" defer></script>
     <script src="lib/select.js" defer></script>
-
-    <link rel="stylesheet" type="text/css" href="css/bootstrap.3.3.7.min.css"/>
+    <link rel="stylesheet" type="text/css" href="css/bootstrap.3.3.7.min.css" />
     <link rel="stylesheet" type="text/css" href="css/cs-select.css" />
-    <link rel="stylesheet" type="text/css" href="css/booklet/jquery.booklet.1.1.0.css"/>
-    <link rel="stylesheet" type="text/css" href="css/booklet/style.css"/>
-    <link rel="stylesheet" type="text/css" href="css/cs-select.css"/>
-    <link rel="stylesheet" type="text/css" href="css/cs-skin-boxes.css"/>
-    <link rel="stylesheet" type="text/css" href="css/style.css"/>
+    <link rel="stylesheet" type="text/css" href="css/booklet/jquery.booklet.1.1.0.css" />
+    <link rel="stylesheet" type="text/css" href="css/booklet/style.css" />
+    <link rel="stylesheet" type="text/css" href="css/cs-select.css" />
+    <link rel="stylesheet" type="text/css" href="css/cs-skin-boxes.css" />
+    <link rel="stylesheet" type="text/css" href="css/style.css" />
 </head>
 
 <body>
@@ -62,48 +61,57 @@
         <div menu="Step 1">
             <button type="button" class="btn prevPage">Prev</button>
             <h1>Draw a DAG and enter CPTs</h1>
-            <p>For the sake of simplicity, the name of a variable must be a single letter in lowercase, which means there are 26 variables at most. All of the variables are binary-valued, and all value is in uppercase.
-                <br>For example: a = {A, -A}, t = {T, -T}.</p>
+            <p>For the sake of simplicity, the name of a variable must be a single letter in lowercase, which means there are 26 variables at most. All of the variables are binary-valued, and all value is in uppercase.</p>
+            <br>
+            <p>For example: a = {A, -A}, t = {T, -T}.</p>
+            <br>
             <p>
-                Please select a variable name from a to z, and by clicking "spawn" button, create a new variable.
+                Please select a variable name from a to z, and create a new variable by clicking "spawn" button.
             </p>
         </div>
         <div class="DAG">
             <button type="button" class="btn nextPage">Next</button>
-            <h1>DAG:</h1>
-            <p>
-                <select id="v-selector" class="cs-select cs-skin-boxes">
-                    <option value="" disabled selected>variable</option>
-                    <option value="a">a</option>
-                    <option value="b">b</option>
-                    <option value="c">c</option>
-                    <option value="d">d</option>
-                    <option value="e">e</option>
-                    <option value="f">f</option>
-                    <option value="g">g</option>
-                    <option value="h">h</option>
-                    <option value="i">i</option>
-                    <option value="j">j</option>
-                    <option value="k">k</option>
-                    <option value="l">l</option>
-                    <option value="m">m</option>
-                    <option value="n">n</option>
-                    <option value="o">o</option>
-                    <option value="p">p</option>
-                    <option value="q">q</option>
-                    <option value="r">r</option>
-                    <option value="s">s</option>
-                    <option value="t">t</option>
-                    <option value="u">u</option>
-                    <option value="v">v</option>
-                    <option value="w">w</option>
-                    <option value="x">x</option>
-                    <option value="y">y</option>
-                    <option value="z">z</option>
-                </select>
-                <button id="btn-spawn" class="hvr-back-pulse">spawn</button>
-            </p>
-            <div>
+            <div id='step1-wrapper'>
+                <div id='step1-head'>
+                    <h1>DAG:</h1>
+                    <p>
+                        <select id="v-selector" class="cs-select cs-skin-boxes">
+                            <option value="" disabled selected>variable</option>
+                            <option value="a">a</option>
+                            <option value="b">b</option>
+                            <option value="c">c</option>
+                            <option value="d">d</option>
+                            <option value="e">e</option>
+                            <option value="f">f</option>
+                            <option value="g">g</option>
+                            <option value="h">h</option>
+                            <option value="i">i</option>
+                            <option value="j">j</option>
+                            <option value="k">k</option>
+                            <option value="l">l</option>
+                            <option value="m">m</option>
+                            <option value="n">n</option>
+                            <option value="o">o</option>
+                            <option value="p">p</option>
+                            <option value="q">q</option>
+                            <option value="r">r</option>
+                            <option value="s">s</option>
+                            <option value="t">t</option>
+                            <option value="u">u</option>
+                            <option value="v">v</option>
+                            <option value="w">w</option>
+                            <option value="x">x</option>
+                            <option value="y">y</option>
+                            <option value="z">z</option>
+                        </select>
+                        <button id="btn-spawn" class="hvr-back-pulse">spawn</button>
+                    </p>
+                </div>
+                <div id="step1-canvas">
+                    <svg id="step1-svg">
+
+                    </svg>
+                </div>
             </div>
         </div>
         <div menu="Step 2">
