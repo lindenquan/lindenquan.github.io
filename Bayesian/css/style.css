@@ -354,7 +354,6 @@ input:checked+label::before {
 }
 
 #table-cpt {
-    font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
     border-collapse: collapse;
     width: 100%;
     table-layout: fixed;
@@ -364,6 +363,7 @@ input:checked+label::before {
 #table-cpt th {
     border: 1px solid #ddd;
     padding: 8px;
+    background-clip: padding-box;
 }
 
 #table-cpt th:last-of-type,
@@ -390,7 +390,7 @@ input:checked+label::before {
 }
 
 #table-cpt input[type=text] {
-    width: 100%;
+    width: 80%;
 }
 
 .cs-placeholder {
@@ -445,6 +445,20 @@ svg .draggable {
 svg text {
     pointer-events: none;
     user-select: none;
+}
+
+.instruction-list li {
+    font-size: 16px;
+    padding-left: 2.5em;
+    list-style-type: none;
+}
+
+.instruction-list li:before {
+    font-family: 'Glyphicons Halflings';
+    content: "\e064";
+    position: absolute;
+    left: 1.5em;
+    color: #075050;
 }
 
 </style>

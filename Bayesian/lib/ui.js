@@ -36,10 +36,9 @@ $(function() {
         //$(document).on('mouseup', 'svg circle', mc.svgCircleMouseUp);
         $(document).on('mousemove', 'svg', mc.svgMouseMove);
         $(document).on('mouseup', 'svg', mc.svgMouseUp);
-        $(document).on('dblclick', 'svg circle', mc.svgCircleDoubleClick);
 
         mc.addContextMenu();
-
+        $('svg circle').dblclick(function(e){e.preventDefault();});
         $('.loading').css('display', 'none');
         $('.book').css('display', 'block');
     }
@@ -253,7 +252,7 @@ function MainController() {
         newElement.setAttribute('fill', 'black');
         newElement.setAttribute('text-anchor', 'middle');
         newElement.setAttribute('alignment-baseline', 'middle');
-
+        newElement.setAttribute('dominant-baseline', 'middle');
         node.svg.push($(newElement));
         svg.appendChild(newElement);
     }
@@ -345,13 +344,13 @@ function MainController() {
         CPT_var.c_var.dist = new Distribution(map, vars);
     }
 
-    this.svgCircleMouseDown = function(e) {
+    function circleMouseDown(e) {
         var target = $(e.target);
         var name = target.attr('name');
         var varObj = CPT_vars[name];
         CPT_var.c_var = varObj;
 
-        switch (event.which) {
+        switch (e.which) {
             case 1:
                 // Left Mouse button pressed.
                 break;
@@ -373,14 +372,17 @@ function MainController() {
         varObj.isClicked = true;
     }
 
+    this.svgCircleMouseDown = function(e) {
+        circleMouseDown(e);
+    }
+
     this.svgCircleMouseMove = function(e) {}
 
 
     this.svgCircleMouseUp = function(e) {}
 
-    this.svgMouseMove = function(e) {
+    function mouseMove(e) {
         var varObj = CPT_var.c_var;
-
         if (varObj instanceof CPT_var && varObj.isClicked) {
             var target = varObj.svg[0];
             var text = varObj.svg[1];
@@ -400,15 +402,25 @@ function MainController() {
         }
     }
 
+    var lastEvent = null;
+    var busy = false;
+
+    this.svgMouseMove = function(e) {
+        lastEvent = e;
+        if (!busy) {
+            busy = true;
+            setTimeout(function() {
+                mouseMove(e);
+                busy = false;
+            });
+        }
+    }
+
     this.svgMouseUp = function(e) {
         var varObj = CPT_var.c_var;
         if (varObj !== undefined && varObj !== null && CPT_var.c_var.isClicked) {
             CPT_var.c_var.isClicked = false;
         }
-    }
-
-    this.svgCircleDoubleClick = function(e) {
-        createCPTtable();
     }
 
     this.addContextMenu = function() {
@@ -417,7 +429,7 @@ function MainController() {
             callback: function(key, options) {
                 switch (key) {
                     case 'quit':
-                        $(this).contextMenu('hide');
+                        //$(this).contextMenu('hide');
                         break;
                     case 'edit':
                         createCPTtable();
