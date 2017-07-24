@@ -1,20 +1,168 @@
-<style>
-#consturction {
-	display: block;
-    height: 80%;
-    width: auto;
-    margin: auto;
-}
-</style>
 <!DOCTYPE html>
 <html>
 
 <head>
     <intercept-url pattern="/favicon.ico" access="ROLE_ANONYMOUS"></intercept-url>
+    <meta name="description" content="tutorial for junction tree algorithm, Hugin algorithm, Shafer-Shenoy algorith." />
+    <meta name="keywords" content="bayesian network, junction tree algorithm, hugin algorithm, Shafer-Shenoy algorithm" />
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <script src="lib/jquery-3.2.1.min.js" defer></script>
+    <script src="lib/jquery.contextMenu.js" defer></script>
+    <script src="lib/jquery-ui.js" defer></script>
+    <script src="lib/custom_jquery.js" defer></script>
+    <script src="lib/jquery.easing.1.3.js" defer></script>
+    <script src="lib/booklet/jquery.booklet.1.1.0.js" defer></script>
+    <script src="lib/bayesian.js" defer></script>
+    <script src="lib/classie.js" defer></script>
+    <script src="lib/selectFx.js" defer></script>
+    <script src="lib/bootstrap.3.3.7.min.js" defer></script>
+    <script src='lib/velocity.min.1.5.0.js' defer></script>
+    <script src='lib/velocity.ui.min.js' defer></script>
+    <script src="lib/modal.js" defer></script>
+    <script src="lib/ui.js" defer></script>
+    <script src="lib/select.js" defer></script>
+    <link rel="stylesheet" type="text/css" href="css/bootstrap.3.3.7.min.css" />
+    <link rel="stylesheet" type="text/css" href="css/jquery.contextMenu.css" />
+    <link rel="stylesheet" type="text/css" href="css/cs-select.css" />
+    <link rel="stylesheet" type="text/css" href="css/booklet/jquery.booklet.1.1.0.css" />
+    <link rel="stylesheet" type="text/css" href="css/booklet/style.css" />
+    <link rel="stylesheet" type="text/css" href="css/cs-select.css" />
+    <link rel="stylesheet" type="text/css" href="css/cs-skin-boxes.css" />
+    <link rel="stylesheet" type="text/css" href="css/style.css" />
 </head>
 
 <body>
-    <img id="consturction" src="res/under_construction.png">
+    <div class="loading">Loading the book...</div>
+    <div class="book">
+        <div menu="Intro">
+            <h1>Introduction</h1>
+            <h3><strong>Bayesian network</strong></h3>
+            <p>A Bayesian network, also called Bayes network, belief network, Bayes(ian) model or probabilistic directed acyclic graphical model is a probabilistic graphical model (a type of statistical model) that represents a set of random variables and their conditional dependencies via a directed acyclic graph (DAG).[From Wikipedia]</p>
+            <h3><strong>Bayesian inference</strong></h3>
+            <p>
+                Bayesian inference is an approach to answer probability queries about the underlying probability distribution.
+            </p>
+            <h3><strong>Junction tree algorithm</strong></h3>
+            <p>
+                The junction tree algorithm (also known as 'Clique Tree' or 'Join Tree') is a method to extract marginalization. In essence, it entails performing belief propagation on a modified graph called a junction tree.[From Wikipedia]
+            </p>
+        </div>
+        <div>
+            <h1>The purpose of this site</h1>
+            <p>This site is supposed to help you understand the junction tree algorithms in terms of Hugin algorithm and Shafer-Shenoy algorithm.</p>
+            <p>This site is for tutorial purpose, not for the real-world application.</p>
+            <p>
+                In step 1, you need to draw a DAG and enter the corresponding CPTs.
+            </p>
+            <p>
+                In step 2, you need to enter a query.
+            </p>
+            <p>
+                In the following steps, you will learn how the inference algorithem is performed.
+            </p>
+            <button id="btn-start" type="button" class="btn nextPage">Let's start!</button>
+        </div>
+        <div menu="Step 1">
+            <button type="button" class="btn prevPage">Prev</button>
+            <h1>Draw a DAG and enter CPTs</h1>
+            <p>For the sake of simplicity, the name of a variable must be a single letter in lowercase, which means there are 26 variables at most. All of the variables are binary-valued, and all value is in uppercase.</p>
+            <p>For example: a = {A, -A}, t = {T, -T}.</p>
+            <p>
+                <h3>Instructions:</h3>
+                <ul class="instruction-list">
+                    <li>select a variable name from a to z, and create a new variable by clicking "spawn" button.</li>
+                    <li>Click on a node, hold and drag in the dotted area.</li>
+                    <li>Right click a node to show the context menu. In the menu, you can choose to edit the CPT or delte the node.</li>
+                </ul>
+            </p>
+        </div>
+        <div class="DAG">
+            <button type="button" class="btn nextPage">Next</button>
+            <div id='step1-wrapper'>
+                <div id='step1-head'>
+                    <h1>DAG:</h1>
+                    <p>
+                        <select id="v-selector" class="cs-select cs-skin-boxes">
+                            <option value="" disabled selected>variable</option>
+                            <option value="a">a</option>
+                            <option value="b">b</option>
+                            <option value="c">c</option>
+                            <option value="d">d</option>
+                            <option value="e">e</option>
+                            <option value="f">f</option>
+                            <option value="g">g</option>
+                            <option value="h">h</option>
+                            <option value="i">i</option>
+                            <option value="j">j</option>
+                            <option value="k">k</option>
+                            <option value="l">l</option>
+                            <option value="m">m</option>
+                            <option value="n">n</option>
+                            <option value="o">o</option>
+                            <option value="p">p</option>
+                            <option value="q">q</option>
+                            <option value="r">r</option>
+                            <option value="s">s</option>
+                            <option value="t">t</option>
+                            <option value="u">u</option>
+                            <option value="v">v</option>
+                            <option value="w">w</option>
+                            <option value="x">x</option>
+                            <option value="y">y</option>
+                            <option value="z">z</option>
+                        </select>
+                        <button id="btn-spawn" class="hvr-back-pulse">spawn</button>
+                    </p>
+                </div>
+                <div id="step1-canvas">
+                    <svg id="step1-svg">
+                        <defs>
+                            <marker id="triangle" viewBox="0 0 10 10" \ refX="30" refY="5" markerUnits="strokeWidth" markerWidth="4" markerHeight="3" \ orient="auto">
+                                <path d="M 0 0 L 10 5 L 0 10 z" />
+                            </marker>
+                        </defs>
+                    </svg>
+                </div>
+            </div>
+        </div>
+        <div menu="Step 2">
+            <button type="button" class="btn prevPage">Prev</button>
+            <h1>Step2</h1>
+            <p>Explanation for step 2</p>
+        </div>
+    </div>
+    <div class="modal" id="parents" role="dialog" data-easein="expandIn">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <span class="modal-title">Select parents</span>
+                </div>
+                <div class="modal-body">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default confirm" data-dismiss="modal">Confirm</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal" id="modal-cpt" role="dialog" data-easein="expandIn">
+        <div class="modal-dialog">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <span class="modal-title">CPT</span>
+                </div>
+                <div class="modal-body">
+                    <table id="table-cpt"></table>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default confirm" data-dismiss="modal">Confirm</button>
+                </div>
+            </div>
+        </div>
+    </div>
 </body>
 
 </html>
