@@ -1,14 +1,16 @@
 class Distribution {
-    constructor(map, ...vars) {
+    constructor(map, vars) {
         // an array of Variable objects
         this.vars = vars
-            // key is string, value is probability
-            // key consists of domain values seperated with comma ','
+        // key is string, value is probability
+        // key consists of domain values seperated with comma ','
         this.map = map
         this.varNames = []
         this.name = 'unknown'
         this.isUnitDistr = false
-        vars.forEach((v) => this.varNames.push(v.name))
+        if (vars instanceof Array) {
+            vars.forEach((v) => this.varNames.push(v.name))
+        }
     }
 
     // return a cloned distribution.
@@ -18,7 +20,7 @@ class Distribution {
         for (let key in this.map) {
             map[key] = this.map[key]
         }
-        let clone = new Distribution(map, ...this.vars)
+        let clone = new Distribution(map, this.vars)
         clone.name = this.name
         clone.isUnitDistr = this.isUnitDistr
         return clone
@@ -69,7 +71,7 @@ class Distribution {
 
             }
         }
-        let product = new Distribution(map, ...vars)
+        let product = new Distribution(map, vars)
         return product
 
     }
@@ -138,7 +140,7 @@ class Distribution {
                 map[strV] = sum
             }
         }
-        let dis = new Distribution(map, ...vars)
+        let dis = new Distribution(map, vars)
         dis.name = `ϕ(${vars.map((v)=>v.name)})`
         return dis
     }

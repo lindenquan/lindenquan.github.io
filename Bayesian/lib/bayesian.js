@@ -2,19 +2,13 @@
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
-
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 var Distribution = function () {
-    function Distribution(map) {
+    function Distribution(map, vars) {
         var _this = this;
 
         _classCallCheck(this, Distribution);
-
-        for (var _len = arguments.length, vars = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
-            vars[_key - 1] = arguments[_key];
-        }
 
         // an array of Variable objects
         this.vars = vars;
@@ -24,9 +18,11 @@ var Distribution = function () {
         this.varNames = [];
         this.name = 'unknown';
         this.isUnitDistr = false;
-        vars.forEach(function (v) {
-            return _this.varNames.push(v.name);
-        });
+        if (vars instanceof Array) {
+            vars.forEach(function (v) {
+                return _this.varNames.push(v.name);
+            });
+        }
     }
 
     // return a cloned distribution.
@@ -40,7 +36,7 @@ var Distribution = function () {
             for (var key in this.map) {
                 map[key] = this.map[key];
             }
-            var clone = new (Function.prototype.bind.apply(Distribution, [null].concat([map], _toConsumableArray(this.vars))))();
+            var clone = new Distribution(map, this.vars);
             clone.name = this.name;
             clone.isUnitDistr = this.isUnitDistr;
             return clone;
@@ -59,9 +55,9 @@ var Distribution = function () {
                 if (DEBUG) {
                     console.log('Normalization on ' + this.name + ' because the sum is:' + sum);
                 }
-                for (var _key2 in this.map) {
-                    var v = this.map[_key2];
-                    this.map[_key2] = Tool.divisionDecimals(v, sum);
+                for (var _key in this.map) {
+                    var v = this.map[_key];
+                    this.map[_key] = Tool.divisionDecimals(v, sum);
                 }
             }
         }
@@ -132,15 +128,15 @@ var Distribution = function () {
                     set.add(strV);
 
                     var sum = 0;
-                    for (var _key3 in this.map) {
-                        if (strV === this.valuesOn(_key3, indices).toString()) {
-                            sum = Tool.addDecimal(sum, this.map[_key3]);
+                    for (var _key2 in this.map) {
+                        if (strV === this.valuesOn(_key2, indices).toString()) {
+                            sum = Tool.addDecimal(sum, this.map[_key2]);
                         }
                     }
                     map[strV] = sum;
                 }
             }
-            var dis = new (Function.prototype.bind.apply(Distribution, [null].concat([map], _toConsumableArray(vars))))();
+            var dis = new Distribution(map, vars);
             dis.name = '\u03D5(' + vars.map(function (v) {
                 return v.name;
             }) + ')';
@@ -264,7 +260,7 @@ var Distribution = function () {
                     map[Tool.stringUnion(key, subKey)] = operator(dis1.map[key], matchingMap[subKey]);
                 }
             }
-            var product = new (Function.prototype.bind.apply(Distribution, [null].concat([map], _toConsumableArray(vars))))();
+            var product = new Distribution(map, vars);
             return product;
         }
     }, {
@@ -982,12 +978,12 @@ var E = new Variable('E', ['e', '-e']);
 var map = {};
 map[['g']] = 0.496;
 map[['-g']] = 0.504;
-var p1 = new Distribution(map, G);
+var p1 = new Distribution(map, [G]);
 
 map = {};
 map[['b']] = 0.423;
 map[['-b']] = 0.577;
-var p2 = new Distribution(map, B);
+var p2 = new Distribution(map, [B]);
 
 map = {};
 map[['g', 'b', 'i']] = 0.408;
@@ -998,7 +994,7 @@ map[['-g', 'b', 'i']] = 0.123;
 map[['-g', 'b', '-i']] = 0.877;
 map[['-g', '-b', 'i']] = 0.027;
 map[['-g', '-b', '-i']] = 0.973;
-var p3 = new Distribution(map, G, B, I);
+var p3 = new Distribution(map, [G, B, I]);
 
 map = {};
 map[['k', 'i', 'h']] = 1;
@@ -1009,21 +1005,21 @@ map[['-k', 'i', 'h']] = 1;
 map[['-k', 'i', '-h']] = 0;
 map[['-k', '-i', 'h']] = 0;
 map[['-k', '-i', '-h']] = 1;
-var p4 = new Distribution(map, K, I, H);
+var p4 = new Distribution(map, [K, I, H]);
 
 map = {};
 map[['g', 'k']] = 0.123;
 map[['g', '-k']] = 0.877;
 map[['-g', 'k']] = 0.057;
 map[['-g', '-k']] = 0.943;
-var p5 = new Distribution(map, G, K);
+var p5 = new Distribution(map, [G, K]);
 
 map = {};
 map[['h', 'z']] = 0.739;
 map[['h', '-z']] = 0.261;
 map[['-h', 'z']] = 0.498;
 map[['-h', '-z']] = 0.502;
-var p6 = new Distribution(map, H, Z);
+var p6 = new Distribution(map, [H, Z]);
 
 map = {};
 map[['h', 'd', 'a']] = 0.739;
@@ -1034,7 +1030,7 @@ map[['-h', 'd', 'a']] = 0.278;
 map[['-h', 'd', '-a']] = 0.722;
 map[['-h', '-d', 'a']] = 0.303;
 map[['-h', '-d', '-a']] = 0.697;
-var p7 = new Distribution(map, H, D, A);
+var p7 = new Distribution(map, [H, D, A]);
 
 map = {};
 map[['a', 'd', 'e']] = 0.562;
@@ -1045,14 +1041,14 @@ map[['-a', 'd', 'e']] = 0.406;
 map[['-a', 'd', '-e']] = 0.594;
 map[['-a', '-d', 'e']] = 0.353;
 map[['-a', '-d', '-e']] = 0.647;
-var p8 = new Distribution(map, A, D, E);
+var p8 = new Distribution(map, [A, D, E]);
 
 map = {};
 map[['b', 'd']] = 0.437;
 map[['b', '-d']] = 0.563;
 map[['-b', 'd']] = 0.421;
 map[['-b', '-d']] = 0.579;
-var p9 = new Distribution(map, B, D);
+var p9 = new Distribution(map, [B, D]);
 
 var tree = new JoinTree();
 var node1 = p6;

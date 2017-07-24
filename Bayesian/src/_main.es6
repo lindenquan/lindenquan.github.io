@@ -15,12 +15,12 @@ let E = new Variable('E', ['e', '-e'])
 let map = {}
 map[['g']] = 0.496
 map[['-g']] = 0.504
-let p1 = new Distribution(map, G)
+let p1 = new Distribution(map, [G])
 
 map = {}
 map[['b']] = 0.423
 map[['-b']] = 0.577
-let p2 = new Distribution(map, B)
+let p2 = new Distribution(map, [B])
 
 map = {}
 map[['g', 'b', 'i']] = 0.408
@@ -31,7 +31,7 @@ map[['-g', 'b', 'i']] = 0.123
 map[['-g', 'b', '-i']] = 0.877
 map[['-g', '-b', 'i']] = 0.027
 map[['-g', '-b', '-i']] = 0.973
-let p3 = new Distribution(map, G, B, I)
+let p3 = new Distribution(map, [G, B, I])
 
 map = {}
 map[['k', 'i', 'h']] = 1
@@ -42,21 +42,21 @@ map[['-k', 'i', 'h']] = 1
 map[['-k', 'i', '-h']] = 0
 map[['-k', '-i', 'h']] = 0
 map[['-k', '-i', '-h']] = 1
-let p4 = new Distribution(map, K, I, H)
+let p4 = new Distribution(map, [K, I, H])
 
 map = {}
 map[['g', 'k']] = 0.123
 map[['g', '-k']] = 0.877
 map[['-g', 'k']] = 0.057
 map[['-g', '-k']] = 0.943
-let p5 = new Distribution(map, G, K)
+let p5 = new Distribution(map, [G, K])
 
 map = {}
 map[['h', 'z']] = 0.739
 map[['h', '-z']] = 0.261
 map[['-h', 'z']] = 0.498
 map[['-h', '-z']] = 0.502
-let p6 = new Distribution(map, H, Z)
+let p6 = new Distribution(map, [H, Z])
 
 map = {}
 map[['h', 'd', 'a']] = 0.739
@@ -67,7 +67,7 @@ map[['-h', 'd', 'a']] = 0.278
 map[['-h', 'd', '-a']] = 0.722
 map[['-h', '-d', 'a']] = 0.303
 map[['-h', '-d', '-a']] = 0.697
-let p7 = new Distribution(map, H, D, A)
+let p7 = new Distribution(map, [H, D, A])
 
 map = {}
 map[['a', 'd', 'e']] = 0.562
@@ -78,14 +78,14 @@ map[['-a', 'd', 'e']] = 0.406
 map[['-a', 'd', '-e']] = 0.594
 map[['-a', '-d', 'e']] = 0.353
 map[['-a', '-d', '-e']] = 0.647
-let p8 = new Distribution(map, A, D, E)
+let p8 = new Distribution(map, [A, D, E])
 
 map = {}
 map[['b', 'd']] = 0.437
 map[['b', '-d']] = 0.563
 map[['-b', 'd']] = 0.421
 map[['-b', '-d']] = 0.579
-let p9 = new Distribution(map, B, D)
+let p9 = new Distribution(map, [B, D])
 
 let tree = new JoinTree()
 let node1 = p6
