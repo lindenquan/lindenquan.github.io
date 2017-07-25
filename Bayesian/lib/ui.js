@@ -36,9 +36,12 @@ $(function() {
         //$(document).on('mouseup', 'svg circle', mc.svgCircleMouseUp);
         $(document).on('mousemove', 'svg', mc.svgMouseMove);
         $(document).on('mouseup', 'svg', mc.svgMouseUp);
+        $(document).on('mouseleave', 'svg circle', mc.svgCircleMouseLeave);
+        $(document).on('dragstart', 'svg', function(e) { console.log('svg startdrag'); e.preventDefault() });
 
         mc.addContextMenu();
-        $('svg circle').dblclick(function(e){e.preventDefault();});
+
+        $(document).on('dblclick', 'svg circle', mc.doubleClickCircle);
         $('.loading').css('display', 'none');
         $('.book').css('display', 'block');
     }
@@ -402,17 +405,15 @@ function MainController() {
         }
     }
 
-    var lastEvent = null;
     var busy = false;
 
     this.svgMouseMove = function(e) {
-        lastEvent = e;
         if (!busy) {
             busy = true;
             setTimeout(function() {
                 mouseMove(e);
                 busy = false;
-            });
+            }, 10);
         }
     }
 
@@ -421,6 +422,13 @@ function MainController() {
         if (varObj !== undefined && varObj !== null && CPT_var.c_var.isClicked) {
             CPT_var.c_var.isClicked = false;
         }
+    }
+
+    this.svgCircleMouseLeave = function(e) {}
+
+    this.doubleClickCircle = function(e) {
+        console.log("double");
+        createCPTtable();
     }
 
     this.addContextMenu = function() {
