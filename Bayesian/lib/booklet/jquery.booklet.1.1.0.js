@@ -102,8 +102,8 @@
             var _this;
             $.each(pages, function(i, item) {
                 _this = $(this);
-                if (_this.is('[menu]')) {
-                    sideMenus.push({ p: i, n: _this.attr('menu') });
+                if (_this.is('[data-menu]')) {
+                    sideMenus.push({ p: i, n: _this.data('menu') });
                 }
             });
         }

@@ -355,8 +355,7 @@ input:checked+label::before {
 
 table {
     border-collapse: collapse;
-    width: 90%;
-    margin-left: 5%;
+    width: 100%;
 }
 
 td,
@@ -373,6 +372,16 @@ tr:nth-child(even) {
 tr th {
     background-color: green;
     color: white;
+}
+
+.p {
+    font-size: 16px;
+    margin: 15px 5px 15px 15px;
+}
+
+.table-page {
+    width: 90%;
+    margin-left: 5%;
 }
 
 #table-cpt {

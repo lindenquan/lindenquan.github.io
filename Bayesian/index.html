@@ -1,11 +1,13 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
-    <intercept-url pattern="/favicon.ico" access="ROLE_ANONYMOUS"></intercept-url>
+    <title>Bayesian Inference</title>
+    <meta charset="UTF-8">
+    <meta name="author" content="Linden Quan">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="tutorial for junction tree algorithm, Hugin algorithm, Shafer-Shenoy algorith." />
     <meta name="keywords" content="bayesian network, junction tree algorithm, hugin algorithm, Shafer-Shenoy algorithm" />
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <script src="lib/jquery-3.2.1.min.js" defer></script>
     <script src="lib/jquery.contextMenu.js" defer></script>
     <script src="lib/jquery-ui.js" defer></script>
@@ -29,12 +31,13 @@
     <link rel="stylesheet" type="text/css" href="css/cs-select.css" />
     <link rel="stylesheet" type="text/css" href="css/cs-skin-boxes.css" />
     <link rel="stylesheet" type="text/css" href="css/style.css" />
+    <link rel="icon" href="data:text/plain;charset=utf-8;base64,TFE=">
 </head>
 
 <body>
     <div class="loading">Loading the book...</div>
     <div class="book">
-        <div menu="Intro">
+        <div data-menu="Intro">
             <h1>Introduction</h1>
             <h3><strong>Bayesian network</strong></h3>
             <p>A Bayesian network, also called Bayes network, belief network, Bayes(ian) model or probabilistic directed acyclic graphical model is a probabilistic graphical model (a type of statistical model) that represents a set of random variables and their conditional dependencies via a directed acyclic graph (DAG).<a href="https://en.wikipedia.org/wiki/Bayesian_network" target="_blank">[From Wikipedia]</a></p>
@@ -65,12 +68,12 @@
             </p>
             <button id="btn-start" type="button" class="btn nextPage">Let's start!</button>
         </div>
-        <div menu="Step 1">
+        <div data-menu="Step 1">
             <button type="button" class="btn prevPage">Prev</button>
             <h1>Draw a DAG and enter CPTs</h1>
             <p>For the sake of simplicity, the name of a variable must be a single letter in uppercase, which means there are 26 variables at most. All of the variables are binary-valued, and all value is in lowercase.</p>
             <p>For example: A = {a, -a}, T = {t, -t}.</p>
-            <p>
+            <div>
                 <h3>Instructions:</h3>
                 <ul class="instruction-list">
                     <li>select a variable name from a to z, and create a new variable by clicking "spawn" button.</li>
@@ -78,7 +81,7 @@
                     <li>Double click on a node to display CPT.</li>
                     <li>Right click a node to show the context menu. In the menu, you can choose to edit the CPT or delte the node.</li>
                 </ul>
-            </p>
+            </div>
         </div>
         <div class="DAG">
             <button type="button" class="btn nextPage">Next</button>
@@ -121,7 +124,7 @@
                 <div id="step1-canvas">
                     <svg id="step1-svg">
                         <defs>
-                            <marker id="triangle" viewBox="0 0 10 10" \ refX="30" refY="5" markerUnits="strokeWidth" markerWidth="4" markerHeight="3" \ orient="auto">
+                            <marker id="triangle" viewBox="0 0 10 10" refX="30" refY="5" markerUnits="strokeWidth" markerWidth="4" markerHeight="3" orient="auto">
                                 <path d="M 0 0 L 10 5 L 0 10 z" />
                             </marker>
                         </defs>
@@ -129,23 +132,23 @@
                 </div>
             </div>
         </div>
-        <div menu="Step 2">
+        <div data-menu="Step 2">
             <button type="button" class="btn prevPage">Prev</button>
             <h1>Enter a query</h1>
             <p>The general form of a query is P(Q|E=e)?</p>
-            <p>
+            <div>
                 <ul class="instruction-list">
                     <li>Q is a set of query variables.</li>
                     <li>E is a set of evidence variables,and e is the specific observed value</li>
                 </ul>
-            </p>
+            </div>
             <p>
                 For example: P(C, E|A=a,B=-b)
                 <br> This query means "what is the probability of the event C and E happen together given A is a and B is -b.
                 <br>This query is also equivalent to the following table.(assume all of the variables are binary-valued.)
             </p>
-            <p>
-                <table>
+            <div>
+                <table class="table-page">
                     <tr>
                         <th>C</th>
                         <th>E</th>
@@ -182,7 +185,19 @@
                         <td>?</td>
                     </tr>
                 </table>
+            </div>
+        </div>
+        <div id="page-query">
+            <button type="button" class="btn nextPage">Next</button>
+            <h1>Query</h1>
+            <p>Drag the variables into the query set or evidence set. For the sake of simplicity, you can't specify any value.
             </p>
+            <div>
+                <p>
+                    Variables spawned in step 1:
+                </p>
+                <div id="vars-list" class="p"> </div>
+            </div>
         </div>
     </div>
     <div class="modal" id="parents" role="dialog" data-easein="expandIn">

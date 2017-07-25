@@ -37,8 +37,10 @@ $(function() {
         $(document).on('mousemove', 'svg', mc.svgMouseMove);
         $(document).on('mouseup', 'svg', mc.svgMouseUp);
         $(document).on('mouseleave', 'svg circle', mc.svgCircleMouseLeave);
-        $(document).on('dragstart', 'svg', function(e) { console.log('svg startdrag');
-            e.preventDefault() });
+        $(document).on('dragstart', 'svg', function(e) {
+            console.log('svg startdrag');
+            e.preventDefault()
+        });
 
         mc.addContextMenu();
 
@@ -123,6 +125,11 @@ function MainController() {
         $('#modal-cpt').modal();
     }
 
+    function addToListInStep2(varObj) {
+        var str = '<span>' + varObj.name + '</span>';
+        $('#vars-list').append(str);
+    }
+
     this.onSpawn = function() {
         var selector = $('#v-selector');
         var c_var = selector.val().toUpperCase();
@@ -143,8 +150,8 @@ function MainController() {
                     modal_body.append(lable);
                 });
                 var upper = c_var.toLowerCase();
-                CPT_vars[c_var].var = new Variable(c_var, [upper, '-' + upper]);
-
+                CPT_var.c_var.var = new Variable(c_var, [upper, '-' + upper]);
+                addToListInStep2(CPT_var.c_var);
             } else {
                 // already has this variable, select another one.
                 console.log('already has this variable, select another one.');
