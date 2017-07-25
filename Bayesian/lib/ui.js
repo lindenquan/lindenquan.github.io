@@ -37,12 +37,13 @@ $(function() {
         $(document).on('mousemove', 'svg', mc.svgMouseMove);
         $(document).on('mouseup', 'svg', mc.svgMouseUp);
         $(document).on('mouseleave', 'svg circle', mc.svgCircleMouseLeave);
-        $(document).on('dragstart', 'svg', function(e) { console.log('svg startdrag'); e.preventDefault() });
+        $(document).on('dragstart', 'svg', function(e) { console.log('svg startdrag');
+            e.preventDefault() });
 
         mc.addContextMenu();
 
         $(document).on('dblclick', 'svg circle', mc.doubleClickCircle);
-        $('.loading').css('display', 'none');
+        setTimeout(function() { $('.loading').css('display', 'none'); }, 500);
         $('.book').css('display', 'block');
     }
 });
@@ -102,7 +103,7 @@ function MainController() {
         }
 
         var th = '<tr>' + str + last_th + '</tr>';
-        var permute = Tool.permute(p_c.map(function(x) { return x.toUpperCase() }));
+        var permute = Tool.permute(p_c.map(function(x) { return x.toLowerCase() }));
 
         str = '';
         var default_p = 1 / permute.length;
@@ -124,7 +125,7 @@ function MainController() {
 
     this.onSpawn = function() {
         var selector = $('#v-selector');
-        var c_var = selector.val();
+        var c_var = selector.val().toUpperCase();
         if (typeof c_var === 'string') {
             var varObj = CPT_vars[c_var];
             if (varObj === undefined) {
@@ -141,7 +142,7 @@ function MainController() {
                     modal_body.append(input);
                     modal_body.append(lable);
                 });
-                var upper = c_var.toUpperCase();
+                var upper = c_var.toLowerCase();
                 CPT_vars[c_var].var = new Variable(c_var, [upper, '-' + upper]);
 
             } else {

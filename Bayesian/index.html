@@ -49,7 +49,7 @@
         </div>
         <div>
             <h1>The purpose of this site</h1>
-            <p>This site is supposed to help you understand the junction tree algorithms in terms of Hugin algorithm and Shafer-Shenoy algorithm.</p>
+            <p>This site is supposed to help you understand the junction tree algorithms in terms of Hugin propagation and Shafer-Shenoy propagation.</p>
             <p>This site is for tutorial purpose, not for the real-world application.</p>
             <p>
                 In step 1, you need to draw a DAG and enter the corresponding CPTs.
@@ -68,8 +68,8 @@
         <div menu="Step 1">
             <button type="button" class="btn prevPage">Prev</button>
             <h1>Draw a DAG and enter CPTs</h1>
-            <p>For the sake of simplicity, the name of a variable must be a single letter in lowercase, which means there are 26 variables at most. All of the variables are binary-valued, and all value is in uppercase.</p>
-            <p>For example: a = {A, -A}, t = {T, -T}.</p>
+            <p>For the sake of simplicity, the name of a variable must be a single letter in uppercase, which means there are 26 variables at most. All of the variables are binary-valued, and all value is in lowercase.</p>
+            <p>For example: A = {a, -a}, T = {t, -t}.</p>
             <p>
                 <h3>Instructions:</h3>
                 <ul class="instruction-list">
@@ -88,32 +88,32 @@
                     <p>
                         <select id="v-selector" class="cs-select cs-skin-boxes">
                             <option value="" disabled selected>variable</option>
-                            <option value="a">a</option>
-                            <option value="b">b</option>
-                            <option value="c">c</option>
-                            <option value="d">d</option>
-                            <option value="e">e</option>
-                            <option value="f">f</option>
-                            <option value="g">g</option>
-                            <option value="h">h</option>
-                            <option value="i">i</option>
-                            <option value="j">j</option>
-                            <option value="k">k</option>
-                            <option value="l">l</option>
-                            <option value="m">m</option>
-                            <option value="n">n</option>
-                            <option value="o">o</option>
-                            <option value="p">p</option>
-                            <option value="q">q</option>
-                            <option value="r">r</option>
-                            <option value="s">s</option>
-                            <option value="t">t</option>
-                            <option value="u">u</option>
-                            <option value="v">v</option>
-                            <option value="w">w</option>
-                            <option value="x">x</option>
-                            <option value="y">y</option>
-                            <option value="z">z</option>
+                            <option value="a">A</option>
+                            <option value="b">B</option>
+                            <option value="c">C</option>
+                            <option value="d">D</option>
+                            <option value="e">E</option>
+                            <option value="f">F</option>
+                            <option value="g">G</option>
+                            <option value="h">H</option>
+                            <option value="i">I</option>
+                            <option value="j">J</option>
+                            <option value="k">K</option>
+                            <option value="l">L</option>
+                            <option value="m">M</option>
+                            <option value="n">N</option>
+                            <option value="o">O</option>
+                            <option value="p">P</option>
+                            <option value="q">Q</option>
+                            <option value="r">R</option>
+                            <option value="s">S</option>
+                            <option value="t">T</option>
+                            <option value="u">U</option>
+                            <option value="v">V</option>
+                            <option value="w">W</option>
+                            <option value="x">X</option>
+                            <option value="y">Y</option>
+                            <option value="z">Z</option>
                         </select>
                         <button id="btn-spawn" class="hvr-back-pulse">spawn</button>
                     </p>
@@ -131,8 +131,58 @@
         </div>
         <div menu="Step 2">
             <button type="button" class="btn prevPage">Prev</button>
-            <h1>Step2</h1>
-            <p>Explanation for step 2</p>
+            <h1>Enter a query</h1>
+            <p>The general form of a query is P(Q|E=e)?</p>
+            <p>
+                <ul class="instruction-list">
+                    <li>Q is a set of query variables.</li>
+                    <li>E is a set of evidence variables,and e is the specific observed value</li>
+                </ul>
+            </p>
+            <p>
+                For example: P(C, E|A=a,B=-b)
+                <br> This query means "what is the probability of the event C and E happen together given A is a and B is -b.
+                <br>This query is also equivalent to the following table.(assume all of the variables are binary-valued.)
+            </p>
+            <p>
+                <table>
+                    <tr>
+                        <th>C</th>
+                        <th>E</th>
+                        <th>A</th>
+                        <th>B</th>
+                        <th>P(C, E|A=a,B=-b)</th>
+                    </tr>
+                    <tr>
+                        <td>c</td>
+                        <td>e</td>
+                        <td>a</td>
+                        <td>-b</td>
+                        <td>?</td>
+                    </tr>
+                    <tr>
+                        <td>c</td>
+                        <td>-e</td>
+                        <td>a</td>
+                        <td>-b</td>
+                        <td>?</td>
+                    </tr>
+                    <tr>
+                        <td>-c</td>
+                        <td>e</td>
+                        <td>a</td>
+                        <td>-b</td>
+                        <td>?</td>
+                    </tr>
+                    <tr>
+                        <td>-c</td>
+                        <td>-e</td>
+                        <td>a</td>
+                        <td>-b</td>
+                        <td>?</td>
+                    </tr>
+                </table>
+            </p>
         </div>
     </div>
     <div class="modal" id="parents" role="dialog" data-easein="expandIn">

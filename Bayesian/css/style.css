@@ -203,7 +203,7 @@ div.cs-select {
 }
 
 .cs-skin-boxes .cs-options span {
-    text-transform: lowercase;
+    text-transform: uppercase;
     line-height: normal;
     vertical-align: middle;
     height: 100%;
@@ -351,6 +351,28 @@ input:checked+label::before {
     border-right-color: transparent;
     -webkit-transform: rotate(-45deg);
     transform: rotate(-45deg);
+}
+
+table {
+    border-collapse: collapse;
+    width: 90%;
+    margin-left: 5%;
+}
+
+td,
+th {
+    border: 1px solid #dddddd;
+    text-align: center;
+    padding: 8px;
+}
+
+tr:nth-child(even) {
+    background-color: #dddddd;
+}
+
+tr th {
+    background-color: green;
+    color: white;
 }
 
 #table-cpt {
