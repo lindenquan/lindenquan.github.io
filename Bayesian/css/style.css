@@ -493,4 +493,32 @@ svg text {
     color: #075050;
 }
 
+.var-in-list {
+    display: inline-flex;
+    width: 2em;
+    height: 2em;
+    border: 2px solid black;
+    border-radius: 50%;
+    justify-content: center;
+    align-items: center;
+    margin: 0.2em 0.5em;
+    user-select: none;
+    background-color: white;
+}
+
+.node-box {
+    border-radius: 10px;
+    height: 4em;
+    border: 1px solid;
+}
+
+#vars-list {
+    max-height: 6em;
+    overflow: auto;
+}
+
+#page-query {
+    height: 100%;
+}
+
 </style>

@@ -2,7 +2,6 @@ $(function() {
     var mc = new MainController();
 
     book = $('.book:first');
-
     book.booklet({
         width: 900, // container width
         height: 550, // container height
@@ -20,37 +19,33 @@ $(function() {
             book.booklet('next');
         });
 
-        $('#btn-start').click(function() {
-            $('.b-page-3').css('visibility', 'visible');
-        });
-
-        $('#btn-spawn').click(mc.onSpawn);
-
-        $(document).on('click', '#parents input', mc.onParentSelect);
-
-        $('#parents .confirm').click(mc.onParentConfirm);
-        $('#modal-cpt .confirm').click(mc.onCPTConfirm);
-
-        $(document).on('mousedown', 'svg circle', mc.svgCircleMouseDown);
-        //$(document).on('mousemove', 'svg circle', mc.svgCircleMouseMove);
-        //$(document).on('mouseup', 'svg circle', mc.svgCircleMouseUp);
-        $(document).on('mousemove', 'svg', mc.svgMouseMove);
-        $(document).on('mouseup', 'svg', mc.svgMouseUp);
-        $(document).on('mouseleave', 'svg circle', mc.svgCircleMouseLeave);
-        $(document).on('dragstart', 'svg', function(e) {
-            console.log('svg startdrag');
-            e.preventDefault()
-        });
-
         mc.addContextMenu();
 
-        $(document).on('dblclick', 'svg circle', mc.doubleClickCircle);
-        setTimeout(function() { $('.loading').css('display', 'none'); }, 500);
         $('.book').css('display', 'block');
+
+        setTimeout(function() { $('.loading').css('display', 'none'); }, 500);
     }
 });
 
 function MainController() {
+
+    $(document).on('dragstart', '.var-in-list', circleInListDragStart);
+    $(document).on('dragover', '.node-box', circleInListDragover);
+    $(document).on('drop', '.node-box', circleInListDrop);
+    $(document).on('mousedown', 'svg circle', svgCircleMouseDown);
+    $(document).on('mousemove', 'svg', svgMouseMove);
+    $(document).on('mouseup', 'svg', svgMouseUp);
+    $(document).on('dragstart', 'svg', svgStartDrag);
+    $(document).on('dblclick', 'svg circle', doubleClickCircle);
+    $(document).on('click', '#btn-start', btn_start);
+    $(document).on('click', '#btn-spawn', onSpawn);
+    $(document).on('click', '#parents .confirm', onParentConfirm);
+    $(document).on('click', '#modal-cpt .confirm', onCPTConfirm);
+
+    function btn_start() {
+        $('.b-page-3').css('visibility', 'visible');
+    };
+
     // CPT_var class
     function CPT_var(name) {
         this.name = name;
@@ -126,11 +121,12 @@ function MainController() {
     }
 
     function addToListInStep2(varObj) {
-        var str = '<span>' + varObj.name + '</span>';
-        $('#vars-list').append(str);
+        var str = '<span id="circle-in-list-' + varObj.name + '" ';
+        var varCircle = $(str + 'class="var-in-list" draggable="true">' + varObj.name + '</span>');
+        $('#vars-list').append(varCircle);
     }
 
-    this.onSpawn = function() {
+    function onSpawn() {
         var selector = $('#v-selector');
         var c_var = selector.val().toUpperCase();
         if (typeof c_var === 'string') {
@@ -168,11 +164,7 @@ function MainController() {
         }
     }
 
-    this.onParentSelect = function() {
-
-    }
-
-    this.onParentConfirm = function() {
+    function onParentConfirm() {
         $('#parents input:checked').each(function(index, item) {
             var p = $(item).attr('id').slice(-1);
             var c_obj = CPT_vars[CPT_var.c_var.name];
@@ -245,7 +237,7 @@ function MainController() {
         newElement.setAttribute('cy', node.cy);
         newElement.setAttribute('r', CPT_var.r);
         newElement.setAttribute('stroke', 'black');
-        newElement.setAttribute('stroke-width', 1);
+        newElement.setAttribute('stroke-width', 2);
         newElement.setAttribute('name', varName);
         newElement.setAttribute('fill', 'white');
 
@@ -320,7 +312,7 @@ function MainController() {
         $(c_line_str).prependTo('#' + svgID);
     }
 
-    this.onCPTConfirm = function(e) {
+    function onCPTConfirm(e) {
         var rows = $('#table-cpt tr');
         var ths = [];
         var tds = [];
@@ -355,7 +347,7 @@ function MainController() {
         CPT_var.c_var.dist = new Distribution(map, vars);
     }
 
-    function circleMouseDown(e) {
+    function svgCircleMouseDown(e) {
         var target = $(e.target);
         var name = target.attr('name');
         var varObj = CPT_vars[name];
@@ -383,14 +375,15 @@ function MainController() {
         varObj.isClicked = true;
     }
 
-    this.svgCircleMouseDown = function(e) {
-        circleMouseDown(e);
+
+    function svgCircleMouseMove(e) {}
+
+
+    function svgCircleMouseUp(e) {}
+
+    function svgStartDrag(e) {
+        e.preventDefault();
     }
-
-    this.svgCircleMouseMove = function(e) {}
-
-
-    this.svgCircleMouseUp = function(e) {}
 
     function mouseMove(e) {
         var varObj = CPT_var.c_var;
@@ -415,7 +408,7 @@ function MainController() {
 
     var busy = false;
 
-    this.svgMouseMove = function(e) {
+    function svgMouseMove(e) {
         if (!busy) {
             busy = true;
             setTimeout(function() {
@@ -425,16 +418,14 @@ function MainController() {
         }
     }
 
-    this.svgMouseUp = function(e) {
+    function svgMouseUp(e) {
         var varObj = CPT_var.c_var;
         if (varObj !== undefined && varObj !== null && CPT_var.c_var.isClicked) {
             CPT_var.c_var.isClicked = false;
         }
     }
 
-    this.svgCircleMouseLeave = function(e) {}
-
-    this.doubleClickCircle = function(e) {
+    function doubleClickCircle(e) {
         console.log("double");
         createCPTtable();
     }
@@ -467,4 +458,20 @@ function MainController() {
             console.log('clicked', this);
         });
     }
+
+    function circleInListDragStart(e) {
+        e.originalEvent.dataTransfer.setData("id", e.target.id);
+    }
+
+    function circleInListDragover(e) {
+        e.preventDefault();
+    }
+
+    function circleInListDrop(e) {
+        e.preventDefault();
+        var id = e.originalEvent.dataTransfer.getData('id');
+        console.log(id);
+        $(e.target).append($('#' + id));
+    }
+
 }
