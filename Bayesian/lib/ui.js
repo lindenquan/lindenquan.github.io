@@ -1,11 +1,9 @@
 $(function() {
     var mc = new MainController();
-
     book = $('.book:first');
     book.booklet({
         width: 900, // container width
         height: 550, // container height
-
         next: $('#btn-start'),
         finish: onFinish
     });
@@ -14,24 +12,23 @@ $(function() {
         $('.book .prevPage').click(function() {
             book.booklet('prev');
         });
-
         $('.book .nextPage').click(function() {
             book.booklet('next');
         });
-
         mc.addContextMenu();
-
         $('.book').css('display', 'block');
-
-        setTimeout(function() { $('.loading').css('display', 'none'); }, 500);
+        setTimeout(function() {
+            $('.loading').css('display', 'none');
+        }, 500);
     }
 });
 
 function MainController() {
-
     $(document).on('dragstart', '.var-in-list', circleInListDragStart);
     $(document).on('dragover', '.node-box', circleInListDragover);
     $(document).on('drop', '.node-box', circleInListDrop);
+    $(document).on('dragenter', '.node-box', circleInListEnter);
+    $(document).on('dragleave', '.node-box', circleInListLeave);
     $(document).on('mousedown', 'svg circle', svgCircleMouseDown);
     $(document).on('mousemove', 'svg', svgMouseMove);
     $(document).on('mouseup', 'svg', svgMouseUp);
@@ -45,7 +42,6 @@ function MainController() {
     function btn_start() {
         $('.b-page-3').css('visibility', 'visible');
     };
-
     // CPT_var class
     function CPT_var(name) {
         this.name = name;
@@ -61,13 +57,10 @@ function MainController() {
         this.isClicked = false;
         this.svg = []; // corresponding svg object array. for example: circle text
     }
-
     CPT_var.c_var = null; // current CPT_var object
     CPT_var.r = 20; // radius
-
     var CPT_vars = {}; // key is string variable name, value is a CPT_var object.
     CPT_var.c_var = null; // current CPT_var object
-
     function createCPTtable() {
         var table = $('#table-cpt');
         var str = '';
@@ -77,13 +70,10 @@ function MainController() {
         var p_c = []; // parents + current variable
         p_c = p_c.concat(CPT_var.c_var.parents);
         p_c.push(c_name);
-
         var last_th = '<th>p(' + c_name;
-
         if (p_c.length === 1) {
             str += '<th>' + c_name + '</th>'
             last_th += ')</th>';
-
         } else {
             last_th += '|';
             var len = p_c.length;
@@ -98,10 +88,10 @@ function MainController() {
             last_th = last_th.slice(0, -1); // remove last comma ','
             last_th += ')</th>';
         }
-
         var th = '<tr>' + str + last_th + '</tr>';
-        var permute = Tool.permute(p_c.map(function(x) { return x.toLowerCase() }));
-
+        var permute = Tool.permute(p_c.map(function(x) {
+            return x.toLowerCase()
+        }));
         str = '';
         var default_p = 1 / permute.length;
         permute.forEach(function(tr, index) {
@@ -109,7 +99,6 @@ function MainController() {
             tr.forEach(function(td) {
                 str += '<td>' + td + '</td>'
             });
-
             if (isNew) {
                 str += '<td><input type="text" value="' + default_p + '"></td></tr>';
             } else {
@@ -134,9 +123,7 @@ function MainController() {
             if (varObj === undefined) {
                 CPT_var.c_var = new CPT_var(c_var);
                 var otherVars = Object.keys(CPT_vars);
-
                 CPT_vars[c_var] = CPT_var.c_var;
-
                 var modal_body = $('#parents .modal-body');
                 modal_body.html('');
                 otherVars.forEach(function(i) {
@@ -152,7 +139,6 @@ function MainController() {
                 // already has this variable, select another one.
                 console.log('already has this variable, select another one.');
             }
-
             if (Object.keys(CPT_vars).length === 1) {
                 // first node
                 createCPTtable();
@@ -169,16 +155,13 @@ function MainController() {
             var p = $(item).attr('id').slice(-1);
             var c_obj = CPT_vars[CPT_var.c_var.name];
             var p_obj = CPT_vars[p];
-
             var parents = c_obj.parents;
             var p_objs = c_obj.p_objs;
             var c_objs = p_obj.c_objs;
-
             parents.push(p);
             p_objs.push(p_obj);
             c_objs.push(c_obj);
         });
-
         createCPTtable();
     }
 
@@ -206,7 +189,6 @@ function MainController() {
         var minX = svg.width();
         var maxX = 0;
         var maxY = 0;
-
         var x, y;
         p.forEach(function(item) {
             x = item.cx;
@@ -221,7 +203,6 @@ function MainController() {
                 maxY = y;
             }
         });
-
         node.cx = minX + (((maxX - minX) / 2) | 0);
         node.cy = maxY + CPT_var.r * 4;
     }
@@ -230,7 +211,6 @@ function MainController() {
         var node = CPT_vars[varName];
         var svg = document.getElementById(svgID);
         var newElement = document.createElementNS('http://www.w3.org/2000/svg', 'circle'); //Create a path in SVG's namespace
-
         calcXY(svgID, node);
         newElement.setAttribute('class', 'draggable context-menu-node');
         newElement.setAttribute('cx', node.cx);
@@ -240,12 +220,9 @@ function MainController() {
         newElement.setAttribute('stroke-width', 2);
         newElement.setAttribute('name', varName);
         newElement.setAttribute('fill', 'white');
-
         node.svg.push($(newElement));
         svg.appendChild(newElement);
-
         newElement = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-
         newElement.setAttribute('x', node.cx);
         newElement.setAttribute('y', node.cy);
         newElement.innerHTML = varName;
@@ -266,12 +243,10 @@ function MainController() {
         var p = c_obj.p_objs;
         var c = c_obj.c_objs;
         var newElement;
-
         var p_line_str = '#' + svgID + ' line[name=' + varName + ']';
         var c_line_str = '#' + svgID + ' line[p-name=' + varName + ']';
         $(p_line_str).remove();
         $(c_line_str).remove();
-
         p.forEach(function(item) {
             newElement = document.createElementNS('http://www.w3.org/2000/svg', 'line');
             newElement.setAttribute('x1', item.cx);
@@ -285,7 +260,6 @@ function MainController() {
             newElement.setAttribute('p-name', item.name);
             svg.appendChild(newElement);
         });
-
         c.forEach(function(item) {
             newElement = document.createElementNS('http://www.w3.org/2000/svg', 'line');
             newElement.setAttribute('x1', c_obj.cx);
@@ -299,10 +273,7 @@ function MainController() {
             newElement.setAttribute('p-name', varName);
             svg.appendChild(newElement);
         });
-
-
         // var nodes = document.querySelectorAll("line");
-
         //   var i = nodes.length;
         //  while (i--) {
         // change z-index, so that circles cover lines 
@@ -335,11 +306,9 @@ function MainController() {
                 tds.push(row);
             }
         });
-
         var map = toDistMap(tds);
         var vars = toVar(ths);
         var name = CPT_var.c_var.name;
-
         if (CPT_var.c_var.dist === null) {
             addNode('step1-svg', name);
             drawNodePath('step1-svg', name);
@@ -352,7 +321,6 @@ function MainController() {
         var name = target.attr('name');
         var varObj = CPT_vars[name];
         CPT_var.c_var = varObj;
-
         switch (e.which) {
             case 1:
                 // Left Mouse button pressed.
@@ -365,19 +333,14 @@ function MainController() {
                 //'You have a strange Mouse!
                 return;
         }
-
         varObj.cx = parseInt(target.attr('cx'));
         varObj.cy = parseInt(target.attr('cy'));
-
         varObj.clientX = e.clientX;
         varObj.clientY = e.clientY;
-
         varObj.isClicked = true;
     }
 
-
     function svgCircleMouseMove(e) {}
-
 
     function svgCircleMouseUp(e) {}
 
@@ -392,12 +355,10 @@ function MainController() {
             var text = varObj.svg[1];
             var newCx = varObj.cx + e.clientX - varObj.clientX;
             var newCy = varObj.cy + e.clientY - varObj.clientY;
-
             target.attr('cx', newCx);
             target.attr('cy', newCy);
             text.attr('x', newCx);
             text.attr('y', newCy);
-
             varObj.cx = newCx;
             varObj.cy = newCy;
             varObj.clientX = e.clientX;
@@ -405,7 +366,6 @@ function MainController() {
             drawNodePath('step1-svg', varObj.name);
         }
     }
-
     var busy = false;
 
     function svgMouseMove(e) {
@@ -429,7 +389,6 @@ function MainController() {
         console.log("double");
         createCPTtable();
     }
-
     this.addContextMenu = function() {
         $.contextMenu({
             selector: '.context-menu-node',
@@ -444,8 +403,14 @@ function MainController() {
                 }
             },
             items: {
-                'edit': { name: 'Edit CPT', icon: 'edit' },
-                'delete': { name: 'Delete', icon: 'delete' },
+                'edit': {
+                    name: 'Edit CPT',
+                    icon: 'edit'
+                },
+                'delete': {
+                    name: 'Delete',
+                    icon: 'delete'
+                },
                 'sep1': '---------',
                 'quit': {
                     name: 'Quit',
@@ -453,7 +418,6 @@ function MainController() {
                 }
             }
         });
-
         $('.context-menu-one').on('click', function(e) {
             console.log('clicked', this);
         });
@@ -467,11 +431,117 @@ function MainController() {
         e.preventDefault();
     }
 
-    function circleInListDrop(e) {
-        e.preventDefault();
-        var id = e.originalEvent.dataTransfer.getData('id');
-        console.log(id);
-        $(e.target).append($('#' + id));
+    function circleInListEnter(e) {
+        var target = $(e.target);
+        if (target.hasClass('node-box')) {
+            target.addClass('dragEnter');
+        }
     }
 
+    function circleInListLeave(e) {
+        var target = $(e.target);
+        if (target.hasClass('node-box')) {
+            target.removeClass('dragEnter');
+        }
+    }
+
+    function messUpStr(str) {
+        var query = [];
+        var evidence = [];
+        var isEvi = false;
+        str = str.replace(/\s/g, '');
+        for (var i = 0, len = str.length; i < len; i++) {
+            var c = str[i];
+            if (c === ',') {
+                continue;
+            }
+            if (c === '|') {
+                isEvi = true;
+                continue;
+            }
+            if (isEvi) {
+                evidence.push(c);
+            } else {
+                query.push(c);
+            }
+        }
+        var result = '';
+        query.forEach(function(item) {
+            result += '+' + item;
+        });
+        evidence.forEach(function(item) {
+            result += '|' + item;
+        });
+        return result;
+    }
+
+    function cleanUpStr(str) {
+        var query = [];
+        var evidence = [];
+        var result = '';
+
+        for (var i = 0, len = str.length; i < len; i++) {
+            var c = str[i];
+            i++;
+            if (c === '+') {
+                evidence.remove(str[i]);
+                query.push(str[i]);
+            } else if (c === '|') {
+                query.remove(str[i]);
+                evidence.push(str[i]);
+            } else if (c === '-') {
+                query.remove(str[i]);
+                evidence.remove(str[i]);
+            }
+        }
+
+        if (query.length > 0) {
+            result = query[0];
+            query.splice(0, 1);
+            query.forEach(function(item) {
+                result += ', ' + item;
+            });
+        }
+
+        if (evidence.length > 0) {
+            result += '|' + evidence[0];
+            evidence.splice(0, 1);
+            evidence.forEach(function(item) {
+                result += ', ' + item;
+            });
+        }
+
+        return result;
+    }
+
+    function circleInListDrop(e) {
+        e.preventDefault();
+        var target = $(e.target);
+        var id = e.originalEvent.dataTransfer.getData('id');
+        var varName = id.slice(-1);
+
+        if (target.hasClass('var-in-list')) {
+            target = target.parent();
+        }
+
+        if (target.hasClass('node-box')) {
+            target.append($('#' + id));
+            var id = target.attr('id');
+            var queryUI = $('#query-str');
+            var str = queryUI.text().slice(2, -1);
+            var str = messUpStr(str);
+            switch (id) {
+                case 'vars-list':
+                    str = cleanUpStr(str + '-' + varName);
+                    break;
+                case 'query-box':
+                    str = cleanUpStr(str + '+' + varName);
+                    break;
+                case 'evidence-box':
+                    str = cleanUpStr(str + '|' + varName);
+                    break;
+            }
+            queryUI.text('P(' + str + ')');
+        }
+    }
 }

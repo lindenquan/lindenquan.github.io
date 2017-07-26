@@ -126,7 +126,6 @@ button.gradient.active {
     background-color: #dddddd;
 }
 
-
 .btn-pen {
     padding: 0 0;
     font-size: 17px;
@@ -158,9 +157,7 @@ button.gradient.active {
     background-position: 50% -41px;
     font-weight: bold;
     font-size: 19px;
-    text-shadow: 0 1px 0 #ccc,
-    0 0 5px rgba(0, 0, 0, .1),
-    0 1px 3px rgba(0, 0, 0, .3);
+    text-shadow: 0 1px 0 #ccc, 0 0 5px rgba(0, 0, 0, .1), 0 1px 3px rgba(0, 0, 0, .3);
 }
 
 .DAG {
@@ -298,7 +295,6 @@ div.cs-skin-boxes {
     box-shadow: 0 16px 28px 0 rgba(0, 0, 0, 0.22), 0 25px 55px 0 rgba(0, 0, 0, 0.21);
 }
 
-
 input[type=checkbox] {
     display: none;
 }
@@ -333,7 +329,6 @@ label::before {
     border-radius: 100px;
     transition: background-color .2s;
 }
-
 
 label:hover,
 input:focus+label {
@@ -451,7 +446,6 @@ tr th {
     flex-grow: 0;
 }
 
-
 #step1-canvas {
     border-color: rgba(0, 0, 0, .8);
     border-width: 2px;
@@ -509,7 +503,7 @@ svg text {
 .node-box {
     border-radius: 10px;
     height: 4em;
-    border: 1px solid;
+    border: 2px solid black;
 }
 
 #vars-list {
@@ -519,6 +513,15 @@ svg text {
 
 #page-query {
     height: 100%;
+}
+
+.dragEnter {
+    border: 2px dotted green;
+}
+
+#query-str {
+    text-align: center;
+    font-size: 18px;
 }
 
 </style>

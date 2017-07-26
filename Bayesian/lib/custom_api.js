@@ -11,3 +11,14 @@ jQuery.fn.extend({
         return results;
     }
 });
+
+Array.prototype.remove = function(elem, all) {
+  for (var i=this.length-1; i>=0; i--) {
+    if (this[i] === elem) {
+        this.splice(i, 1);
+        if(!all)
+          break;
+    }
+  }
+  return this;
+};
