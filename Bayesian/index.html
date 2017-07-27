@@ -54,18 +54,15 @@
             <h1>The purpose of this site</h1>
             <p>This site is supposed to help you understand the junction tree algorithms in terms of Hugin propagation and Shafer-Shenoy propagation.</p>
             <p>This site is for tutorial purpose, not for the real-world application.</p>
-            <p>
-                In step 1, you need to draw a DAG and enter the corresponding CPTs.
-            </p>
-            <p>
-                In step 2, you need to enter a query.
-            </p>
-            <p>
-                In the following steps, you will learn how the inference algorithem is performed.
-            </p>
+            <ul class="instruction-list">
+                <li>In step 1, you need to draw a DAG and enter the corresponding CPTs.</li>
+                <li>In step 2, you need to enter a query.</li>
+                <li>In the following steps, you will learn how the inference algorithem is performed.</li>
+            </ul>
             <p>
                 You can also use the arrow keys to turn pages forward or backward.
             </p>
+            <p> If you require any further information, feel free to contact me. linden.quan@hotmail.com</p>
             <button id="btn-start" type="button" class="btn nextPage">Let's start!</button>
         </div>
         <div data-menu="Step 1">
@@ -210,7 +207,7 @@
         </div>
         <div data-menu="Step 3">
             <button type="button" class="btn prevPage">Prev</button>
-            <h1>Moral Graph</h1>
+            <h1>Moralization</h1>
             <p>To answer the query, we need to generate the junction tree.</p>
             <p>The first step of generating a junction tree is moralizing the original DAG.</p>
             <p>To transform a DAG to the moral graph, add edges between all pairs of nodes that have a common child, and remove all directions. </p>
@@ -227,6 +224,13 @@
                 <div id="step3-canvas" class='flex-grow-1 canvas'>
                 </div>
             </div>
+        </div>
+        <div data-menu="Step 4">
+            <button type="button" class="btn prevPage">Prev</button>
+            <h1>Triangulation</h1>
+            <p>In this step, we need to transform the moralized graph to the triangulated graph. To do so, we need perform maximum cardinality search(MCS) algorithm to determin the ordering. After obtaining the ordering, make the ordering perfect by adding edges to the moral graph. The new graph with perfect ordering is the triangulated graph.
+            </p>
+            <p>MCS algorithm and the concept of perfect ordering can be found online.</p>
         </div>
     </div>
     <div class="modal" id="parents" role="dialog" data-easein="expandIn">

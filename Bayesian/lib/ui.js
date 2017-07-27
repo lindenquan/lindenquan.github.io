@@ -594,15 +594,18 @@ function MainController() {
         for (var i = 0, len = str.length; i < len; i++) {
             var c = str[i];
             i++;
+            var nc = str[i];
             if (c === '+') {
-                evidence.remove(str[i]);
-                query.push(str[i]);
+                evidence.remove(nc);
+                query.remove(nc);
+                query.push(nc);
             } else if (c === '|') {
-                query.remove(str[i]);
-                evidence.push(str[i]);
+                query.remove(nc);
+                evidence.remove(nc);
+                evidence.push(nc);
             } else if (c === '-') {
-                query.remove(str[i]);
-                evidence.remove(str[i]);
+                query.remove(nc);
+                evidence.remove(nc);
             }
         }
 
