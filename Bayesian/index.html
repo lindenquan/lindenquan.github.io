@@ -87,7 +87,6 @@
             <button type="button" class="btn nextPage">Next</button>
             <div id='step1-wrapper'>
                 <div id='step1-head'>
-                    <h1>DAG:</h1>
                     <p>
                         <select id="v-selector" class="cs-select cs-skin-boxes">
                             <option value="" disabled selected>variable</option>
@@ -189,7 +188,6 @@
         </div>
         <div id="page-query">
             <button type="button" class="btn nextPage">Next</button>
-            <h1>Query</h1>
             <p>Drag the variables into the query set or evidence set. For the sake of simplicity, you can't specify any value.
             </p>
             <div>
@@ -209,6 +207,26 @@
                 </div>
             </div>
             <div id="query-str" class="p">P()</div>
+        </div>
+        <div data-menu="Step 3">
+            <button type="button" class="btn prevPage">Prev</button>
+            <h1>Moral Graph</h1>
+            <p>To answer the query, we need to generate the junction tree.</p>
+            <p>The first step of generating a junction tree is moralizing the original DAG.</p>
+            <p>To transform a DAG to the moral graph, add edges between all pairs of nodes that have a common child, and remove all directions. </p>
+        </div>
+        <div class="DAG">
+            <button type="button" class="btn nextPage">Next</button>
+            <div class='flex-col'>
+                <div class='flex-grow-0'>
+                    <p>
+                        <button id="btn-demoralize" class="hvr-back-pulse">Demoralize</button>
+                        <button id="btn-moralize" class="hvr-back-pulse">Moralize</button>
+                    </p>
+                </div>
+                <div id="step3-canvas" class='flex-grow-1 canvas'>
+                </div>
+            </div>
         </div>
     </div>
     <div class="modal" id="parents" role="dialog" data-easein="expandIn">

@@ -502,7 +502,7 @@ svg text {
 
 .node-box {
     border-radius: 10px;
-    height: 4em;
+    height: 5em;
     border: 2px solid black;
 }
 
@@ -524,4 +524,47 @@ svg text {
     font-size: 18px;
 }
 
-</style>
+.flex-col {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.flex-grow-0 {
+    flex-grow: 0;
+}
+
+.flex-grow-1 {
+    flex-grow: 1;
+}
+
+.canvas {
+    position: relative;
+    margin-bottom: 50px;
+}
+
+#btn-moralize {
+    position: absolute;
+    right: 3em;
+}
+
+#btn-demoralize {
+    position: absolute;
+    left: 3em;
+}
+
+line[moral="true"] {
+    stroke: orangered;
+}
+
+.line-animation {
+    stroke-dasharray: 1000;
+    stroke-dashoffset: 1000;
+    animation: dash 5s linear forwards;
+}
+
+@keyframes dash {
+    to {
+        stroke-dashoffset: 0;
+    }
+}

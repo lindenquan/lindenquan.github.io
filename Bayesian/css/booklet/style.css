@@ -5,6 +5,7 @@ Booklet is a jQuery tool for displaying content on the web in a flipbook layout.
 It was built using the jQuery library. Licensed under both MIT and GPL licenses.
 http://jquery.org/license
 */
+
 * {
     margin: 0;
     padding: 0;
@@ -138,6 +139,7 @@ span.reference a:hover {
 .book p {
     font-size: 16px;
     margin: 15px 5px 15px 15px;
+    min-height: 1em;
 }
 
 .book a.article,

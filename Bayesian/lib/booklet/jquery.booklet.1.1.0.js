@@ -326,8 +326,17 @@
             gotoPage: function(num) {
                 $('.b-page-3').css('visibility', 'visible');
                 var _item = pageItemMap[num];
+                if(_item === undefined){
+                    return;
+                }
                 _item.addClass('btn-pen-active');
                 _item.siblings().removeClass('btn-pen-active');
+
+                var callback = opts.onPage[num];
+                if(callback){
+                    callback();
+                }
+
                 //moving forward (increasing number)
                 if (num > opts.curr && num < opts.pTotal && num >= 0 && !busy) {
                     busy = true;
@@ -911,7 +920,8 @@
 
         before: function() {}, // callback invoked before each page turn animation
         after: function() {}, // callback invoked after each page turn animation
-        finish: function() {} // callback invoked after finishing initialization
+        finish: function() {}, // callback invoked after finishing initialization
+        onPage: {} // Key is page number, value is a callback function {3:function(){}}.
     }
 
 })(jQuery);
