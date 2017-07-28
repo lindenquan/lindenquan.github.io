@@ -130,8 +130,43 @@ function MainController() {
         $('#vars-list').append(varCircle);
     }
 
+    // insert node in DAG
+    // this function for sample feature
+    function insertNode(name, map, parents, location) {
+        var up = name.toUpperCase(),
+            low = name.toLowerCase(),
+            mLow = '-' + low;
+
+        removeOption(name);
+
+        var varOjb = new CPT_var(up);
+        CPT_vars[up] = varOjb;
+        addToQueryList(varOjb);
+
+        varOjb.var = new Variable(up, [low, mLow]);
+
+        var mapVar = [];
+        parents.forEach(function(item) {
+            varOjb.parents.push(item.name);
+            mapVar.push(item.var);
+        });
+
+        mapVar.push(varOjb.var);
+
+        varOjb.dist = new Distribution(map, mapVar);
+
+        var vertex = new Vertex();
+        vertex.name = varOjb.name;
+        vertex.cx = location.cx;
+        vertex.cy = location.cy;
+        originalGraph.addVertex(vertex);
+
+        return varOjb;
+    }
+
     // display a sample DAG
     function onSample() {
+        // initialize
         var svg = $('#original-svg');
         DAGChanged = true;
         CPT_vars = [];
@@ -140,64 +175,63 @@ function MainController() {
         originalGraph = new Graph();
         svg.setGraph(originalGraph);
 
-        var var1 = new CPT_var('A');
-        var1.var = new Variable('A', ['a', '-a']);
-        CPT_vars['A'] = var1;
+        // -------------
         map = {};
-        map[['a']] = 0.8;
-        map[['-a']] = 0.2;
-        var1.dist = new Distribution(map, [var1.var]);
-        addToQueryList(var1);
+        map[['a']] = 0.1;
+        map[['-a']] = 0.9;
+        var varA = insertNode('A', map, [], { cx: 215, cy: 70 });
 
-        var var2 = new CPT_var('B');
-        var2.var = new Variable('B', ['b', '-b']);
-        CPT_vars['B'] = var2;
         map = {};
-        map[['b']] = 0.3;
-        map[['-b']] = 0.7;
-        var2.dist = new Distribution(map, [var2.var]);
-        addToQueryList(var2);
+        map[['a', 'b']] = 0.1;
+        map[['a', '-b']] = 0.9;
+        map[['-a', 'b']] = 0.9;
+        map[['-a', '-b']] = 0.1;
+        var varB = insertNode('B', map, [varA], { cx: 120, cy: 140 });
 
-        var var3 = new CPT_var('C');
-        var3.var = new Variable('C', ['c', '-c']);
-        CPT_vars['C'] = var3;
         map = {};
-        map[['a', 'b', 'c']] = 0.2;
-        map[['a', 'b', '-c']] = 0.8;
-        map[['a', '-b', 'c']] = 0.3;
-        map[['a', '-b', '-c']] = 0.7;
-        map[['-a', 'b', 'c']] = 0.4;
-        map[['-a', 'b', '-c']] = 0.6;
-        map[['-a', '-b', 'c']] = 0.5;
-        map[['-a', '-b', '-c']] = 0.5;
-        var3.dist = new Distribution(map, [var1.var, var2.var, var3.var]);
-        addToQueryList(var3);
-        var3.parents.push(var1.name);
-        var3.parents.push(var2.name);
+        map[['a', 'c']] = 0.2;
+        map[['a', '-c']] = 0.7;
+        map[['-a', 'c']] = 0.5;
+        map[['-a', '-c']] = 0.5;
+        var varC = insertNode('C', map, [varA], { cx: 310, cy: 140 });
 
-        var vertex1 = new Vertex();
-        vertex1.name = var1.name;
-        vertex1.cx = 115;
-        vertex1.cy = 115;
+        map = {};
+        map[['b', 'd']] = 0.4;
+        map[['b', '-d']] = 0.6;
+        map[['-b', 'd']] = 0.7;
+        map[['-b', '-d']] = 0.3;
+        var varD = insertNode('D', map, [varB], { cx: 120, cy: 270 });
 
-        var vertex2 = new Vertex();
-        vertex2.name = var2.name;
-        vertex2.cx = 300;
-        vertex2.cy = 115;
+        map = {};
+        map[['c', 'e']] = 0.4;
+        map[['c', '-e']] = 0.6;
+        map[['-c', 'e']] = 0.7;
+        map[['-c', '-e']] = 0.3;
+        var varE = insertNode('E', map, [varC], { cx: 310, cy: 270 });
 
-        var vertex3 = new Vertex();
-        vertex3.name = var3.name;
-        vertex3.cx = vertex1.cx + (vertex2.cx - vertex1.cx) / 2 | 0;
-        vertex3.cy = 300;
+        map = {};
+        map[['d', 'e', 'f']] = 0.1;
+        map[['d', 'e', '-f']] = 0.9;
+        map[['d', '-e', 'f']] = 0.5;
+        map[['d', '-e', '-f']] = 0.5;
+        map[['-d', 'e', 'f']] = 0.4;
+        map[['-d', 'e', '-f']] = 0.6;
+        map[['-d', '-e', 'f']] = 0.8;
+        map[['-d', '-e', '-f']] = 0.2;
+        var varF = insertNode('F', map, [varD, varE], { cx: 215, cy: 350 });
 
-        originalGraph.addVertex(vertex1);
-        originalGraph.addVertex(vertex2);
-        originalGraph.addVertex(vertex3);
-
-        originalGraph.addEdgeByName(var1.name, var3.name, { 'isDirected': true });
-        originalGraph.addEdgeByName(var2.name, var3.name, { 'isDirected': true });
+        originalGraph.addEdgeByName(varA.name, varB.name, { 'isDirected': true });
+        originalGraph.addEdgeByName(varA.name, varC.name, { 'isDirected': true });
+        originalGraph.addEdgeByName(varB.name, varD.name, { 'isDirected': true });
+        originalGraph.addEdgeByName(varC.name, varE.name, { 'isDirected': true });
+        originalGraph.addEdgeByName(varD.name, varF.name, { 'isDirected': true });
+        originalGraph.addEdgeByName(varE.name, varF.name, { 'isDirected': true });
 
         originalGraph.paint(svg);
+    }
+
+    function removeOption(name){
+        $('.cs-options li[data-value="'+name.toLowerCase()+'"]').remove();
     }
 
     function onSpawn() {
@@ -236,6 +270,9 @@ function MainController() {
                 vertex.name = c_var.name;
                 originalGraph.addVertex(vertex);
                 DAGChanged = true;
+
+                // remove option
+                removeOption(selected);
             } else {
                 // already has this variable, select another one.
                 console.log('already has this variable, select another one.');
