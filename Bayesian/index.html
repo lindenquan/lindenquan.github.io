@@ -21,6 +21,7 @@
     <script src='lib/velocity.min.1.5.0.js' defer></script>
     <script src='lib/velocity.ui.min.js' defer></script>
     <script src="lib/modal.js" defer></script>
+    <script src="lib/graph.js" defer></script>
     <script src="lib/ui.js" defer></script>
     <script src="lib/select.js" defer></script>
     <link rel="stylesheet" type="text/css" href="css/bootstrap.3.3.7.min.css" />
@@ -65,7 +66,7 @@
             <p> If you require any further information, feel free to contact me. linden.quan@hotmail.com</p>
             <button id="btn-start" type="button" class="btn nextPage">Let's start!</button>
         </div>
-        <div data-menu="Step 1">
+        <div data-menu="DAG">
             <button type="button" class="btn prevPage">Prev</button>
             <h1>Draw a DAG and enter CPTs</h1>
             <p>For the sake of simplicity, the name of a variable must be a single letter in uppercase, which means there are 26 variables at most. All of the variables are binary-valued, and all value is in lowercase.</p>
@@ -80,10 +81,10 @@
                 </ul>
             </div>
         </div>
-        <div class="DAG">
+        <div class="full-height">
             <button type="button" class="btn nextPage">Next</button>
-            <div id='step1-wrapper'>
-                <div id='step1-head'>
+            <div class='page-wrapper'>
+                <div class='page-head'>
                     <p>
                         <select id="v-selector" class="cs-select cs-skin-boxes">
                             <option value="" disabled selected>variable</option>
@@ -115,20 +116,16 @@
                             <option value="z">Z</option>
                         </select>
                         <button id="btn-spawn" class="hvr-back-pulse">spawn</button>
+                        <button id="btn-sample" class="hvr-back-pulse">sample</button>
                     </p>
                 </div>
-                <div id="step1-canvas">
-                    <svg id="step1-svg">
-                        <defs>
-                            <marker id="triangle" viewBox="0 0 10 10" refX="30" refY="5" markerUnits="strokeWidth" markerWidth="4" markerHeight="3" orient="auto">
-                                <path d="M 0 0 L 10 5 L 0 10 z" />
-                            </marker>
-                        </defs>
+                <div id="original-canvas" class="canvas">
+                    <svg id="original-svg">
                     </svg>
                 </div>
             </div>
         </div>
-        <div data-menu="Step 2">
+        <div data-menu="Query">
             <button type="button" class="btn prevPage">Prev</button>
             <h1>Enter a query</h1>
             <p>The general form of a query is P(Q|E=e)?</p>
@@ -205,39 +202,56 @@
             </div>
             <div id="query-str" class="p">P()</div>
         </div>
-        <div data-menu="Step 3">
+        <div data-menu="Step 1">
             <button type="button" class="btn prevPage">Prev</button>
             <h1>Moralization</h1>
             <p>To answer the query, we need to generate the junction tree.</p>
             <p>The first step of generating a junction tree is moralizing the original DAG.</p>
             <p>To transform a DAG to the moral graph, add edges between all pairs of nodes that have a common child, and remove all directions. </p>
         </div>
-        <div class="DAG">
+        <div class="full-height">
             <button type="button" class="btn nextPage">Next</button>
-            <div class='flex-col'>
-                <div class='flex-grow-0'>
+            <div class='page-wrapper'>
+                <div class='page-head'>
                     <p>
-                        <button id="btn-demoralize" class="hvr-back-pulse">Demoralize</button>
-                        <button id="btn-moralize" class="hvr-back-pulse">Moralize</button>
+                        <button id="btn-demoralize" class="hvr-back-pulse float-left">Demoralize</button>
+                        <button id="btn-moralize" class="hvr-back-pulse float-right">Moralize</button>
                     </p>
                 </div>
-                <div id="step3-canvas" class='flex-grow-1 canvas'>
+                <div id="moral-canvas" class='canvas'>
+                    <svg id="moral-svg">
+                    </svg>
                 </div>
             </div>
         </div>
-        <div data-menu="Step 4">
+        <div data-menu="Step 2">
             <button type="button" class="btn prevPage">Prev</button>
             <h1>Triangulation</h1>
             <p>In this step, we need to transform the moralized graph to the triangulated graph. To do so, we need perform maximum cardinality search(MCS) algorithm to determin the ordering. After obtaining the ordering, make the ordering perfect by adding edges to the moral graph. The new graph with perfect ordering is the triangulated graph.
             </p>
             <p>MCS algorithm and the concept of perfect ordering can be found online.</p>
         </div>
+        <div class="full-height">
+            <button type="button" class="btn nextPage">Next</button>
+            <div class='page-wrapper'>
+                <div class='page-head'>
+                    <p>
+                        <button id="btn-detriangulate" class="hvr-back-pulse float-left">Detriangulate</button>
+                        <button id="btn-triangulate" class="hvr-back-pulse float-right">Triangulate</button>
+                    </p>
+                </div>
+                <div id="triangle-canvas" class='canvas'>
+                    <svg id="triangle-svg">
+                    </svg>
+                </div>
+            </div>
+        </div>
     </div>
     <div class="modal" id="parents" role="dialog" data-easein="expandIn">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <!--<button type="button" class="close" data-dismiss="modal">&times;</button>-->
                     <span class="modal-title">Select parents</span>
                 </div>
                 <div class="modal-body">
@@ -253,7 +267,7 @@
             <!-- Modal content-->
             <div class="modal-content">
                 <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <!--<button type="button" class="close" data-dismiss="modal">&times;</button>-->
                     <span class="modal-title">CPT</span>
                 </div>
                 <div class="modal-body">

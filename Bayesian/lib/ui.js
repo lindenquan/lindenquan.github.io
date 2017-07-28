@@ -6,7 +6,7 @@ $(function() {
         height: 550, // container height
         next: $('#btn-start'),
         finish: onFinish,
-        onPage: { 6: mc.onStep3 }
+        onPage: { 6: mc.onMoralization, 8: mc.onTriangulation }
     });
 
     function onFinish() {
@@ -37,43 +37,48 @@ function MainController() {
     $(document).on('dblclick', 'svg circle', doubleClickCircle);
     $(document).on('click', '#btn-start', btn_start);
     $(document).on('click', '#btn-spawn', onSpawn);
+    $(document).on('click', '#btn-sample', onSample);
     $(document).on('click', '#btn-moralize', onMoralize);
     $(document).on('click', '#btn-demoralize', onDemoralize);
+    $(document).on('click', '#btn-triangulate', onTriangulate);
+    $(document).on('click', '#btn-detriangulate', onDetriangulate);
     $(document).on('click', '#parents .confirm', onParentConfirm);
     $(document).on('click', '#modal-cpt .confirm', onCPTConfirm);
 
-    function btn_start() {
-        $('.b-page-3').css('visibility', 'visible');
-    };
+    var originalGraph = new Graph('original graph');
+    $('#original-svg').setGraph(originalGraph);
+
+    var moralGraph = null;
+    var triangulatedGraph = null;
+
     // CPT_var class
     function CPT_var(name) {
         this.name = name;
         this.var = null; // Variable object
         this.dist = null; // Distribution object
-        this.parents = []; // string array - parents names
-        this.p_objs = []; // CPT_var array - parents object
-        this.c_objs = []; // CPT_var array - children object
-        this.cx = {}; // x coordinate format example {svgID:cx} cx value in svg 
-        this.cy = {}; // y coordinate
-        this.clientX = 0;
-        this.clientY = 0;
-        this.isClicked = false;
-        this.svg = []; // corresponding svg object array. for example: circle text
+        this.parents = []; // parents name list
     }
-    CPT_var.c_var = null; // current CPT_var object
-    CPT_var.r = 20; // radius
+
+    var c_var = null; // current CPT_var object
     var CPT_vars = {}; // key is string variable name, value is a CPT_var object.
-    CPT_var.c_var = null; // current CPT_var object
+    var DAGChanged = false;
+    var moralChanged = false;
+
+    function btn_start() {
+        $('.b-page-3').css('visibility', 'visible');
+    };
 
     function createCPTtable() {
         var table = $('#table-cpt');
         var str = '';
-        var c_name = CPT_var.c_var.name;
+        var c_name = c_var.name;
         var dist = CPT_vars[c_name].dist;
         var isNew = dist === null;
         var p_c = []; // parents + current variable
-        p_c = p_c.concat(CPT_var.c_var.parents);
+
+        p_c = p_c.concat(c_var.parents);
         p_c.push(c_name);
+
         var last_th = '<th>p(' + c_name;
         if (p_c.length === 1) {
             str += '<th>' + c_name + '</th>'
@@ -93,11 +98,13 @@ function MainController() {
             last_th += ')</th>';
         }
         var th = '<tr>' + str + last_th + '</tr>';
+
         var permute = Tool.permute(p_c.map(function(x) {
             return x.toLowerCase()
         }));
+
         str = '';
-        var default_p = 1 / permute.length;
+        var default_p = 0.5;
         permute.forEach(function(tr, index) {
             str += '<tr>';
             tr.forEach(function(td) {
@@ -109,25 +116,107 @@ function MainController() {
                 str += '<td><input type="text" value="' + dist.getMapValue(index) + '"></td></tr>';
             }
         });
+
         table.html(th + str);
-        $('#modal-cpt').modal();
+        $('#modal-cpt').modal({
+            keyboard: false,
+            backdrop: 'static'
+        });
     }
 
-    function addToListInStep2(varObj) {
+    function addToQueryList(varObj) {
         var str = '<span id="circle-in-list-' + varObj.name + '" ';
         var varCircle = $(str + 'class="var-in-list" draggable="true">' + varObj.name + '</span>');
         $('#vars-list').append(varCircle);
     }
 
+    // display a sample DAG
+    function onSample() {
+        var svg = $('#original-svg');
+        DAGChanged = true;
+        CPT_vars = [];
+        $('#vars-list').html('');
+        var map;
+        originalGraph = new Graph();
+        svg.setGraph(originalGraph);
+
+        var var1 = new CPT_var('A');
+        var1.var = new Variable('A', ['a', '-a']);
+        CPT_vars['A'] = var1;
+        map = {};
+        map[['a']] = 0.8;
+        map[['-a']] = 0.2;
+        var1.dist = new Distribution(map, [var1.var]);
+        addToQueryList(var1);
+
+        var var2 = new CPT_var('B');
+        var2.var = new Variable('B', ['b', '-b']);
+        CPT_vars['B'] = var2;
+        map = {};
+        map[['b']] = 0.3;
+        map[['-b']] = 0.7;
+        var2.dist = new Distribution(map, [var2.var]);
+        addToQueryList(var2);
+
+        var var3 = new CPT_var('C');
+        var3.var = new Variable('C', ['c', '-c']);
+        CPT_vars['C'] = var3;
+        map = {};
+        map[['a', 'b', 'c']] = 0.2;
+        map[['a', 'b', '-c']] = 0.8;
+        map[['a', '-b', 'c']] = 0.3;
+        map[['a', '-b', '-c']] = 0.7;
+        map[['-a', 'b', 'c']] = 0.4;
+        map[['-a', 'b', '-c']] = 0.6;
+        map[['-a', '-b', 'c']] = 0.5;
+        map[['-a', '-b', '-c']] = 0.5;
+        var3.dist = new Distribution(map, [var1.var, var2.var, var3.var]);
+        addToQueryList(var3);
+        var3.parents.push(var1.name);
+        var3.parents.push(var2.name);
+
+        var vertex1 = new Vertex();
+        vertex1.name = var1.name;
+        vertex1.cx = 115;
+        vertex1.cy = 115;
+
+        var vertex2 = new Vertex();
+        vertex2.name = var2.name;
+        vertex2.cx = 300;
+        vertex2.cy = 115;
+
+        var vertex3 = new Vertex();
+        vertex3.name = var3.name;
+        vertex3.cx = vertex1.cx + (vertex2.cx - vertex1.cx) / 2 | 0;
+        vertex3.cy = 300;
+
+        originalGraph.addVertex(vertex1);
+        originalGraph.addVertex(vertex2);
+        originalGraph.addVertex(vertex3);
+
+        originalGraph.addEdgeByName(var1.name, var3.name, { 'isDirected': true });
+        originalGraph.addEdgeByName(var2.name, var3.name, { 'isDirected': true });
+
+        originalGraph.paint(svg);
+    }
+
     function onSpawn() {
         var selector = $('#v-selector');
-        var c_var = selector.val().toUpperCase();
-        if (typeof c_var === 'string') {
-            var varObj = CPT_vars[c_var];
+        var selected = selector.val();
+
+        if (selected === undefined || selected === null) {
+            return;
+        }
+
+        selected = selected.toUpperCase();
+        if (typeof selected === 'string') {
+            var varObj = CPT_vars[selected];
             if (varObj === undefined) {
-                CPT_var.c_var = new CPT_var(c_var);
+                c_var = new CPT_var(selected);
+
                 var otherVars = Object.keys(CPT_vars);
-                CPT_vars[c_var] = CPT_var.c_var;
+                CPT_vars[selected] = c_var;
+
                 var modal_body = $('#parents .modal-body');
                 modal_body.html('');
                 otherVars.forEach(function(i) {
@@ -136,126 +225,69 @@ function MainController() {
                     modal_body.append(input);
                     modal_body.append(lable);
                 });
-                var upper = c_var.toLowerCase();
-                CPT_var.c_var.var = new Variable(c_var, [upper, '-' + upper]);
-                addToListInStep2(CPT_var.c_var);
+
+                var lowercase = selected.toLowerCase();
+                c_var.var = new Variable(selected, [lowercase, '-' + lowercase]);
+
+                addToQueryList(c_var);
+
+                // add vertex
+                var vertex = new Vertex();
+                vertex.name = c_var.name;
+                originalGraph.addVertex(vertex);
+                DAGChanged = true;
             } else {
                 // already has this variable, select another one.
                 console.log('already has this variable, select another one.');
             }
+
             if (Object.keys(CPT_vars).length === 1) {
                 // first node
                 createCPTtable();
             } else {
-                $('#parents').modal();
+                $('#parents').modal({
+                    keyboard: false,
+                    backdrop: 'static'
+                });
             }
         } else {
             // no variable is selected
         }
     }
 
-    function addLine(svg, fromObj, toObj, isMoral, name, p_name, marker, animation) {
-        var newLine = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-        var svgId = svg.attr('id');
-        var fromX = fromObj.cx[svgId];
-        var fromY = fromObj.cy[svgId];
-        var toX = toObj.cx[svgId];
-        var toY = toObj.cy[svgId];
-
-        if (!Number.isInteger(fromX) || !Number.isInteger(fromY) || !Number.isInteger(toX) || !Number.isInteger(toY)) {
-            return;
-        }
-
-        newLine.setAttribute('x1', fromX);
-        newLine.setAttribute('y1', fromY);
-        newLine.setAttribute('x2', toX);
-        newLine.setAttribute('y2', toY);
-        newLine.setAttribute('stroke', 'black');
-        newLine.setAttribute('stroke-width', 3);
-        newLine.setAttribute('marker-end', marker);
-        newLine.setAttribute('moral', '' + isMoral);
-        newLine.setAttribute('name', name);
-        newLine.setAttribute('p-name', p_name);
-        if (animation === true) {
-            $(newLine).attr('class', 'line-animation');
-        } else {
-            $(newLine).attr('class', '');
-        }
-
-        $(svg).prepend(newLine);
-    }
-
     function onDemoralize() {
-        var svg = $('#step3-svg');
-        if (svg.data('been-moralized') === 'false') {
+        var svg = $('#moral-svg');
+        if (svg.data('moralized') === 'false') {
             return;
+        } else {
+            var g = svg.getGraph();
+            g.demoralize();
+            g.paint(svg);
+            svg.data('moralized') === 'false';
         }
-
-        $('#step3-svg>line[moral="true"]').remove();
-        svg.children('line').attr('marker-end', 'url(#arrow3)');
-        svg.data('been-moralized', 'false');
-        svg.data('moralize', 'false');
-    }
-
-    function addMoralLines(svg, animation) {
-        var svgID = svg.attr('id');
-        var moralize = svg.data('moralize');
-        if (moralize === undefined || moralize === 'false' || svg.data('been-moralized') === 'true') {
-            return;
-        }
-
-        $('#' + svgID + ' line[moral="true"]').remove();
-        // add moral lines
-        var values = [];
-        for (var key in CPT_vars) {
-            values.push(CPT_vars[key]);
-        }
-        var lines = []; // line names format "from+to"
-
-        values.forEach(function(item) {
-            var p = item.p_objs;
-            var len = p.length;
-            var j = 0;
-            var temp = ''
-            if (len > 1) {
-                for (var i = 0; i + 1 < len; i++) {
-                    for (j = i + 1; j < len; j++) {
-                        temp = p[i].name + '+' + p[j].name;
-                        lines.remove(temp); // remove duplicate;
-                        lines.push(temp);
-                    }
-                }
-            }
-        });
-
-        lines.forEach(function(item) {
-            var fromTo = item.split('+');
-            var fromObj = CPT_vars[fromTo[0]];
-            var toObj = CPT_vars[fromTo[1]];
-            addLine(svg, fromObj, toObj, true, '', '', '', animation);
-        });
-
-        svg.children('line').attr('marker-end', '');
-        svg.data('been-moralized', 'true');
     }
 
     function onMoralize() {
-        var svg = $('#step3-svg');
-        svg.data('moralize', 'true');
-        addMoralLines(svg, true);
+        var svg = $('#moral-svg');
+        if (svg.data('moralized') === 'true') {
+            return;
+        } else {
+            var g = svg.getGraph();
+            g.moralize();
+            g.paint(svg, true);
+            svg.data('moralized') === 'true';
+        }
     }
 
     function onParentConfirm() {
+        var c_obj = CPT_vars[c_var.name];
+
         $('#parents input:checked').each(function(index, item) {
             var p = $(item).attr('id').slice(-1);
-            var c_obj = CPT_vars[CPT_var.c_var.name];
             var p_obj = CPT_vars[p];
-            var parents = c_obj.parents;
-            var p_objs = c_obj.p_objs;
-            var c_objs = p_obj.c_objs;
-            parents.push(p);
-            p_objs.push(p_obj);
-            c_objs.push(c_obj);
+
+            c_obj.parents.push(p_obj.name);
+            originalGraph.addEdgeByName(p_obj.name, c_obj.name, { 'isDirected': true });
         });
         createCPTtable();
     }
@@ -276,91 +308,6 @@ function MainController() {
             vars.push(CPT_vars[item].var);
         });
         return vars;
-    }
-
-    function calcXY(svg, node) {
-        var svgId = svg.attr('id');
-        var p = node.p_objs;
-        var MAX_Y = svg.height() - CPT_var.r;
-        var minX = svg.width() - CPT_var.r;
-        var maxX = 0;
-        var maxY = 0;
-        var x, y;
-        p.forEach(function(item) {
-            x = item.cx[svgId];
-            y = item.cy[svgId];
-            if (x < minX) {
-                minX = x;
-            }
-            if (x > maxX) {
-                maxX = x;
-            }
-            if (y > maxY) {
-                maxY = y;
-            }
-        });
-
-        y = maxY + CPT_var.r * 4;
-        y = (y > MAX_Y) ? MAX_Y : y;
-        y = (y < CPT_var.r) ? CPT_var.r : y;
-
-        x = minX + (((maxX - minX) / 2) | 0);
-
-        node.cx[svgId] = x;
-        node.cy[svgId] = y;
-    }
-
-    function addNode(svg, varName) {
-        var node = CPT_vars[varName];
-
-        var svgId = svg.attr('id');
-        var circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle'); //Create a path in SVG's namespace
-        calcXY(svg, node);
-
-        circle.setAttribute('class', 'draggable context-menu-node');
-        circle.setAttribute('cx', node.cx[svgId]);
-        circle.setAttribute('cy', node.cy[svgId]);
-        circle.setAttribute('r', CPT_var.r);
-        circle.setAttribute('stroke', 'black');
-        circle.setAttribute('stroke-width', 2);
-        circle.setAttribute('name', varName);
-        circle.setAttribute('fill', 'white');
-        node.svg[0] = $(circle);
-        svg.append(circle);
-
-        var text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-        text.setAttribute('x', node.cx[svgId]);
-        text.setAttribute('y', node.cy[svgId]);
-        text.setAttribute('name', varName);
-        text.innerHTML = varName;
-        text.setAttribute('stroke', 'black');
-        text.setAttribute('stroke-width', 1);
-        text.setAttribute('font-size', '2em');
-        text.setAttribute('fill', 'black');
-        text.setAttribute('text-anchor', 'middle');
-        text.setAttribute('alignment-baseline', 'middle');
-        text.setAttribute('dominant-baseline', 'middle');
-        node.svg[1] = $(text);
-        svg.append(text);
-    }
-
-    function drawNodePath(svg, varName) {
-        var c_obj = CPT_vars[varName];
-        var p = c_obj.p_objs;
-        var c = c_obj.c_objs;
-        var svgID = svg.attr('id');
-        var markerID = svg.data('markerID');
-
-        $('#' + svgID + ' line[name=' + varName + ']').remove();
-        $('#' + svgID + ' line[p-name=' + varName + ']').remove();
-
-        p.forEach(function(item) {
-            addLine(svg, item, c_obj, false, varName, item.name, 'url(#' + markerID + ')');
-        });
-
-        c.forEach(function(item) {
-            addLine(svg, c_obj, item, false, item.name, varName, 'url(#' + markerID + ')');
-        });
     }
 
     function onCPTConfirm(e) {
@@ -388,91 +335,68 @@ function MainController() {
         });
         var map = toDistMap(tds);
         var vars = toVar(ths);
-        var name = CPT_var.c_var.name;
-        if (CPT_var.c_var.dist === null) {
-            var svg = $('#step1-svg');
-            addNode(svg, name);
-            drawNodePath(svg, name);
-        }
-        CPT_var.c_var.dist = new Distribution(map, vars);
+
+        c_var.dist = new Distribution(map, vars);
+        originalGraph.paint($('#original-svg'));
     }
 
     function svgCircleMouseDown(e) {
-        var target = $(e.target);
-        var name = target.attr('name');
-        var varObj = CPT_vars[name];
 
-        var svg = target.parent();
-        varObj.svg[0] = target;
-        varObj.svg[1] = svg.children('text[name="' + name + '"]');
-
-        svg.data('markerID', svg.children('defs').children('marker').attr('id'));
-
-        CPT_var.c_var = varObj;
-        switch (e.which) {
-            case 1:
-                // Left Mouse button pressed.
-                break;
-            case 2:
-                // Middle Mouse button pressed.
-            case 3:
-                // Right Mouse button pressed.
-            default:
-                //'You have a strange Mouse!
-                return;
+        if (e.which !== 1) {
+            // 1 means left click
+            return;
         }
 
-        var svgId = svg.attr('id');
-        varObj.cx[svgId] = parseInt(target.attr('cx'));
-        varObj.cy[svgId] = parseInt(target.attr('cy'));
-        varObj.clientX = e.clientX;
-        varObj.clientY = e.clientY;
-        varObj.isClicked = true;
+        var target = $(e.target);
+        var name = target.attr('name');
+        c_var = CPT_vars[name];
+
+        var svg = target.parent();
+        var vertex = svg.getGraph().getVertex(name);
+        Vertex.selected = vertex;
+
+        vertex.clientX = e.clientX;
+        vertex.clientY = e.clientY;
+        vertex.isClicked = true;
     }
 
-    function svgCircleMouseMove(e) {}
+    function onTriangulate() {}
 
-    function svgCircleMouseUp(e) {}
+    function onDetriangulate() {}
 
     function svgStartDrag(e) {
         e.preventDefault();
     }
 
     function mouseMove(e) {
-        var varObj = CPT_var.c_var;
+        var vertex = Vertex.selected;
+        var target = $(e.target);
+        var svg = null;
+        var tagName = target.tagName();
+        if (tagName === 'svg') {
+            svg = target;
+        } else if (tagName === 'circle') {
+            svg = target.parent();
+        } else {
+            return;
+        }
 
-        if (varObj instanceof CPT_var && varObj.isClicked) {
+        if (vertex !== null && vertex.isClicked) {
+            var name = vertex.name;
 
-            var svg = $(e.target);
-            if (svg.prop('tagName') === 'circle') {
-                svg = svg.parent();
-            }
-
-            var svgId = svg.attr('id');
-            var varName = varObj.name;
-            var target = varObj.svg[0];
-            var text = varObj.svg[1];
-
-            var newCx = varObj.cx[svgId] + e.clientX - varObj.clientX;
-            var newCy = varObj.cy[svgId] + e.clientY - varObj.clientY;
+            var newCx = vertex.cx + e.clientX - vertex.clientX;
+            var newCy = vertex.cy + e.clientY - vertex.clientY;
 
             if (!Number.isInteger(newCx) || !Number.isInteger(newCy)) {
                 return;
             }
 
-            target.attr('cx', newCx);
-            target.attr('cy', newCy);
-            text.attr('x', newCx);
-            text.attr('y', newCy);
-            varObj.cx[svgId] = newCx;
-            varObj.cy[svgId] = newCy;
-            varObj.clientX = e.clientX;
-            varObj.clientY = e.clientY;
+            vertex.cx = newCx;
+            vertex.cy = newCy;
+            vertex.clientX = e.clientX;
+            vertex.clientY = e.clientY;
 
-            drawNodePath(svg, varName);
-
-            svg.data('been-moralized', 'false');
-            addMoralLines(svg);
+            svg.getGraph().paint(svg);
         }
     }
 
@@ -489,20 +413,19 @@ function MainController() {
     }
 
     function svgMouseUp(e) {
-        var varObj = CPT_var.c_var;
-        if (varObj !== undefined && varObj !== null && CPT_var.c_var.isClicked) {
-            CPT_var.c_var.isClicked = false;
+        var vertex = Vertex.selected;
+        if (vertex !== undefined && vertex !== null) {
+            vertex.isClicked = false;
         }
     }
 
     function doubleClickCircle(e) {
-        console.log("double");
         createCPTtable();
     }
 
     this.addContextMenu = function() {
         $.contextMenu({
-            selector: '#step1-canvas .context-menu-node',
+            selector: '#original-canvas .context-menu-node',
             callback: function(key, options) {
                 switch (key) {
                     case 'quit':
@@ -530,7 +453,7 @@ function MainController() {
             }
         });
         $('.context-menu-one').on('click', function(e) {
-            console.log('clicked', this);
+            //console.log('clicked', this);
         });
     }
 
@@ -659,21 +582,26 @@ function MainController() {
         }
     }
 
-    this.onStep3 = function() {
-        $('#step3-canvas').html($('#step1-canvas').html());
+    this.onMoralization = function() {
+        if (DAGChanged) {
+            DAGChanged = false;
+            moralChanged = true;
+            var svg = $('#moral-svg');
+            moralGraph = originalGraph.clone('moral graph');
+            svg.setGraph(moralGraph);
+            moralGraph.paint(svg);
+        }
+    }
 
-        var svg = $('#step3-canvas').children('svg');
-        svg.attr('id', 'step3-svg');
-        //svg.children('circle').removeClass('draggable');
-        svg.find('marker').attr('id', 'arrow3');
-        svg.children('line').attr('marker-end', 'url(#arrow3)');
-        svg.data('moralize', 'false');
-        svg.data('been-moralized', 'false');
-
-        for (var key in CPT_vars) {
-            var varObj = CPT_vars[key];
-            varObj.cx['step3-svg'] = varObj.cx['step1-svg'];
-            varObj.cy['step3-svg'] = varObj.cy['step1-svg'];
+    this.onTriangulation = function() {
+        if (moralChanged) {
+            moralChanged = false
+            var svg = $('#triangle-svg');
+            triangulatedGraph = moralGraph.clone('triangulated graph');
+            triangulatedGraph.moralize(false);
+            triangulatedGraph.normalize();
+            svg.setGraph(triangulatedGraph);
+            triangulatedGraph.paint(svg);
         }
     }
 }

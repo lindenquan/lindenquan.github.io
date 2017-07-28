@@ -139,7 +139,12 @@ span.reference a:hover {
 .book p {
     font-size: 16px;
     margin: 15px 5px 15px 15px;
-    min-height: 1em;
+}
+
+.book p::after {
+    content: "";
+    clear: both;
+    display: table;
 }
 
 .book a.article,
