@@ -601,3 +601,7 @@ text.mcs-order {
     pointer-events: none;
     user-select: none;
 }
+
+svg line.colored{
+    stroke: orangered;
+}

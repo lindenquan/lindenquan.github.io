@@ -175,6 +175,8 @@ function MainController() {
         var map;
         originalGraph = new Graph();
         svg.setGraph(originalGraph);
+        $('.cs-placeholder').text('variable');
+        $('#v-selector').val('');
 
         // -------------
         map = {};
@@ -239,7 +241,7 @@ function MainController() {
         var selector = $('#v-selector');
         var selected = selector.val();
 
-        if (selected === undefined || selected === null) {
+        if (selected === undefined || selected === null || selected === '') {
             return;
         }
 
@@ -293,19 +295,6 @@ function MainController() {
         }
     }
 
-    function onDemoralize() {
-        var svg = $('#moral-svg');
-        if (svg.children('circle').length) {
-            if (svg.data('moralized') === 'false') {
-                return;
-            } else {
-                var g = svg.getGraph();
-                g.demoralize();
-                g.paint(svg);
-                svg.data('moralized') === 'false';
-            }
-        }
-    }
 
     function onMoralize() {
         var svg = $('#moral-svg');
@@ -316,10 +305,25 @@ function MainController() {
                 var g = svg.getGraph();
                 g.moralize();
                 g.paint(svg, true);
-                svg.data('moralized') === 'true';
+                svg.data('moralized', 'true');
             }
         }
     }
+
+    function onDemoralize() {
+        var svg = $('#moral-svg');
+        if (svg.children('circle').length) {
+            if (svg.data('moralized') === 'false') {
+                return;
+            } else {
+                var g = svg.getGraph();
+                g.demoralize();
+                g.paint(svg);
+                svg.data('moralized', 'false');
+            }
+        }
+    }
+
 
     function onParentConfirm() {
         var c_obj = CPT_vars[c_var.name];
@@ -410,7 +414,7 @@ function MainController() {
             } else {
                 var g = svg.getGraph();
                 g.triangulate().paint(svg, true);
-                svg.data('triangulated') === 'true';
+                svg.data('triangulated', 'true');
             }
         }
     }
@@ -424,7 +428,7 @@ function MainController() {
             } else {
                 var g = svg.getGraph();
                 g.detriangulate().paint(svg);
-                svg.data('triangulated') === 'false';
+                svg.data('triangulated', 'false');
             }
         }
     }

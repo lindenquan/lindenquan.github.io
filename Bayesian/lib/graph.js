@@ -4,6 +4,7 @@ function Edge(from, to, options) {
     this.isMoral = (options['isMoral'] === true) ? true : false;
     this.isDirected = (options['isDirected'] === true) ? true : false;
     this.isAnimated = (options['isAnimated'] === true) ? true : false;
+    this.isColored = (options['isColored'] === true) ? true : false;
     this.options = options;
 
     this.paint = function(svg, markerID, isAnimated) {
@@ -31,10 +32,15 @@ function Edge(from, to, options) {
         line.setAttribute('moral', '' + this.isMoral);
         line.setAttribute('name', this.to.name);
         line.setAttribute('p-name', this.from.name);
-        if (this.isAnimated === true && this.isMoral) {
+
+        if (this.isAnimated === true) {
             $(line).attr('class', 'line-animation');
         } else {
             $(line).attr('class', '');
+        }
+
+        if (this.isColored === true) {
+            $(line).attr('class', $(line).attr('class') + ' colored');
         }
 
         svg.prepend(line);
@@ -139,17 +145,57 @@ function Graph(name) {
         return vertices;
     }
 
-    function addEdge(edge) {
+    this.isExist = function(edge, isDirected) {
         var isDuplicate = false;
+        var direct = (isDirected === false) ? false : true;
+
         edges.forEach(function(item) {
             if (item.from.name === edge.from.name && item.to.name === edge.to.name) {
-                // identical edge
-                isDuplicate = true;
-                return;
+                if (direct) {
+                    if (item.from.name === edge.to.name && item.to.name === edge.from.name) {
+                        isDuplicate = true;
+                        return;
+                    }
+                } else {
+                    // identical edge
+                    isDuplicate = true;
+                    return;
+                }
             }
         });
+        return isDuplicate;
+    }
 
-        if (!isDuplicate) {
+    this.isDuplicateEdge = function(fromName, toName, isDirected) {
+        var isDuplicate = false;
+        var direct = (isDirected === false) ? false : true;
+
+        edges.forEach(function(item) {
+            if (item.from.name === fromName && item.to.name === toName) {
+                if (direct) {
+                    if (item.from.name === toName && item.to.name === fromName) {
+                        isDuplicate = true;
+                        return;
+                    }
+                } else {
+                    // identical edge
+                    isDuplicate = true;
+                    return;
+                }
+            }
+
+        });
+        return isDuplicate;
+    }
+
+    this.addEdge = function(edge, check) {
+        var c = (check === false) ? false : true;
+
+        if (c) {
+            if (!this.isExist(edge)) {
+                edges.push(edge);
+            }
+        } else {
             edges.push(edge);
         }
     }
@@ -158,9 +204,8 @@ function Graph(name) {
         return edges;
     }
 
-    this.addEdgeByName = function(pName, name, options) {
+    this.addEdgeByName = function(pName, name, options, check) {
         var isDirected = (options['isDirected'] === true) ? true : false;
-        var isMoral = options['isMoral'];
 
         var pVertex = nameVertexMap[pName];
         var vertex = nameVertexMap[name];
@@ -168,8 +213,8 @@ function Graph(name) {
         if (isDirected) {
             vertex.parents.push(pVertex);
         }
-
-        addEdge(new Edge(pVertex, vertex, options));
+        var c = (check === false) ? false : true;
+        this.addEdge(new Edge(pVertex, vertex, options), c);
     }
 
     function addMarker(svg) {
@@ -223,7 +268,11 @@ function Graph(name) {
         });
 
         edges.forEach(function(item) {
-            item.paint(svg, markerID, isAnimated);
+            if (item.isMoral || item.isColored) {
+                item.paint(svg, markerID, isAnimated);
+            } else {
+                item.paint(svg, markerID, false);
+            }
         });
 
         paintMCSorder(svg);
@@ -307,22 +356,66 @@ function Graph(name) {
         return this;
     }
 
+    function intersection(a, b) {
+        var i = [];
+        a.forEach(function(itemA) {
+            b.forEach(function(itemB) {
+                if (itemA.name === itemB.name) {
+                    i.push(itemA);
+                }
+
+            });
+        });
+        return i;
+    }
+
     this.triangulate = function() {
         order = mcs();
 
-        order.forEach(function(item) {
-            console.log(item.name);
-        });
+        var self = this;
+        var added = true;
+        var fromName = '';
+        var toName = '';
+        while (added === true) {
+            added = false;
+            order.slice(1).forEach(function(item, index) {
+                var nodes = intersection(item.neighbor, order.slice(0, index + 1))
+                var len = nodes.length;
+                if (len > 1) {
+                    for (var i = 0; i + 1 < len; i++) {
+                        for (j = i + 1; j < len; j++) {
+                            fromName = nodes[i].name;
+                            toName = nodes[j].name;
+                            if (!self.isDuplicateEdge(fromName, toName, false)) {
+                                added = true;
+                                nodes[i].neighbor.push(nodes[j]);
+                                nodes[j].neighbor.push(nodes[i]);
+                                self.addEdgeByName(fromName, toName, { 'isDirected': false, 'isColored': true }, false);
+                            }
+                        }
+                    }
+                }
+            });
+        }
 
         return this;
     }
 
     this.detriangulate = function() {
+        var e = [];
+        edges.forEach(function(item){
+            if(!item.isColored){
+                e.push(item);
+            }
+        });
+
+        edges=e;
         return this;
     }
 
     function findNeighbor(vertex) {
         var name = vertex.name;
+        vertex.neighbor = [];
         edges.forEach(function(item) {
             if (item.from.name === name) {
                 vertex.neighbor.push(item.to);
