@@ -63,6 +63,7 @@ function MainController() {
     var CPT_vars = {}; // key is string variable name, value is a CPT_var object.
     var DAGChanged = false;
     var moralChanged = false;
+    var triangleChanged = false;
 
     function btn_start() {
         $('.b-page-3').css('visibility', 'visible');
@@ -230,8 +231,8 @@ function MainController() {
         originalGraph.paint(svg);
     }
 
-    function removeOption(name){
-        $('.cs-options li[data-value="'+name.toLowerCase()+'"]').remove();
+    function removeOption(name) {
+        $('.cs-options li[data-value="' + name.toLowerCase() + '"]').remove();
     }
 
     function onSpawn() {
@@ -294,25 +295,29 @@ function MainController() {
 
     function onDemoralize() {
         var svg = $('#moral-svg');
-        if (svg.data('moralized') === 'false') {
-            return;
-        } else {
-            var g = svg.getGraph();
-            g.demoralize();
-            g.paint(svg);
-            svg.data('moralized') === 'false';
+        if (svg.children('circle').length) {
+            if (svg.data('moralized') === 'false') {
+                return;
+            } else {
+                var g = svg.getGraph();
+                g.demoralize();
+                g.paint(svg);
+                svg.data('moralized') === 'false';
+            }
         }
     }
 
     function onMoralize() {
         var svg = $('#moral-svg');
-        if (svg.data('moralized') === 'true') {
-            return;
-        } else {
-            var g = svg.getGraph();
-            g.moralize();
-            g.paint(svg, true);
-            svg.data('moralized') === 'true';
+        if (svg.children('circle').length) {
+            if (svg.data('moralized') === 'true') {
+                return;
+            } else {
+                var g = svg.getGraph();
+                g.moralize();
+                g.paint(svg, true);
+                svg.data('moralized') === 'true';
+            }
         }
     }
 
@@ -397,9 +402,32 @@ function MainController() {
         vertex.isClicked = true;
     }
 
-    function onTriangulate() {}
+    function onTriangulate() {
+        var svg = $('#triangle-svg');
+        if (svg.children('circle').length) {
+            if (svg.data('triangulated') === 'true') {
+                return;
+            } else {
+                var g = svg.getGraph();
+                g.triangulate().paint(svg, true);
+                svg.data('triangulated') === 'true';
+            }
+        }
+    }
 
-    function onDetriangulate() {}
+    function onDetriangulate() {
+        var svg = $('#triangle-svg');
+
+        if (svg.children('circle').length) {
+            if (svg.data('triangulated') === 'false') {
+                return;
+            } else {
+                var g = svg.getGraph();
+                g.detriangulate().paint(svg);
+                svg.data('triangulated') === 'false';
+            }
+        }
+    }
 
     function svgStartDrag(e) {
         e.preventDefault();
@@ -632,11 +660,11 @@ function MainController() {
 
     this.onTriangulation = function() {
         if (moralChanged) {
-            moralChanged = false
+            moralChanged = false;
+            triangleChanged = true;
             var svg = $('#triangle-svg');
             triangulatedGraph = moralGraph.clone('triangulated graph');
-            triangulatedGraph.moralize(false);
-            triangulatedGraph.normalize();
+            triangulatedGraph.moralize(false).normalize();
             svg.setGraph(triangulatedGraph);
             triangulatedGraph.paint(svg);
         }

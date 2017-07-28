@@ -582,3 +582,22 @@ svg circle {
 .cs-skin-boxes .cs-options li.cs-selected::after {
     content: '';
 }
+
+#perfect-order {
+    overflow-y: hidden;
+    overflow-x: auto;
+    width: 80%;
+    display: inline-block;
+    vertical-align: middle;
+}
+
+text.mcs-order {
+    font-size: 1em;
+    stroke: #333;
+    text-anchor: start;
+    stroke-width: 0.1;
+    dominant-baseline: text-before-edge;
+    alignment-baseline: text-before-edge;
+    pointer-events: none;
+    user-select: none;
+}

@@ -51,6 +51,7 @@ function Vertex() {
     this.isClicked = false;
     this.r = 20;
     this.parents = []; // parents list
+    this.neighbor = []; // neighbor list
 
     this.calcXY = function(svg) {
         var r = this.r;
@@ -126,6 +127,7 @@ function Graph(name) {
     var vertices = [];
     var edges = [];
     var nameVertexMap = {};
+    var order = []; // mcs order
     this.name = name;
 
     this.addVertex = function(vertex) {
@@ -191,6 +193,26 @@ function Graph(name) {
         return markerID;
     }
 
+    function paintMCSorder(svg) {
+        if (order.length === 0) {
+            return;
+        }
+
+        var str = 'Order: ';
+
+        order.forEach(function(item) {
+            str += item.name + ', ';
+        });
+
+        var text = $(document.createElementNS('http://www.w3.org/2000/svg', 'text'));
+        text.attr('x', 2);
+        text.attr('y', 2);
+        text.attr('class', 'mcs-order');
+        text.html(str.slice(0, -2));
+
+        svg.prepend(text);
+    }
+
     this.paint = function(svg, isAnimated) {
         svg.html('');
 
@@ -203,6 +225,8 @@ function Graph(name) {
         edges.forEach(function(item) {
             item.paint(svg, markerID, isAnimated);
         });
+
+        paintMCSorder(svg);
     }
 
     this.getVertex = function(name) {
@@ -229,6 +253,7 @@ function Graph(name) {
         edges.forEach(function(item) {
             item.isMoral = false;
         });
+        return this;
     }
 
     this.moralize = function(highlight) {
@@ -265,6 +290,7 @@ function Graph(name) {
         edges.forEach(function(item) {
             item.isDirected = false;
         });
+        return this;
     }
 
     this.demoralize = function() {
@@ -278,6 +304,73 @@ function Graph(name) {
         });
 
         edges = e;
+        return this;
+    }
+
+    this.triangulate = function() {
+        order = mcs();
+
+        order.forEach(function(item) {
+            console.log(item.name);
+        });
+
+        return this;
+    }
+
+    this.detriangulate = function() {
+        return this;
+    }
+
+    function findNeighbor(vertex) {
+        var name = vertex.name;
+        edges.forEach(function(item) {
+            if (item.from.name === name) {
+                vertex.neighbor.push(item.to);
+            } else if (item.to.name === name) {
+                vertex.neighbor.push(item.from);
+            }
+        });
+    }
+
+    function getGreatest(unmarked) {
+        var vertex = unmarked[0];
+        unmarked.forEach(function(item) {
+            if (item.mcs > vertex.mcs) {
+                vertex = item;
+            }
+        });
+        return vertex;
+    }
+
+    // maximum cardinality search
+    function mcs() {
+        var order = [];
+        var unmarked = [];
+
+        vertices.forEach(function(item) {
+            item.mcs = 0;
+            findNeighbor(item);
+            unmarked.push(item);
+        });
+
+        var len = vertices.length;
+        var random = unmarked[Math.random() * len | 0];
+        order[0] = random;
+        order[0].neighbor.forEach(function(item) {
+            item.mcs++;
+        });
+        unmarked.remove(random);
+
+        while (order.length !== len) {
+            var vertex = getGreatest(unmarked);
+            order.push(vertex);
+            vertex.neighbor.forEach(function(item) {
+                item.mcs++;
+            });
+            unmarked.remove(vertex);
+        }
+
+        return order;
     }
 }
 
