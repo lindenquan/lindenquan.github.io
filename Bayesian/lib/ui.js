@@ -487,10 +487,6 @@ function MainController() {
             var newCx = vertex.cx + e.clientX - vertex.clientX;
             var newCy = vertex.cy + e.clientY - vertex.clientY;
 
-            if (!Number.isInteger(newCx) || !Number.isInteger(newCy)) {
-                return;
-            }
-
             vertex.cx = newCx;
             vertex.cy = newCy;
             vertex.clientX = e.clientX;

@@ -15,10 +15,6 @@ function Edge(from, to, options) {
         var toY = this.to.cy;
         this.isAnimated = (isAnimated === true) ? true : false;
 
-        if (!Number.isInteger(fromX) || !Number.isInteger(fromY) || !Number.isInteger(toX) || !Number.isInteger(toY)) {
-            return;
-        }
-
         line.setAttribute('x1', fromX);
         line.setAttribute('y1', fromY);
         line.setAttribute('x2', toX);
