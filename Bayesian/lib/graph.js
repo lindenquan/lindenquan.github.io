@@ -239,7 +239,11 @@ function Graph(name) {
     }
 
     function paintMCSorder(svg) {
-        if (order.length === 0) {
+        if (!(order instanceof Array)) {
+            return;
+        }
+
+        if(order.length === 0) {
             return;
         }
 
@@ -301,6 +305,8 @@ function Graph(name) {
     this.normalize = function() {
         edges.forEach(function(item) {
             item.isMoral = false;
+            item.isColored = false;
+            item.isDirected =false;
         });
         return this;
     }
@@ -354,6 +360,16 @@ function Graph(name) {
 
         edges = e;
         return this;
+    }
+
+    this.constructJT = function(){
+    }
+
+    this.deconstructJT = function(){
+    }
+
+    this.discardOrder = function(){
+        order = null;
     }
 
     function intersection(a, b) {

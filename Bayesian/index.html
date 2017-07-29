@@ -246,6 +246,34 @@
                 </div>
             </div>
         </div>
+        <div data-menu="Step 3">
+            <button type="button" class="btn prevPage">Prev</button>
+            <h1>Junction Tree</h1>
+            <p>A junction tree is constructed from a triangulated graph. The process contains two steps.
+            </p>
+            <div>
+                <ul class="instruction-list">
+                    <li>Step 1: Transform the triangulated graph to the <a href="http://mathworld.wolfram.com/CliqueGraph.html" target="_blank">clique graph</a>.</li>
+                    <li>Step 2: Construct a maximum-weight spanning tree from the clique graph.</li>
+                </ul>
+            </div>
+            <p>The weight of an edge of a spanning tree is the number of common nodes shared between the cliques.</p>
+        </div>
+        <div class="full-height">
+            <button type="button" class="btn nextPage">Next</button>
+            <div class='page-wrapper'>
+                <div class='page-head'>
+                    <p>
+                        <button id="btn-decons-jt" class="hvr-back-pulse float-left">Deconstruct</button>
+                        <button id="btn-cons-jt" class="hvr-back-pulse float-right">Construct</button>
+                    </p>
+                </div>
+                <div id="jt-canvas" class='canvas'>
+                    <svg id="jt-svg">
+                    </svg>
+                </div>
+            </div>
+        </div>
     </div>
     <div class="modal" id="parents" role="dialog" data-easein="expandIn">
         <div class="modal-dialog">

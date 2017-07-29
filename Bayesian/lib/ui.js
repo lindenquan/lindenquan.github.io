@@ -6,7 +6,7 @@ $(function() {
         height: 550, // container height
         next: $('#btn-start'),
         finish: onFinish,
-        onPage: { 6: mc.onMoralization, 8: mc.onTriangulation }
+        onPage: { 6: mc.onMoralization, 8: mc.onTriangulation, 10: mc.onJT }
     });
 
     function onFinish() {
@@ -42,6 +42,8 @@ function MainController() {
     $(document).on('click', '#btn-demoralize', onDemoralize);
     $(document).on('click', '#btn-triangulate', onTriangulate);
     $(document).on('click', '#btn-detriangulate', onDetriangulate);
+    $(document).on('click', '#btn-cons-jt', onConstructJT);
+    $(document).on('click', '#btn-decons-jt', onDeconstructJT);
     $(document).on('click', '#parents .confirm', onParentConfirm);
     $(document).on('click', '#modal-cpt .confirm', onCPTConfirm);
 
@@ -64,6 +66,7 @@ function MainController() {
     var DAGChanged = false;
     var moralChanged = false;
     var triangleChanged = false;
+    var jtChanged = false;
 
     function btn_start() {
         $('.b-page-3').css('visibility', 'visible');
@@ -324,6 +327,33 @@ function MainController() {
         }
     }
 
+    function onConstructJT() {
+        var svg = $('#jt-svg');
+        if (svg.children('circle').length) {
+            if (svg.data('jt-constructed') === 'true') {
+                return;
+            } else {
+                var g = svg.getGraph();
+                g.constructJT();
+                g.paint(svg, true);
+                svg.data('jt-constructed', 'true');
+            }
+        }
+    }
+
+    function onDeconstructJT() {
+        var svg = $('#jt-svg');
+        if (svg.children('circle').length) {
+            if (svg.data('jt-constructed') === 'false') {
+                return;
+            } else {
+                var g = svg.getGraph();
+                g.deconstructJT();
+                g.paint(svg);
+                svg.data('jt-constructed', 'false');
+            }
+        }
+    }
 
     function onParentConfirm() {
         var c_obj = CPT_vars[c_var.name];
@@ -657,6 +687,7 @@ function MainController() {
             moralChanged = true;
             var svg = $('#moral-svg');
             moralGraph = originalGraph.clone('moral graph');
+            svg.data('moralized', 'false');
             svg.setGraph(moralGraph);
             moralGraph.paint(svg);
         }
@@ -669,8 +700,22 @@ function MainController() {
             var svg = $('#triangle-svg');
             triangulatedGraph = moralGraph.clone('triangulated graph');
             triangulatedGraph.moralize(false).normalize();
+            svg.data('triangulated', 'false');
             svg.setGraph(triangulatedGraph);
             triangulatedGraph.paint(svg);
+        }
+    }
+
+    this.onJT = function() {
+        if (triangleChanged) {
+            triangleChanged = false;
+            jtChanged = true;
+            var svg = $('#jt-svg');
+            jtGraph = triangulatedGraph.clone('junction tree graph');
+            jtGraph.triangulate().normalize().discardOrder();
+            svg.data('jt-constructed', 'false');
+            svg.setGraph(jtGraph);
+            jtGraph.paint(svg);
         }
     }
 }
