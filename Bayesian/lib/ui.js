@@ -691,6 +691,7 @@ function MainController() {
             svg.setGraph(moralGraph);
             moralGraph.paint(svg);
         }
+        $('svg line.line-animation').removeClass('line-animation');
     }
 
     this.onTriangulation = function() {
@@ -704,6 +705,7 @@ function MainController() {
             svg.setGraph(triangulatedGraph);
             triangulatedGraph.paint(svg);
         }
+        $('svg line.line-animation').removeClass('line-animation');
     }
 
     this.onJT = function() {
@@ -717,5 +719,6 @@ function MainController() {
             svg.setGraph(jtGraph);
             jtGraph.paint(svg);
         }
+        $('svg line.line-animation').removeClass('line-animation');
     }
 }

@@ -40,7 +40,7 @@ function Edge(from, to, options) {
         }
 
         if (this.isColored === true) {
-            $(line).attr('class', $(line).attr('class') + ' colored');
+            $(line).addClass('colored');
         }
 
         svg.prepend(line);
