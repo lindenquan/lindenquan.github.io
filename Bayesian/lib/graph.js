@@ -45,7 +45,6 @@ function Edge(from, to, options) {
 
         svg.prepend(line);
     }
-
 }
 
 function Vertex() {
@@ -134,6 +133,8 @@ function Graph(name) {
     var edges = [];
     var nameVertexMap = {};
     var order = []; // mcs order
+    this.isMoral = false;
+    this.isTriangulated = false;
     this.name = name;
 
     this.addVertex = function(vertex) {
@@ -243,7 +244,7 @@ function Graph(name) {
             return;
         }
 
-        if(order.length === 0) {
+        if (order.length === 0) {
             return;
         }
 
@@ -299,6 +300,9 @@ function Graph(name) {
             g.addEdgeByName(pVertex.name, vertex.name, item.options);
         });
 
+        g.isMoral = this.isMoral;
+        g.isTriangulated = this.isTriangulated;
+
         return g;
     }
 
@@ -306,12 +310,15 @@ function Graph(name) {
         edges.forEach(function(item) {
             item.isMoral = false;
             item.isColored = false;
-            item.isDirected =false;
+            item.isDirected = false;
         });
         return this;
     }
 
     this.moralize = function(highlight) {
+        if (this.isMoral) {
+            return this;
+        }
         var lines = []; // line names format "from+to"
         highlight = (highlight === false) ? false : true;
 
@@ -345,10 +352,14 @@ function Graph(name) {
         edges.forEach(function(item) {
             item.isDirected = false;
         });
+        this.isMoral = true;
         return this;
     }
 
     this.demoralize = function() {
+        if (!this.isMoral) {
+            return this;
+        }
         var e = [];
 
         edges.forEach(function(item) {
@@ -359,16 +370,15 @@ function Graph(name) {
         });
 
         edges = e;
+        this.isMoral = false;
         return this;
     }
 
-    this.constructJT = function(){
-    }
+    this.constructJT = function() {}
 
-    this.deconstructJT = function(){
-    }
+    this.deconstructJT = function() {}
 
-    this.discardOrder = function(){
+    this.discardOrder = function() {
         order = null;
     }
 
@@ -386,6 +396,10 @@ function Graph(name) {
     }
 
     this.triangulate = function() {
+        if (this.isTriangulated) {
+            return this;
+        }
+
         order = mcs();
 
         var self = this;
@@ -413,19 +427,23 @@ function Graph(name) {
                 }
             });
         }
-
+        this.isTriangulated = true;
         return this;
     }
 
     this.detriangulate = function() {
+        if (!this.isTriangulated) {
+            return this;
+        }
         var e = [];
-        edges.forEach(function(item){
-            if(!item.isColored){
+        edges.forEach(function(item) {
+            if (!item.isColored) {
                 e.push(item);
             }
         });
 
-        edges=e;
+        edges = e;
+        this.isTriangulated = false;
         return this;
     }
 

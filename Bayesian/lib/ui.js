@@ -445,6 +445,7 @@ function MainController() {
                 var g = svg.getGraph();
                 g.triangulate().paint(svg, true);
                 svg.data('triangulated', 'true');
+                triangleChanged = true;
             }
         }
     }
