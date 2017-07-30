@@ -267,6 +267,20 @@ function Graph(name) {
         return markerID;
     }
 
+    this.deleteVertex = function(name) {
+        var v = nameVertexMap[name];
+        vertices.remove(v);
+
+        var newEdges = [];
+        edges.forEach(function(e) {
+            if (e.from.name === name || e.to.name === name) {
+                return;
+            }
+            newEdges.push(e);
+        });
+        edges = newEdges;
+    }
+
     function paintMCSorder(svg) {
         if (!(order instanceof Array)) {
             return;

@@ -59,7 +59,8 @@ function MainController() {
         this.name = name;
         this.var = null; // Variable object
         this.dist = null; // Distribution object
-        this.parents = []; // parents name list
+        this.parents = []; // parents object list
+        this.children = []; // children object list
     }
 
     var c_var = null; // current CPT_var object
@@ -81,7 +82,10 @@ function MainController() {
         var isNew = dist === null;
         var p_c = []; // parents + current variable
 
-        p_c = p_c.concat(c_var.parents);
+        c_var.parents.forEach(function(p) {
+            p_c.push(p.name);
+        });
+
         p_c.push(c_name);
 
         var last_th = '<th>p(' + c_name;
@@ -93,7 +97,7 @@ function MainController() {
             var len = p_c.length;
             p_c.forEach(function(item, index) {
                 if (index + 1 != len) {
-                    str += '<th>' + item + '<button type="button" class="btn-x">×</button></th>'
+                    str += '<th>' + item + '</th>'
                     last_th += item + ',';
                 } else {
                     str += '<th>' + item + '</th>'
@@ -152,7 +156,8 @@ function MainController() {
 
         var mapVar = [];
         parents.forEach(function(item) {
-            varOjb.parents.push(item.name);
+            varOjb.parents.push(item);
+            item.children.push(varOjb);
             mapVar.push(item.var);
         });
 
@@ -400,12 +405,12 @@ function MainController() {
             var p = $(item).attr('id').slice(-1);
             var p_obj = CPT_vars[p];
 
-            c_obj.parents.push(p_obj.name);
+            c_obj.parents.push(p_obj);
+            p_obj.children.push(c_obj);
             originalGraph.addEdgeByName(p_obj.name, c_obj.name, { 'isDirected': true });
         });
         $('#parents').modal('hide');
         createCPTtable();
-
     }
 
     function toDistMap(tds) {
@@ -458,22 +463,21 @@ function MainController() {
 
     function svgCircleMouseDown(e) {
 
-        if (e.which !== 1) {
+        if (e.which === 1) {
             // 1 means left click
-            return;
+
+            var target = $(e.target);
+            var name = target.attr('name');
+            c_var = CPT_vars[name];
+
+            var svg = target.parent();
+            var vertex = svg.getGraph().getVertex(name);
+            Vertex.selected = vertex;
+
+            vertex.clientX = e.clientX;
+            vertex.clientY = e.clientY;
+            vertex.isClicked = true;
         }
-
-        var target = $(e.target);
-        var name = target.attr('name');
-        c_var = CPT_vars[name];
-
-        var svg = target.parent();
-        var vertex = svg.getGraph().getVertex(name);
-        Vertex.selected = vertex;
-
-        vertex.clientX = e.clientX;
-        vertex.clientY = e.clientY;
-        vertex.isClicked = true;
     }
 
     function onTriangulate() {
@@ -559,6 +563,26 @@ function MainController() {
         createCPTtable();
     }
 
+    function deleteVertex(circle) {
+        var name = circle.attr('name');
+        var svg = circle.parent();
+        var graph = svg.getGraph();
+        
+        graph.deleteVertex(name);
+        graph.paint(svg);
+
+        var varObj = CPT_vars[name];
+        CPT_vars[name] = undefined;
+
+        varObj.parents.forEach(function(p) {
+            p.children.remove(varObj);
+        });
+
+        varObj.children.forEach(function(c) {
+            c.parents.remove(varObj);
+        });
+    }
+
     this.addContextMenu = function() {
         $.contextMenu({
             selector: '#original-canvas .context-menu-node',
@@ -569,6 +593,9 @@ function MainController() {
                         break;
                     case 'edit':
                         createCPTtable();
+                        break;
+                    case 'delete':
+                        deleteVertex($(this));
                         break;
                 }
             },
