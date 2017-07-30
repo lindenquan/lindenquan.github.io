@@ -204,6 +204,8 @@ function MainController() {
         originalGraph = new Graph();
         svg.setGraph(originalGraph);
         resetOptions();
+        $('.node-box').html('');
+        $('#query-str').text('P()');
 
         // -------------
         map = {};
