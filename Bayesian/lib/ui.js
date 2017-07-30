@@ -394,18 +394,18 @@ function MainController() {
         var p = $('#parents input:checked');
 
         if (p.length === 0) {
-            $('#parents .modal-hint').css('visibility', 'visible');
-        } else {
-            p.each(function(index, item) {
-                var p = $(item).attr('id').slice(-1);
-                var p_obj = CPT_vars[p];
-
-                c_obj.parents.push(p_obj.name);
-                originalGraph.addEdgeByName(p_obj.name, c_obj.name, { 'isDirected': true });
-            });
-            $('#parents').modal('hide');
-            createCPTtable();
+            //$('#parents .modal-hint').css('visibility', 'visible');
         }
+        p.each(function(index, item) {
+            var p = $(item).attr('id').slice(-1);
+            var p_obj = CPT_vars[p];
+
+            c_obj.parents.push(p_obj.name);
+            originalGraph.addEdgeByName(p_obj.name, c_obj.name, { 'isDirected': true });
+        });
+        $('#parents').modal('hide');
+        createCPTtable();
+
     }
 
     function toDistMap(tds) {

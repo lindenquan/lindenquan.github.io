@@ -510,6 +510,47 @@ function Graph(name) {
         return cliques;
     }
 
+    this.root = function(id, ids) {
+        while (ids[id] != id) {
+            ids[id] = ids[ids[id]];
+            id = ids[id];
+        }
+        return id;
+    }
+
+    this.union = function(fromId, toId, ids) {
+        var r1 = this.root(fromId, ids);
+        var r2 = this.root(toId, ids);
+        ids[r1] = ids[r2];
+    }
+
+    this.findMaximumSpanningTree = function(edges) {
+        var ids = [];
+        var len = cliques.length;
+        var i, from, to;
+        var self = this;
+        for (i = 0; i < len; i++) {
+            cliques[i].id = i;
+        }
+
+        for (i = 0; i < len; i++) {
+            ids[i] = i;
+        }
+
+        edges.sort(function(a, b) {
+            return b.weight - a.weight;
+        });
+
+        edges.forEach(function(e) {
+            from = e.from;
+            to = e.to;
+            if (self.root(from.id, ids) !== self.root(to.id, ids)) {
+                self.union(from.id, to.id, ids);
+                self.addEdge(e, false);
+            }
+        });
+    }
+
     this.addEdgesForCliques = function() {
         var edges = [];
         var from, to, v1, v2;
@@ -539,14 +580,7 @@ function Graph(name) {
             }
         }
 
-        edges.sort(function(a, b) {
-            return b.weight - a.weight;
-        });
-
-        len--;
-        for (i = 0; i < len; i++) {
-            this.addEdge(edges[i], false);
-        }
+        this.findMaximumSpanningTree(edges);
     }
 
     this.refineCliquePosition = function() {
@@ -557,7 +591,7 @@ function Graph(name) {
 
         edges.forEach(function(item) {
             from = item.from;
-            if(from instanceof Vertex){
+            if (from instanceof Vertex) {
                 console.log("skiped");
                 return;
             }
