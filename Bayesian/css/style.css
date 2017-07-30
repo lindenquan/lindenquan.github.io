@@ -591,11 +591,11 @@ svg circle {
     vertical-align: middle;
 }
 
-text.mcs-order {
+text.graph-info {
     font-size: 1em;
     stroke: #333;
     text-anchor: start;
-    stroke-width: 0.1;
+    stroke-width: 0;
     dominant-baseline: text-before-edge;
     alignment-baseline: text-before-edge;
     pointer-events: none;

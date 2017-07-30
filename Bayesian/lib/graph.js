@@ -57,20 +57,16 @@ function Vertex() {
     this.calcXY = function(svg) {
         var r = this.r;
         var MAX_Y = svg.height() - r;
-        var minX = svg.width() - r;
-        var maxX = 0;
+        var MAX_X = svg.width();
         var maxY = 0;
-        var x, y;
+        var x = 0,
+            y;
+        var len = this.parents.length;
 
         this.parents.forEach(function(item) {
-            x = item.cx;
+            x += item.cx;
             y = item.cy;
-            if (x < minX) {
-                minX = x;
-            }
-            if (x > maxX) {
-                maxX = x;
-            }
+
             if (y > maxY) {
                 maxY = y;
             }
@@ -79,8 +75,8 @@ function Vertex() {
         y = maxY + r * 4;
         y = (y > MAX_Y) ? MAX_Y : y;
         y = (y < r) ? r : y;
-
-        x = minX + (((maxX - minX) / 2) | 0);
+        x = x / len;
+        x = (x === 0 || len === 0) ? MAX_X / 2 : x;
 
         this.cx = x;
         this.cy = y;
@@ -107,6 +103,10 @@ function Vertex() {
         this.text.html(this.name);
 
         svg.append(this.text);
+
+        if (this.paintClique) {
+            this.paintClique(svg);
+        }
     }
 
     this.clone = function() {
@@ -120,18 +120,50 @@ function Vertex() {
         v.r = this.r;
         return v;
     }
+
+    this.print = function() {
+        console.log(this.constructor.name + ':' + this.name);
+    }
 }
 
 Vertex.selected = null; // seleted vertex
 
+
+function Clique() {
+    $.extend(this, new Vertex());
+    this.vertices = [];
+    this.index = 0;
+    this.paintClique = function(svg) {
+        var names = '';
+        this.vertices.forEach(function(v) {
+            names += v.name + ', ';
+        });
+        names = names.slice(0, -2);
+        var text = $(document.createElementNS('http://www.w3.org/2000/svg', 'text'));
+        text.attr('x', 2);
+        text.attr('y', 2 + this.index * 15);
+        text.attr('class', 'graph-info');
+        text.html(this.name + ':' + names);
+        svg.prepend(text);
+    }
+}
+
 function Graph(name) {
     var vertices = [];
     var edges = [];
+    var cliques = [];
+    var cliqueEdges = [];
     var nameVertexMap = {};
     var order = []; // mcs order
     this.isMoral = false;
     this.isTriangulated = false;
+    this.isJT = false;
     this.name = name;
+
+    this.addClique = function(clique) {
+        nameVertexMap[clique.name] = clique;
+        cliques.push(clique);
+    }
 
     this.addVertex = function(vertex) {
         nameVertexMap[vertex.name] = vertex;
@@ -201,6 +233,7 @@ function Graph(name) {
         return edges;
     }
 
+    // check if the edge is duplicate or not. default value is true
     this.addEdgeByName = function(pName, name, options, check) {
         var isDirected = (options['isDirected'] === true) ? true : false;
 
@@ -253,7 +286,7 @@ function Graph(name) {
         var text = $(document.createElementNS('http://www.w3.org/2000/svg', 'text'));
         text.attr('x', 2);
         text.attr('y', 2);
-        text.attr('class', 'mcs-order');
+        text.attr('class', 'graph-info');
         text.html(str.slice(0, -2));
 
         svg.prepend(text);
@@ -262,21 +295,35 @@ function Graph(name) {
     this.paint = function(svg, isAnimated) {
         svg.html('');
 
-        var markerID = addMarker(svg);
+        if (this.isJT) {
+            cliques.forEach(function(c) {
+                c.paint(svg);
+            });
+            edges.forEach(function(item) {
+                if (item.from instanceof Clique) {
+                    item.paint(svg, '', false);
+                }
+            });
 
-        vertices.forEach(function(item) {
-            item.paint(svg);
-        });
+        } else {
+            var markerID = addMarker(svg);
 
-        edges.forEach(function(item) {
-            if (item.isMoral || item.isColored) {
-                item.paint(svg, markerID, isAnimated);
-            } else {
-                item.paint(svg, markerID, false);
-            }
-        });
+            vertices.forEach(function(item) {
+                item.paint(svg);
+            });
 
-        paintMCSorder(svg);
+            edges.forEach(function(item) {
+                if (item.from instanceof Vertex) {
+                    if (item.isMoral || item.isColored) {
+                        item.paint(svg, markerID, isAnimated);
+                    } else {
+                        item.paint(svg, markerID, false);
+                    }
+                }
+            });
+
+            paintMCSorder(svg);
+        }
     }
 
     this.getVertex = function(name) {
@@ -370,9 +417,155 @@ function Graph(name) {
         return this;
     }
 
-    this.constructJT = function() {}
+    this.isComplete = function(arr) {
+        var comb = Tool.combination(2, arr);
+        var len = comb.length;
+        var item;
 
-    this.deconstructJT = function() {}
+        for (var i = 0; i < len; i++) {
+            item = comb[i];
+            if (!this.isDuplicateEdge(item[0].name, item[1].name, false)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    this.isSubClique = function(item, arry) {
+        var len = arry.length;
+        var tmp;
+        var itemLen = item.length;
+        var i, j;
+        var result;
+        for (i = 0; i < len; i++) {
+            tmp = arry[i];
+            result = true;
+            for (j = 0; j < itemLen; j++) {
+                if (tmp.indexOf(item[j]) < 0) {
+                    result = false;
+                    break;
+                }
+            }
+            if (result) {
+                return result;
+            }
+        }
+        return false;
+    }
+
+    this.printVertices = function(vertices) {
+        var str = '';
+        vertices.forEach(function(v) {
+            str += v.name + ' ';
+        });
+        console.log(str);
+    }
+
+    // input: vertex array
+    // output: corresponding clique
+    this.toClique = function(arry) {
+        var c = new Clique();
+        var cx = 0;
+        var cy = 0;
+        var len = arry.length;
+
+        arry.forEach(function(item) {
+            cx += item.cx;
+            cy += item.cy;
+            c.vertices.push(item);
+        });
+
+        c.cx = (cx / len) | 0;
+        c.cy = (cy / len) | 0;
+
+        return c;
+    }
+
+    this.findAllCliques = function() {
+        var c = [];
+        var temp;
+        var self = this;
+        var cliques = [];
+
+        var len = vertices.length;
+
+        for (var i = len; i > 0; i--) {
+            temp = Tool.combination(i, vertices);
+
+            temp.forEach(function(item) {
+                if (self.isComplete(item)) {
+                    if (!self.isSubClique(item, c)) {
+                        c.push(item);
+                    }
+                }
+            });
+        }
+
+        c.forEach(function(item) { cliques.push(self.toClique(item)); });
+        cliques.forEach(function(item, index) {
+            item.name = 'C' + (index + 1);
+            item.index = index;
+            self.addClique(item);
+        });
+
+        return cliques;
+    }
+
+    this.isShareVetex = function(c1, c2) {
+
+    }
+
+    this.addEdgesForCliques = function() {
+        var edges = [];
+        var from, to, v1, v2;
+        var len = cliques.length;
+        var vLen, i, j, k, count, edge;
+        for (var i = 0; i + 1 < len; i++) {
+            for (j = i + 1; j < len; j++) {
+                from = cliques[i];
+                to = cliques[j];
+                count = 0;
+                v1 = from.vertices;
+                v2 = to.vertices;
+
+                vLen = v1.length;
+                for (k = 0; k < vLen; k++) {
+                    if (v2.indexOf(v1[k]) > -1) {
+                        count++;
+                    }
+                }
+                if (count > 0) {
+                    from.neighbor.push(to);
+                    to.neighbor.push(from);
+                    edge = new Edge(from, to, {});
+                    edge.weight = count;
+                    edges.push(edge);
+                }
+            }
+        }
+
+        edges.sort(function(a, b) {
+            return b.weight - a.weight;
+        });
+
+        len --;
+        for(i=0;i<len;i++){
+            this.addEdge(edges[i],false);
+        }
+    }
+
+    this.constructJT = function() {
+        this.isJT = true;
+        if (cliques.length > 0) {
+            return;
+        }
+        this.findAllCliques();
+        this.addEdgesForCliques();
+    }
+
+    this.deconstructJT = function() {
+        this.isJT = false;
+    }
 
     this.discardOrder = function() {
         order = null;
@@ -416,7 +609,7 @@ function Graph(name) {
                                 added = true;
                                 nodes[i].neighbor.push(nodes[j]);
                                 nodes[j].neighbor.push(nodes[i]);
-                                self.addEdgeByName(fromName, toName, { 'isDirected': false, 'isColored': true }, false);
+                                self.addEdgeByName(fromName, toName, { 'isColored': true }, false);
                             }
                         }
                     }

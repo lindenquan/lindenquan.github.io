@@ -92,11 +92,39 @@ class Tool {
 
         sub.forEach(function(item) {
             let row = [];
-            row[0] = '-'+first;
+            row[0] = '-' + first;
             row = row.concat(item);
             result.push(row);
         });
 
+        return result;
+    }
+
+    /* source: https://rosettacode.org/wiki/Combinations#Imperative
+     * license:GNU Free Documentation License 1.2
+     */
+    static bitprint(u, arr) {
+        var sub = [];
+        for (var n = 0; u; ++n, u >>= 1)
+            if (u & 1) sub.push(arr[n]);
+        return sub;
+    }
+    /* source: https://rosettacode.org/wiki/Combinations#Imperative
+     * license:GNU Free Documentation License 1.2
+     */
+    static bitcount(u) {
+        for (var n = 0; u; ++n, u = u & (u - 1));
+        return n;
+    }
+    /* source: https://rosettacode.org/wiki/Combinations#Imperative
+     * license:GNU Free Documentation License 1.2
+     */
+    static combination(c, arr) {
+        var n = arr.length;
+        var result = [];
+        for (var u = 0; u < 1 << n; u++)
+            if (Tool.bitcount(u) == c)
+                result.push(Tool.bitprint(u, arr))
         return result;
     }
 }

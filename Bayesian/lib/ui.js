@@ -49,7 +49,7 @@ function MainController() {
 
     var originalGraph = new Graph('original graph');
     $('#original-svg').setGraph(originalGraph);
-
+    var selector = $('#v-selector');
     var moralGraph = null;
     var triangulatedGraph = null;
 
@@ -168,6 +168,31 @@ function MainController() {
         return varOjb;
     }
 
+    function resetOptions() {
+        var selector = $('#v-selector');
+        selector.parent().remove;
+
+        $('.cs-select').remove();
+        $('#btn-sample').after(selector);
+        //$('#v-selector').val('');
+        //$('.cs-options li').remove();
+        //var ul = $('.cs-options ul');
+        //var item;
+        //for (var i = 65; i < 91; i++) {
+        //    item = String.fromCharCode(i);
+        //    ul.append('<li data-option="" data-value="' + item.toLowerCase() + '"><span>' + item.toUpperCase() + '</span></li>')
+        //}
+
+        [].slice.call(document.querySelectorAll('select.cs-select')).forEach(function(el) {
+            new SelectFx(el, {
+                stickyPlaceholder: false,
+                onChange: function(val) {
+                    document.querySelector('span.cs-placeholder').style.backgroundColor = val;
+                }
+            });
+        });
+    }
+
     // display a sample DAG
     function onSample() {
         // initialize
@@ -178,8 +203,7 @@ function MainController() {
         var map;
         originalGraph = new Graph();
         svg.setGraph(originalGraph);
-        $('.cs-placeholder').text('variable');
-        $('#v-selector').val('');
+        resetOptions();
 
         // -------------
         map = {};
@@ -237,6 +261,8 @@ function MainController() {
     }
 
     function removeOption(name) {
+        $('.cs-placeholder').text('variable');
+        $('#v-selector').val('');
         $('.cs-options li[data-value="' + name.toLowerCase() + '"]').remove();
     }
 
