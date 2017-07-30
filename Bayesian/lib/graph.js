@@ -557,7 +557,8 @@ function Graph(name) {
 
         edges.forEach(function(item) {
             from = item.from;
-            if(!from instanceof Clique){
+            if(from instanceof Vertex){
+                console.log("skiped");
                 return;
             }
 
