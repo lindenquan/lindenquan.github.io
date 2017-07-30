@@ -152,7 +152,6 @@ function Graph(name) {
     var vertices = [];
     var edges = [];
     var cliques = [];
-    var cliqueEdges = [];
     var nameVertexMap = {};
     var order = []; // mcs order
     this.isMoral = false;
@@ -511,10 +510,6 @@ function Graph(name) {
         return cliques;
     }
 
-    this.isShareVetex = function(c1, c2) {
-
-    }
-
     this.addEdgesForCliques = function() {
         var edges = [];
         var from, to, v1, v2;
@@ -548,10 +543,44 @@ function Graph(name) {
             return b.weight - a.weight;
         });
 
-        len --;
-        for(i=0;i<len;i++){
-            this.addEdge(edges[i],false);
+        len--;
+        for (i = 0; i < len; i++) {
+            this.addEdge(edges[i], false);
         }
+    }
+
+    this.refineCliquePosition = function() {
+        var from, to;
+        var d = 30;
+        var angle;
+        var x, y;
+
+        edges.forEach(function(item) {
+            from = item.from;
+            if(!from instanceof Clique){
+                return;
+            }
+
+            to = item.to;
+            angle = Math.atan(Math.abs(from.cx - to.cx) / Math.abs(from.cy - to.cy));
+            x = Math.sin(angle) * d;
+            y = Math.cos(angle) * d;
+
+            if (from.cx < to.cx) {
+                from.cx -= x;
+                to.cx += x;
+            } else {
+                to.cx -= x;
+                from.cx += x;
+            }
+            if (from.cy < to.cy) {
+                from.cy -= y;
+                to.cy += y;
+            } else {
+                to.cy -= y;
+                from.cy += y;
+            }
+        });
     }
 
     this.constructJT = function() {
@@ -561,6 +590,7 @@ function Graph(name) {
         }
         this.findAllCliques();
         this.addEdgesForCliques();
+        this.refineCliquePosition();
     }
 
     this.deconstructJT = function() {

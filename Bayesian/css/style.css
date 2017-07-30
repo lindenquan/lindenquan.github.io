@@ -622,3 +622,11 @@ blockquote:before {
     margin-left: 0.03em;
     transform: translateY(-0.3em);
 }
+
+.modal-hint {
+    display: block;
+    text-align: center;
+    font-size: 1.3em;
+    color: orangered;
+    visibility: hidden;
+}

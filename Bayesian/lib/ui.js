@@ -46,6 +46,7 @@ function MainController() {
     $(document).on('click', '#btn-decons-jt', onDeconstructJT);
     $(document).on('click', '#parents .confirm', onParentConfirm);
     $(document).on('click', '#modal-cpt .confirm', onCPTConfirm);
+    $(document).on('change', '#parents :checkbox', onParentSelected);
 
     var originalGraph = new Graph('original graph');
     $('#original-svg').setGraph(originalGraph);
@@ -383,17 +384,28 @@ function MainController() {
         }
     }
 
+    function onParentSelected() {
+        $('#parents .modal-hint').css('visibility', 'hidden');
+    }
+
     function onParentConfirm() {
         var c_obj = CPT_vars[c_var.name];
 
-        $('#parents input:checked').each(function(index, item) {
-            var p = $(item).attr('id').slice(-1);
-            var p_obj = CPT_vars[p];
+        var p = $('#parents input:checked');
 
-            c_obj.parents.push(p_obj.name);
-            originalGraph.addEdgeByName(p_obj.name, c_obj.name, { 'isDirected': true });
-        });
-        createCPTtable();
+        if (p.length === 0) {
+            $('#parents .modal-hint').css('visibility', 'visible');
+        } else {
+            p.each(function(index, item) {
+                var p = $(item).attr('id').slice(-1);
+                var p_obj = CPT_vars[p];
+
+                c_obj.parents.push(p_obj.name);
+                originalGraph.addEdgeByName(p_obj.name, c_obj.name, { 'isDirected': true });
+            });
+            $('#parents').modal('hide');
+            createCPTtable();
+        }
     }
 
     function toDistMap(tds) {
