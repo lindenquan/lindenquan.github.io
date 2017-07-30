@@ -13,11 +13,16 @@ $(function() {
         $('.book .prevPage').click(function() {
             book.booklet('prev');
         });
+        
         $('.book .nextPage').click(function() {
             book.booklet('next');
         });
+        
         mc.addContextMenu();
         $('.book').css('display', 'block');
+
+        mc.resetOpt();
+
         setTimeout(function() {
             $('.loading').css('display', 'none');
         }, 500);
@@ -50,9 +55,10 @@ function MainController() {
 
     var originalGraph = new Graph('original graph');
     $('#original-svg').setGraph(originalGraph);
-    var selector = $('#v-selector');
+    var selectorHTML = $('#div-selector').html();
     var moralGraph = null;
     var triangulatedGraph = null;
+    var optionList =[];
 
     // CPT_var class
     function CPT_var(name) {
@@ -146,7 +152,8 @@ function MainController() {
             low = name.toLowerCase(),
             mLow = '-' + low;
 
-        removeOption(name);
+        optionList.remove(up);
+        resetOptions(optionList);
 
         var varOjb = new CPT_var(up);
         CPT_vars[up] = varOjb;
@@ -174,21 +181,31 @@ function MainController() {
         return varOjb;
     }
 
-    function resetOptions() {
-        var selector = $('#v-selector');
-        selector.parent().remove;
+    this.resetOpt = function(){
+        resetOptions();
+    }
 
-        $('.cs-select').remove();
-        $('#btn-sample').after(selector);
-        //$('#v-selector').val('');
-        //$('.cs-options li').remove();
-        //var ul = $('.cs-options ul');
-        //var item;
-        //for (var i = 65; i < 91; i++) {
-        //    item = String.fromCharCode(i);
-        //    ul.append('<li data-option="" data-value="' + item.toLowerCase() + '"><span>' + item.toUpperCase() + '</span></li>')
-        //}
+    function resetOptions(list) {
+        var selector, item;
 
+        $('#div-selector').html('');
+
+        selector = $(selectorHTML);
+
+        if (list === undefined) {
+            optionList = [];
+            for (var i = 65; i < 91; i++) { // from A to Z
+                item = String.fromCharCode(i);
+                optionList.push(item);
+            }
+            return resetOptions(optionList);
+        } else {
+            list.forEach(function(item){
+                selector.append('<option value="' + item.toLowerCase() + '">' + item.toUpperCase() + '</option>');
+            });
+        }
+
+        $('#div-selector').append(selector);
         [].slice.call(document.querySelectorAll('select.cs-select')).forEach(function(el) {
             new SelectFx(el, {
                 stickyPlaceholder: false,
@@ -268,12 +285,6 @@ function MainController() {
         originalGraph.paint(svg);
     }
 
-    function removeOption(name) {
-        $('.cs-placeholder').text('variable');
-        $('#v-selector').val('');
-        $('.cs-options li[data-value="' + name.toLowerCase() + '"]').remove();
-    }
-
     function onSpawn() {
         var selector = $('#v-selector');
         var selected = selector.val();
@@ -312,7 +323,8 @@ function MainController() {
                 DAGChanged = true;
 
                 // remove option
-                removeOption(selected);
+                optionList.remove(selected);
+                resetOptions(optionList);
             } else {
                 // already has this variable, select another one.
                 console.log('already has this variable, select another one.');
@@ -567,7 +579,7 @@ function MainController() {
         var name = circle.attr('name');
         var svg = circle.parent();
         var graph = svg.getGraph();
-        
+
         graph.deleteVertex(name);
         graph.paint(svg);
 
@@ -581,6 +593,10 @@ function MainController() {
         varObj.children.forEach(function(c) {
             c.parents.remove(varObj);
         });
+
+        optionList.push(name.toUpperCase());
+        optionList.sort();
+        resetOptions(optionList);
     }
 
     this.addContextMenu = function() {

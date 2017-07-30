@@ -23,7 +23,6 @@
     <script src="lib/modal.js" defer></script>
     <script src="lib/graph.js" defer></script>
     <script src="lib/ui.js" defer></script>
-    <script src="lib/select.js" defer></script>
     <link rel="stylesheet" type="text/css" href="css/bootstrap.3.3.7.min.css" />
     <link rel="stylesheet" type="text/css" href="css/jquery.contextMenu.css" />
     <link rel="stylesheet" type="text/css" href="css/cs-select.css" />
@@ -89,39 +88,12 @@
             <button type="button" class="btn nextPage">Next</button>
             <div class='page-wrapper'>
                 <div class='page-head'>
-                    <p>
+                    <div id="div-selector" class="p">
                         <select id="v-selector" class="cs-select cs-skin-boxes">
-                            <option value="" disabled selected>variable</option>
-                            <option value="a">A</option>
-                            <option value="b">B</option>
-                            <option value="c">C</option>
-                            <option value="d">D</option>
-                            <option value="e">E</option>
-                            <option value="f">F</option>
-                            <option value="g">G</option>
-                            <option value="h">H</option>
-                            <option value="i">I</option>
-                            <option value="j">J</option>
-                            <option value="k">K</option>
-                            <option value="l">L</option>
-                            <option value="m">M</option>
-                            <option value="n">N</option>
-                            <option value="o">O</option>
-                            <option value="p">P</option>
-                            <option value="q">Q</option>
-                            <option value="r">R</option>
-                            <option value="s">S</option>
-                            <option value="t">T</option>
-                            <option value="u">U</option>
-                            <option value="v">V</option>
-                            <option value="w">W</option>
-                            <option value="x">X</option>
-                            <option value="y">Y</option>
-                            <option value="z">Z</option>
                         </select>
-                        <button id="btn-spawn" class="hvr-back-pulse">spawn</button>
-                        <button id="btn-sample" class="hvr-back-pulse">sample</button>
-                    </p>
+                    </div>
+                    <button id="btn-spawn" class="hvr-back-pulse">spawn</button>
+                    <button id="btn-sample" class="hvr-back-pulse">sample</button>
                 </div>
                 <div id="original-canvas" class="canvas">
                     <svg id="original-svg">

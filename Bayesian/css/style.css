@@ -220,10 +220,16 @@ div.cs-select {
     text-align: center;
 }
 
-#btn-spawn {}
+#btn-spawn {
+    position: absolute;
+    top: 1.5em;
+    left: 10em;
+}
 
 #btn-sample {
-    float: right;
+    position: absolute;
+    right: 3em;
+    top: 1.5em;
 }
 
 div.cs-skin-boxes {
@@ -374,6 +380,12 @@ tr th {
 .p {
     font-size: 16px;
     margin: 15px 5px 15px 15px;
+}
+
+.p::after {
+    content: "";
+    clear: both;
+    display: table;
 }
 
 .table-page {
