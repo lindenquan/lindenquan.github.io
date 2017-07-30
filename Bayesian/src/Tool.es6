@@ -100,31 +100,30 @@ class Tool {
         return result;
     }
 
-    /* source: https://rosettacode.org/wiki/Combinations#Imperative
-     * license:GNU Free Documentation License 1.2
-     */
-    static bitprint(u, arr) {
-        var sub = [];
-        for (var n = 0; u; ++n, u >>= 1)
-            if (u & 1) sub.push(arr[n]);
-        return sub;
-    }
-    /* source: https://rosettacode.org/wiki/Combinations#Imperative
-     * license:GNU Free Documentation License 1.2
-     */
-    static bitcount(u) {
-        for (var n = 0; u; ++n, u = u & (u - 1));
-        return n;
-    }
-    /* source: https://rosettacode.org/wiki/Combinations#Imperative
-     * license:GNU Free Documentation License 1.2
-     */
-    static combination(c, arr) {
-        var n = arr.length;
+    static combination(arr, c) {
+        var len = arr.length;
         var result = [];
-        for (var u = 0; u < 1 << n; u++)
-            if (Tool.bitcount(u) == c)
-                result.push(Tool.bitprint(u, arr))
+        var tmp;
+        if (c === 1) {
+            arr.forEach(function(item) {
+                tmp = [];
+                tmp[0] = item;
+                result.push(tmp);
+            });
+            return result;
+        }
+
+        len = len - c;
+        var first;
+        var sub;
+        for (var i = 0; i <= len; i++) {
+            first = arr[i];
+            sub = Tool.combination(arr.slice(i + 1), c - 1);
+            sub.forEach(function(s) {
+                s.unshift(first);
+                result.push(s);
+            });
+        }
         return result;
     }
 }

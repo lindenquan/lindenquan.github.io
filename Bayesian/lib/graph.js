@@ -431,7 +431,7 @@ function Graph(name) {
     }
 
     this.isComplete = function(arr) {
-        var comb = Tool.combination(2, arr);
+        var comb = Tool.combination(arr, 2);
         var len = comb.length;
         var item;
 
@@ -503,7 +503,7 @@ function Graph(name) {
         var len = vertices.length;
 
         for (var i = len; i > 0; i--) {
-            temp = Tool.combination(i, vertices);
+            temp = Tool.combination(vertices, i);
 
             temp.forEach(function(item) {
                 if (self.isComplete(item)) {
