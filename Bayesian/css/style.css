@@ -643,34 +643,15 @@ blockquote:before {
     visibility: hidden;
 }
 
-.nav-tabs {
-    border-bottom: 1px solid #115cad;
-}
-
-.nav-tabs>li.active>a,
-.nav-tabs>li.active>a:focus,
-.nav-tabs>li.active>a:hover {
-    border: 1px solid;
-    border-color: #115cad #115cad transparent;
-}
-
-.nav-tabs>li.active>a,
-.nav-tabs>li.active>a:focus,
-.nav-tabs>li.active>a:hover {
-    color: black;
-    background-color: #90c3fb;
-}
-
 .tab-content {
-    height: 93%;
+    height: 100%;
 }
 
 .tab-pane {
     height: 100%;
 }
 
-.nav-tabs>li>a:hover {
-    border-color: transparent;
-    color: black;
-    background-color: transparent;
+ul.nav-pills {
+    margin-top: 2em;
+    padding-left: 6em;
 }
