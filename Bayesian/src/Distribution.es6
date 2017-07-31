@@ -8,6 +8,7 @@ class Distribution {
         this.varNames = []
         this.name = 'unknown'
         this.isUnitDistr = false
+        this.isPotential = true
         if (vars instanceof Array) {
             vars.forEach((v) => this.varNames.push(v.name))
         }

@@ -18,6 +18,7 @@ var Distribution = function () {
         this.varNames = [];
         this.name = 'unknown';
         this.isUnitDistr = false;
+        this.isPotential = true;
         if (vars instanceof Array) {
             vars.forEach(function (v) {
                 return _this.varNames.push(v.name);

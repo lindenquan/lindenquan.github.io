@@ -133,6 +133,7 @@ function Clique() {
     $.extend(this, new Vertex());
     this.vertices = [];
     this.index = 0;
+    this.distName = ''
     this.paintClique = function(svg) {
         var names = '';
         this.vertices.forEach(function(v) {
@@ -143,8 +144,12 @@ function Clique() {
         text.attr('x', 2);
         text.attr('y', 2 + this.index * 15);
         text.attr('class', 'graph-info');
-        text.html(this.name + ':' + names);
+        text.html(this.name + ':' + names + ' < ' + this.distName + ' >');
         svg.prepend(text);
+    }
+
+    this.setDistName = function(name) {
+        this.distName = name.slice(2);
     }
 }
 
@@ -606,7 +611,6 @@ function Graph(name) {
         edges.forEach(function(item) {
             from = item.from;
             if (from instanceof Vertex) {
-                console.log("skiped");
                 return;
             }
 
@@ -630,6 +634,10 @@ function Graph(name) {
                 from.cy += y;
             }
         });
+    }
+
+    this.getCliques = function() {
+        return cliques;
     }
 
     this.constructJT = function() {

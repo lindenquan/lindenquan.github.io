@@ -13,11 +13,11 @@ $(function() {
         $('.book .prevPage').click(function() {
             book.booklet('prev');
         });
-        
+
         $('.book .nextPage').click(function() {
             book.booklet('next');
         });
-        
+
         mc.addContextMenu();
         $('.book').css('display', 'block');
 
@@ -58,7 +58,7 @@ function MainController() {
     var selectorHTML = $('#div-selector').html();
     var moralGraph = null;
     var triangulatedGraph = null;
-    var optionList =[];
+    var optionList = [];
 
     // CPT_var class
     function CPT_var(name) {
@@ -80,45 +80,50 @@ function MainController() {
         $('.b-page-3').css('visibility', 'visible');
     };
 
-    function createCPTtable() {
-        var table = $('#table-cpt');
-        var str = '';
-        var c_name = c_var.name;
-        var dist = CPT_vars[c_name].dist;
-        var isNew = dist === null;
-        var p_c = []; // parents + current variable
+    function toTableHead(arr, isPotential) {
+        var th, str = '';
+        var last_th;
+        var c_name = arr[arr.length - 1]
 
-        c_var.parents.forEach(function(p) {
-            p_c.push(p.name);
-        });
-
-        p_c.push(c_name);
-
-        var last_th = '<th>p(' + c_name;
-        if (p_c.length === 1) {
-            str += '<th>' + c_name + '</th>'
-            last_th += ')</th>';
+        if (!isPotential) {
+            last_th = '<th>p(' + c_name;
         } else {
-            last_th += '|';
-            var len = p_c.length;
-            p_c.forEach(function(item, index) {
+            last_th = '<th>&Phi;(';
+        }
+
+        if (arr.length === 1) {
+            str += '<th>' + c_name + '</th>'
+            if (!isPotential) {
+                last_th += ')</th>';
+            } else {
+                last_th += c_name + ')</th>';
+            }
+        } else {
+            if (!isPotential) {
+                last_th += '|';
+            }
+            var len = arr.length;
+            arr.forEach(function(item, index) {
                 if (index + 1 != len) {
-                    str += '<th>' + item + '</th>'
                     last_th += item + ',';
-                } else {
-                    str += '<th>' + item + '</th>'
                 }
+                str += '<th>' + item + '</th>'
+
             });
-            last_th = last_th.slice(0, -1); // remove last comma ','
+            if (!isPotential) {
+                last_th = last_th.slice(0, -1); // remove last comma ','
+            } else {
+                last_th += c_name;
+            }
             last_th += ')</th>';
         }
-        var th = '<tr>' + str + last_th + '</tr>';
 
-        var permute = Tool.permute(p_c.map(function(x) {
-            return x.toLowerCase()
-        }));
+        th = '<tr>' + str + last_th + '</tr>';
+        return th;
+    }
 
-        str = '';
+    function toTableBody(dist, permute, isNew) {
+        var str = '';
         var default_p = 0.5;
         permute.forEach(function(tr, index) {
             str += '<tr>';
@@ -131,8 +136,43 @@ function MainController() {
                 str += '<td><input type="text" value="' + dist.getMapValue(index) + '"></td></tr>';
             }
         });
+        return str;
+    }
 
-        table.html(th + str);
+    function createCPTtable() {
+        var table = $('#table-cpt');
+        var str = '';
+        var c_name = c_var.name;
+        var dist = CPT_vars[c_name].dist;
+        var isNew = dist === null;
+        var th, td;
+        if (isNew) {
+            var p_c = []; // parents + current variable
+
+            c_var.parents.forEach(function(p) {
+                p_c.push(p.name);
+            });
+
+            p_c.push(c_name);
+
+            th = toTableHead(p_c, false);
+
+            var permute = Tool.permute(p_c.map(function(x) {
+                return x.toLowerCase()
+            }));
+
+            td = toTableBody(dist, permute, true);
+        } else {
+            th = toTableHead(dist.varNames, dist.isPotential);
+            var keys = Object.keys(dist.map);
+            var permute = [];
+            keys.forEach(function(key) {
+                permute.push(key.split(','));
+            });
+            td = toTableBody(dist, permute, false);
+        }
+
+        table.html(th + td);
         $('#modal-cpt').modal({
             keyboard: false,
             backdrop: 'static'
@@ -145,6 +185,10 @@ function MainController() {
         $('#vars-list').append(varCircle);
     }
 
+    function removeFromQueryList(varObj) {
+        $('#vars-list span[id="circle-in-list-' + varObj.name + '"]').remove();
+    }
+
     // insert node in DAG
     // this function for sample feature
     function insertNode(name, map, parents, location) {
@@ -155,33 +199,44 @@ function MainController() {
         optionList.remove(up);
         resetOptions(optionList);
 
-        var varOjb = new CPT_var(up);
-        CPT_vars[up] = varOjb;
-        addToQueryList(varOjb);
+        var varObj = new CPT_var(up);
+        CPT_vars[up] = varObj;
+        addToQueryList(varObj);
 
-        varOjb.var = new Variable(up, [low, mLow]);
+        varObj.var = new Variable(up, [low, mLow]);
 
         var mapVar = [];
         parents.forEach(function(item) {
-            varOjb.parents.push(item);
-            item.children.push(varOjb);
+            varObj.parents.push(item);
+            item.children.push(varObj);
             mapVar.push(item.var);
         });
 
-        mapVar.push(varOjb.var);
+        mapVar.push(varObj.var);
 
-        varOjb.dist = new Distribution(map, mapVar);
+        varObj.dist = new Distribution(map, mapVar);
+        varObj.dist.isPotential = false;
+        setDistName(varObj);
 
         var vertex = new Vertex();
-        vertex.name = varOjb.name;
+        vertex.name = varObj.name;
         vertex.cx = location.cx;
         vertex.cy = location.cy;
         originalGraph.addVertex(vertex);
 
-        return varOjb;
+        return varObj;
     }
 
-    this.resetOpt = function(){
+    function setDistName(varObj) {
+        var name = '|';
+        varObj.parents.forEach(function(p) {
+            name += p.name + ',';
+        });
+        name = name.slice(0, -1);
+        varObj.dist.name = 'P(' + varObj.name + name + ')';
+    }
+
+    this.resetOpt = function() {
         resetOptions();
     }
 
@@ -200,7 +255,7 @@ function MainController() {
             }
             return resetOptions(optionList);
         } else {
-            list.forEach(function(item){
+            list.forEach(function(item) {
                 selector.append('<option value="' + item.toLowerCase() + '">' + item.toUpperCase() + '</option>');
             });
         }
@@ -373,6 +428,45 @@ function MainController() {
         }
     }
 
+    function isSubset(sub, full) {
+        var result = true;
+        sub.forEach(function(e) {
+            if (full.indexOf(e) === -1) {
+                result = false;
+            }
+        });
+        return result;
+    }
+
+    
+    function fromCliqueToCPT_var(c, used) {
+        var varObj = new CPT_var();
+        varObj.name = c.name;
+        varObj.dist = Distribution.UNIT;
+        var cliqueVarNames = [];
+        var temp;
+        var sub = [];
+        c.vertices.forEach(function(v) {
+            cliqueVarNames.push(v.name);
+        });
+    
+        c.vertices.forEach(function(v) {
+            temp = CPT_vars[v.name];
+            if (used.indexOf(temp) === -1) {
+                sub.push(temp.name);
+                temp.parents.forEach(function(p) {
+                    sub.push(p.name);
+                });
+                if (isSubset(sub, cliqueVarNames)) {
+                    used.push(temp);
+                    varObj.dist = varObj.dist.multiply(temp.dist);
+                }
+            }
+        });
+
+        return varObj;
+    }
+
     function onConstructJT() {
         var svg = $('#jt-svg');
         if (svg.children('circle').length) {
@@ -381,8 +475,18 @@ function MainController() {
             } else {
                 var g = svg.getGraph();
                 g.constructJT();
-                g.paint(svg, true);
+
                 svg.data('jt-constructed', 'true');
+
+                var cliques = g.getCliques();
+                var varObj;
+                var used = [];
+                cliques.forEach(function(c) {
+                    varObj = fromCliqueToCPT_var(c, used);
+                    CPT_vars[c.name] = varObj;
+                    c.setDistName(varObj.dist.name);
+                });
+                g.paint(svg, true);
             }
         }
     }
@@ -470,6 +574,8 @@ function MainController() {
         var vars = toVar(ths);
 
         c_var.dist = new Distribution(map, vars);
+        c_var.dist.isPotential = false;
+        setDistName(c_var);
         originalGraph.paint($('#original-svg'));
     }
 
@@ -597,6 +703,9 @@ function MainController() {
         optionList.push(name.toUpperCase());
         optionList.sort();
         resetOptions(optionList);
+
+        removeFromQueryList(varObj);
+        DAGChanged = true;
     }
 
     this.addContextMenu = function() {

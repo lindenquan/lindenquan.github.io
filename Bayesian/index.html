@@ -225,15 +225,17 @@
         <div data-menu="Step 3">
             <button type="button" class="btn prevPage">Prev</button>
             <h1>Junction Tree</h1>
-            <p>A junction tree is constructed from a triangulated graph. The process contains two steps.
+            <p>A junction tree is constructed from a triangulated graph. The process contains three steps.
             </p>
             <div>
                 <ul class="instruction-list">
                     <li>Step 1: Transform the triangulated graph to the <a href="http://mathworld.wolfram.com/CliqueGraph.html" target="_blank">clique graph</a>.</li>
                     <li>Step 2: Construct a maximum-weight spanning tree from the clique graph.</li>
+                    <li>Step 3: Assign CPTs to cliques to become their potentials &Phi;.</li>
                 </ul>
             </div>
             <p>The weight of an edge of a spanning tree is the number of common nodes shared between the cliques.</p>
+             <p>If a clique includes all variables in a CPT, then that CPT is assigned to the clique. For example, CPT of A is P(C|B,A), and a clique consists of variable A,B,C,D, then CPT of A is assigned to the clique. Because {C,B,A}&sube;{A,B,C,D}.</p>
         </div>
         <div class="full-height">
             <button type="button" class="btn nextPage">Next</button>
@@ -272,7 +274,7 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <!--<button type="button" class="close" data-dismiss="modal">&times;</button>-->
-                    <span class="modal-title">CPT</span>
+                    <span class="modal-title">Probability Distribution</span>
                 </div>
                 <div class="modal-body">
                     <table id="table-cpt"></table>
