@@ -139,13 +139,23 @@ function MainController() {
         return str;
     }
 
-    function createCPTtable() {
+    function createCPTtable(parameter) {
         var table = $('#table-cpt');
         var str = '';
         var c_name = c_var.name;
         var dist = CPT_vars[c_name].dist;
         var isNew = dist === null;
         var th, td;
+        var disabled = true;
+
+        if (parameter.target && $(parameter.target).parent().id() === 'original-svg') {
+            disabled = false;
+        } else if (parameter.parent && parameter.parent().id() === 'original-svg') {
+            disabled = false;
+        } else if (parameter === false) {
+            disabled = false;
+        }
+
         if (isNew) {
             var p_c = []; // parents + current variable
 
@@ -173,6 +183,7 @@ function MainController() {
         }
 
         table.html(th + td);
+        $("#modal-cpt table input").prop('disabled', disabled);
         $('#modal-cpt').modal({
             keyboard: false,
             backdrop: 'static'
@@ -387,7 +398,7 @@ function MainController() {
 
             if (Object.keys(CPT_vars).length === 1) {
                 // first node
-                createCPTtable();
+                createCPTtable(false);
             } else {
                 $('#parents').modal({
                     keyboard: false,
@@ -438,7 +449,7 @@ function MainController() {
         return result;
     }
 
-    
+
     function fromCliqueToCPT_var(c, used) {
         var varObj = new CPT_var();
         varObj.name = c.name;
@@ -449,7 +460,7 @@ function MainController() {
         c.vertices.forEach(function(v) {
             cliqueVarNames.push(v.name);
         });
-    
+
         c.vertices.forEach(function(v) {
             temp = CPT_vars[v.name];
             if (used.indexOf(temp) === -1) {
@@ -463,6 +474,7 @@ function MainController() {
                 }
             }
         });
+        varObj.dist.isPotential = true;
 
         return varObj;
     }
@@ -526,7 +538,7 @@ function MainController() {
             originalGraph.addEdgeByName(p_obj.name, c_obj.name, { 'isDirected': true });
         });
         $('#parents').modal('hide');
-        createCPTtable();
+        createCPTtable(false);
     }
 
     function toDistMap(tds) {
@@ -551,6 +563,7 @@ function MainController() {
         var rows = $('#table-cpt tr');
         var ths = [];
         var tds = [];
+
         rows.each(function(index, item) {
             if (index === 0) {
                 $(item).children().each(function(index, item) {
@@ -678,7 +691,7 @@ function MainController() {
     }
 
     function doubleClickCircle(e) {
-        createCPTtable();
+        createCPTtable(e);
     }
 
     function deleteVertex(circle) {
@@ -717,7 +730,7 @@ function MainController() {
                         //$(this).contextMenu('hide');
                         break;
                     case 'edit':
-                        createCPTtable();
+                        createCPTtable($(this));
                         break;
                     case 'delete':
                         deleteVertex($(this));
