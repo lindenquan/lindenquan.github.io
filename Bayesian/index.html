@@ -235,7 +235,7 @@
                 </ul>
             </div>
             <p>The weight of an edge of a spanning tree is the number of common nodes shared between the cliques.</p>
-             <p>If a clique includes all variables in a CPT, then that CPT is assigned to the clique. For example, CPT of A is P(C|B,A), and a clique consists of variable A,B,C,D, then CPT of A is assigned to the clique. Because {C,B,A}&sube;{A,B,C,D}.</p>
+            <p>If a clique includes all variables in a CPT, then that CPT is assigned to the clique. For example, CPT of A is P(C|B,A), and a clique consists of variable A,B,C,D, then CPT of A is assigned to the clique. Because {C,B,A}&sube;{A,B,C,D}.</p>
         </div>
         <div class="full-height">
             <button type="button" class="btn nextPage">Next</button>
@@ -249,6 +249,55 @@
                 <div id="jt-canvas" class='canvas'>
                     <svg id="jt-svg">
                     </svg>
+                </div>
+            </div>
+        </div>
+        <div data-menu="Step 4">
+            <button type="button" class="btn prevPage">Prev</button>
+            <h1>Propagation</h1>
+            <p>After the junction tree is obtained, we can start to propagate messages to get marginals. In this tutorial, two propagation algorithms are mentioned - Hugin and Shenoy-Shafer.
+            </p>
+            <p>In Hugin propagation. For each edge, there is a seperator whose domain is the intersection of the two cliques. There is a root node, and it involves two phases - inward and outward. After the propagation is done, all cliques and seperators become marginals. For example, &Phi;(C,D) => P(C, D)
+            </p>
+            <p>
+                In Shenoy-Shafer propagation, For each edge, there are two seperators for each direction. There is no root node. Afther propagation is done, all cliques become marginals.
+            </p>
+        </div>
+        <div class="full-height">
+            <button type="button" class="btn nextPage">Next</button>
+            <ul class="nav nav-tabs">
+                <li class="active"><a data-toggle="tab" href="#p-hugin">Hugin</a></li>
+                <li><a data-toggle="tab" href="#p-shenoy">Shenoy-Shafer</a></li>
+            </ul>
+            <div class="tab-content">
+                <div id="p-hugin" class="tab-pane fade in active">
+                    <div class='page-wrapper'>
+                        <div class='page-head'>
+                            <p>
+                                <button id="btn-hugin-rest" class="hvr-back-pulse float-right">Reset</button>
+                                <button id="btn-hugin-inward" class="hvr-back-pulse">Inward</button>
+                                <button id="btn-hugin-outward" class="hvr-back-pulse">Outward</button>
+                            </p>
+                        </div>
+                        <div id="p-hugin-canvas" class='canvas'>
+                            <svg id="p-hugin-svg">
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+                <div id="p-shenoy" class="tab-pane fade">
+                    <div class='page-wrapper'>
+                        <div class='page-head'>
+                            <p>
+                                <button id="btn-shenoy-reset" class="hvr-back-pulse float-right">Reset</button>
+                                <button id="btn-shenoy-propagate" class="hvr-back-pulse float-left">Propagate</button>
+                            </p>
+                        </div>
+                        <div id="p-shenoy-canvas" class='canvas'>
+                            <svg id="p-shenoy-svg">
+                            </svg>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
