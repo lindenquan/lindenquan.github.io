@@ -456,7 +456,7 @@ function MainController() {
         varObj.dist = Distribution.UNIT;
         var cliqueVarNames = [];
         var temp;
-        var sub = [];
+        var sub;
         c.vertices.forEach(function(v) {
             cliqueVarNames.push(v.name);
         });
@@ -464,6 +464,7 @@ function MainController() {
         c.vertices.forEach(function(v) {
             temp = CPT_vars[v.name];
             if (used.indexOf(temp) === -1) {
+                sub = [];
                 sub.push(temp.name);
                 temp.parents.forEach(function(p) {
                     sub.push(p.name);

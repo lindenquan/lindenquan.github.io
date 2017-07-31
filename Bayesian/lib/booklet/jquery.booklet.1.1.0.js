@@ -902,7 +902,7 @@
         arrows: false, // adds arrows overlayed over the book edges
         cursor: 'pointer', // cursor css setting for side bar areas
 
-        hash: false, // enables navigation using a hash string, ex: #/page/1 for page 1, will affect all booklets with 'hash' enabled
+        hash: true, // enables navigation using a hash string, ex: #/page/1 for page 1, will affect all booklets with 'hash' enabled
         keyboard: true, // enables navigation with arrow keys (left: previous, right: next)
         next: null, // selector for element to use as click trigger for next page
         prev: null, // selector for element to use as click trigger for previous page
