@@ -30,3 +30,20 @@ Array.prototype.remove = function(elem, all) {
     }
     return this;
 };
+
+
+function detectIE() {
+    var ua = window.navigator.userAgent;
+    if (ua.indexOf('MSIE ') > 0) {
+        return true;
+    }
+
+    if (ua.indexOf('Trident/') > 0) {
+        return true;
+    }
+
+    if (ua.indexOf('Edge/') > 0) {
+        return true;
+    }
+    return false;
+}

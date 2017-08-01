@@ -660,3 +660,17 @@ ul.nav-pills {
     margin-top: 2em;
     padding-left: 6em;
 }
+
+#browser-unsupport{
+    display: none;
+    width: 600px;
+    height: 100px;
+    border-radius: 10px;
+    text-align: center;
+    color: #eee;
+    font-size: 20px;
+    padding:50px 20px;
+    background-color: rgba(5, 5, 5, 0.7);
+    margin: auto;
+    transform:translateY(-100px);
+}

@@ -1,4 +1,9 @@
 $(function() {
+    if (detectIE()) {
+        $('.loading').css('visibility', 'hidden');
+        $('#browser-unsupport').css('display', 'block');
+        return;
+    }
     var mc = new MainController();
     book = $('.book:first');
     book.booklet({
@@ -942,7 +947,7 @@ function MainController() {
         var graph = svg.getGraph();
         var cliques = graph.getCliques();
 
-        cliques.forEach(function(c){
+        cliques.forEach(function(c) {
             c.isRoot = false;
         });
 
