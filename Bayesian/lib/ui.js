@@ -6,10 +6,12 @@ $(function() {
         height: 550, // container height
         next: $('#btn-start'),
         finish: onFinish,
-        onPage: { 6: mc.onMoralization, 8: mc.onTriangulation, 10: mc.onJT }
+        onPage: { 6: mc.onMoralization, 8: mc.onTriangulation, 10: mc.onJT, 12: mc.onPropagation }
     });
 
     function onFinish() {
+        window.location.hash = '#/page/1';
+
         $('.book .prevPage').click(function() {
             book.booklet('prev');
         });
@@ -20,7 +22,6 @@ $(function() {
 
         mc.addContextMenu();
         $('.book').css('display', 'block');
-
         mc.resetOpt();
 
         setTimeout(function() {
@@ -56,8 +57,6 @@ function MainController() {
     var originalGraph = new Graph('original graph');
     $('#original-svg').setGraph(originalGraph);
     var selectorHTML = $('#div-selector').html();
-    var moralGraph = null;
-    var triangulatedGraph = null;
     var optionList = [];
 
     // CPT_var class
@@ -75,6 +74,7 @@ function MainController() {
     var moralChanged = false;
     var triangleChanged = false;
     var jtChanged = false;
+    var propagationChanged = false;
 
     function btn_start() {
         $('.b-page-3').css('visibility', 'visible');
@@ -480,6 +480,17 @@ function MainController() {
         return varObj;
     }
 
+    function assignCPTs(graph) {
+        var cliques = graph.getCliques();
+        var varObj;
+        var used = [];
+        cliques.forEach(function(c) {
+            varObj = fromCliqueToCPT_var(c, used);
+            CPT_vars[c.name] = varObj;
+            c.setDistName(varObj.dist.name);
+        });
+    }
+
     function onConstructJT() {
         var svg = $('#jt-svg');
         if (svg.children('circle').length) {
@@ -488,17 +499,8 @@ function MainController() {
             } else {
                 var g = svg.getGraph();
                 g.constructJT();
-
                 svg.data('jt-constructed', 'true');
-
-                var cliques = g.getCliques();
-                var varObj;
-                var used = [];
-                cliques.forEach(function(c) {
-                    varObj = fromCliqueToCPT_var(c, used);
-                    CPT_vars[c.name] = varObj;
-                    c.setDistName(varObj.dist.name);
-                });
+                assignCPTs(g);
                 g.paint(svg, true);
             }
         }
@@ -889,10 +891,10 @@ function MainController() {
             DAGChanged = false;
             moralChanged = true;
             var svg = $('#moral-svg');
-            moralGraph = originalGraph.clone('moral graph');
+            var graph = originalGraph.clone('moral graph');
             svg.data('moralized', 'false');
-            svg.setGraph(moralGraph);
-            moralGraph.paint(svg);
+            svg.setGraph(graph);
+            graph.paint(svg);
         }
         $('svg line.line-animation').removeClass('line-animation');
     }
@@ -902,11 +904,11 @@ function MainController() {
             moralChanged = false;
             triangleChanged = true;
             var svg = $('#triangle-svg');
-            triangulatedGraph = moralGraph.clone('triangulated graph');
-            triangulatedGraph.moralize(false).normalize();
+            var graph = $('#moral-svg').getGraph().clone('triangulated graph');
+            graph.moralize(false).normalize();
             svg.data('triangulated', 'false');
-            svg.setGraph(triangulatedGraph);
-            triangulatedGraph.paint(svg);
+            svg.setGraph(graph);
+            graph.paint(svg);
         }
         $('svg line.line-animation').removeClass('line-animation');
     }
@@ -916,12 +918,41 @@ function MainController() {
             triangleChanged = false;
             jtChanged = true;
             var svg = $('#jt-svg');
-            jtGraph = triangulatedGraph.clone('junction tree graph');
-            jtGraph.triangulate().normalize().discardOrder();
+            var graph = $('#triangle-svg').getGraph().clone('junction tree graph');
+            graph.triangulate(false).normalize();
             svg.data('jt-constructed', 'false');
-            svg.setGraph(jtGraph);
-            jtGraph.paint(svg);
+            svg.setGraph(graph);
+            graph.paint(svg);
         }
         $('svg line.line-animation').removeClass('line-animation');
+    }
+
+    this.onPropagation = function() {
+        if (jtChanged) {
+            jtChanged = false;
+            propagationChanged = true;
+            var h_svg = $('#p-hugin-svg');
+            var s_svg = $('#p-shenoy-svg');
+            var jtGraph = $('#jt-svg').getGraph();
+            var h_graph = jtGraph.clone('junction tree graph');
+            var s_graph = jtGraph.clone('junction tree graph');
+
+            h_graph.constructJT(false, true);
+            s_graph.constructJT(false, true);
+
+            assignCPTs(h_graph);
+            assignCPTs(s_graph);
+
+            h_svg.data('h-propagation-inward-done', 'false');
+            h_svg.data('h-propagation-outward-done', 'false');
+
+            s_svg.data('s-propagation-done', 'false');
+
+            h_svg.setGraph(h_graph);
+            s_svg.setGraph(s_graph);
+
+            h_graph.paint(h_svg);
+            s_graph.paint(s_svg);
+        }
     }
 }

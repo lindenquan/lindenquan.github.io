@@ -104,13 +104,20 @@ function Vertex() {
 
         svg.append(this.text);
 
-        if (this.paintClique) {
+        if (Graph.info && this.paintClique) {
             this.paintClique(svg);
         }
     }
 
     this.clone = function() {
-        var v = new Vertex();
+        var v;
+
+        if (this.cloneClique) {
+            v = this.cloneClique();
+        } else {
+            v = new Vertex();
+        }
+
         v.name = this.name;
         v.cx = this.cx;
         v.cy = this.cy;
@@ -118,6 +125,7 @@ function Vertex() {
         v.clientY = this.clientY;
         v.isClicked = false;
         v.r = this.r;
+
         return v;
     }
 
@@ -125,9 +133,7 @@ function Vertex() {
         console.log(this.constructor.name + ':' + this.name);
     }
 }
-
 Vertex.selected = null; // seleted vertex
-
 
 function Clique() {
     $.extend(this, new Vertex());
@@ -150,6 +156,13 @@ function Clique() {
 
     this.setDistName = function(name) {
         this.distName = name.slice(2);
+    }
+
+    this.cloneClique = function() {
+        var c = new Clique();
+        c.index = this.index;
+        c.distName = this.distName;
+        return c;
     }
 }
 
@@ -317,6 +330,7 @@ function Graph(name) {
             cliques.forEach(function(c) {
                 c.paint(svg);
             });
+
             edges.forEach(function(item) {
                 if (item.from instanceof Clique) {
                     item.paint(svg, '', false);
@@ -339,8 +353,9 @@ function Graph(name) {
                     }
                 }
             });
-
-            paintMCSorder(svg);
+            if (Graph.info) {
+                paintMCSorder(svg);
+            }
         }
     }
 
@@ -358,11 +373,14 @@ function Graph(name) {
         edges.forEach(function(item) {
             var pVertex = item.from;
             var vertex = item.to;
-            g.addEdgeByName(pVertex.name, vertex.name, item.options);
+            if (pVertex instanceof Vertex) {
+                g.addEdgeByName(pVertex.name, vertex.name, item.options);
+            }
         });
 
         g.isMoral = this.isMoral;
         g.isTriangulated = this.isTriangulated;
+        g.isJT = this.isJT;
 
         return g;
     }
@@ -639,12 +657,18 @@ function Graph(name) {
     this.getCliques = function() {
         return cliques;
     }
-
-    this.constructJT = function() {
+    // force: re-construct JT, even it's been constructed
+    this.constructJT = function(showInfo, force) {
         this.isJT = true;
-        if (cliques.length > 0) {
-            return;
+        Graph.info = (showInfo === false) ? false : true;
+        force = (force === true) ? true : false;
+
+        if (force === false) {
+            if (cliques.length > 0) {
+                return;
+            }
         }
+
         this.findAllCliques();
         this.addEdgesForCliques();
         this.refineCliquePosition();
@@ -652,10 +676,6 @@ function Graph(name) {
 
     this.deconstructJT = function() {
         this.isJT = false;
-    }
-
-    this.discardOrder = function() {
-        order = null;
     }
 
     function intersection(a, b) {
@@ -671,7 +691,9 @@ function Graph(name) {
         return i;
     }
 
-    this.triangulate = function() {
+    this.triangulate = function(showInfo) {
+        Graph.info = (showInfo === false) ? false : true;
+
         if (this.isTriangulated) {
             return this;
         }
@@ -708,6 +730,7 @@ function Graph(name) {
     }
 
     this.detriangulate = function() {
+        Graph.info = false;
         if (!this.isTriangulated) {
             return this;
         }
@@ -776,7 +799,7 @@ function Graph(name) {
         return order;
     }
 }
-
+Graph.info = true;
 Graph.svgGraphMap = {};
 
 jQuery.fn.extend({
