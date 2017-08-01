@@ -41,11 +41,11 @@ function MainController() {
     $(document).on('drop', '.node-box', circleInListDrop);
     $(document).on('dragenter', '.node-box', circleInListEnter);
     $(document).on('dragleave', '.node-box', circleInListLeave);
-    $(document).on('mousedown', 'svg circle', svgCircleMouseDown);
+    $(document).on('mousedown', 'svg circle, svg rect', svgCircleMouseDown);
     $(document).on('mousemove', 'svg', svgMouseMove);
     $(document).on('mouseup', 'svg', svgMouseUp);
     $(document).on('dragstart', 'svg', svgStartDrag);
-    $(document).on('dblclick', 'svg circle', doubleClickCircle);
+    $(document).on('dblclick', 'svg circle, svg rect', doubleClickCircle);
     $(document).on('click', '#btn-start', btn_start);
     $(document).on('click', '#btn-spawn', onSpawn);
     $(document).on('click', '#btn-sample', onSample);
@@ -60,7 +60,7 @@ function MainController() {
     $(document).on('change', '#parents :checkbox', onParentSelected);
     $(document).on('click', '#btn-hugin-inward', onHuginInward);
     $(document).on('click', '#btn-hugin-outward', onHuginOutward);
-    $(document).on('click', '#btn-hugin-rest', onHuginReset);
+    $(document).on('click', '#btn-hugin-reset', onHuginReset);
 
     var originalGraph = new Graph('original graph');
     $('#original-svg').setGraph(originalGraph);
@@ -155,7 +155,7 @@ function MainController() {
         var dist = LogicNodes[c_name].dist;
         var isNew = dist === null;
         var th, td;
-        var disabled = true;
+        var disabled = true; // disabled table cannot be edited
 
         if (parameter.target && $(parameter.target).parent().id() === 'original-svg') {
             disabled = false;
@@ -615,6 +615,10 @@ function MainController() {
             var name = target.attr('name');
             c_node = LogicNodes[name];
 
+            if (target.tagName() === 'rect') {
+                return;
+            }
+
             var svg = target.parent();
             var vertex = svg.getGraph().getVertex(name);
             Vertex.selected = vertex;
@@ -922,16 +926,33 @@ function MainController() {
     function onHuginInward() {
         $('#btn-hugin-inward').prop('disabled', true);
         $('#btn-hugin-outward').prop('disabled', false);
+        $('#btn-hugin-reset').prop('disabled', false);
 
         var svg = $('#p-hugin-svg');
         var graph = svg.getGraph();
 
         h_joinTree = fromGraphToTree(graph);
         var result = h_joinTree.huginInward();
+
+        result.nodes.forEach(function(node) {
+            LogicNodes[node.name].dist = node.distr;
+        });
+
         graph.paint(svg, true, result);
+
+        var temp;
+        result.seperators.forEach(function(s) {
+            temp = new LogicNode();
+            temp.name = s.name;
+            temp.dist = s.distr;
+            temp.cx = s.cx;
+            temp.cy = s.cy;
+            LogicNodes[temp.name] = temp;
+        });
     }
 
     function onHuginOutward() {
+        $('#btn-hugin-outward').prop('disabled', true);
         var svg = $('#p-hugin-svg');
         var graph = svg.getGraph();
 
@@ -942,11 +963,13 @@ function MainController() {
     function onHuginReset() {
         $('#btn-hugin-inward').prop('disabled', false);
         $('#btn-hugin-outward').prop('disabled', true);
+        $('#btn-hugin-reset').prop('disabled', true);
 
         var svg = $('#p-hugin-svg');
         var graph = svg.getGraph();
         var cliques = graph.getCliques();
 
+        graph.removeSeperators();
         cliques.forEach(function(c) {
             c.isRoot = false;
         });
@@ -998,6 +1021,10 @@ function MainController() {
 
     this.onPropagation = function() {
         if (jtChanged) {
+            $('#btn-hugin-inward').prop('disabled', false);
+            $('#btn-hugin-outward').prop('disabled', true);
+            $('#btn-hugin-reset').prop('disabled', true);
+
             jtChanged = false;
             propagationChanged = true;
             var h_svg = $('#p-hugin-svg');

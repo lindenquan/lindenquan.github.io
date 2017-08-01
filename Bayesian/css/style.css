@@ -255,7 +255,8 @@ div.cs-skin-boxes {
 }
 
 .hvr-back-pulse:hover,
-.hvr-back-pulse:active {
+.hvr-back-pulse:active,
+.hvr-back-pulse:disabled {
     -webkit-animation-name: hvr-back-pulse;
     animation-name: hvr-back-pulse;
     -webkit-animation-duration: 1s;
@@ -585,6 +586,14 @@ svg circle {
     fill: white;
 }
 
+svg rect {
+    fill: white;
+    stroke: black;
+    color: orangered;
+    rx: 5;
+    ry: 5;
+}
+
 @media screen and (max-width: 30em) {
     .cs-skin-boxes .cs-options span {
         display: list-item;
@@ -661,7 +670,7 @@ ul.nav-pills {
     padding-left: 6em;
 }
 
-#browser-unsupport{
+#browser-unsupport {
     display: none;
     width: 600px;
     height: 100px;
@@ -669,12 +678,12 @@ ul.nav-pills {
     text-align: center;
     color: #eee;
     font-size: 20px;
-    padding:50px 20px;
+    padding: 50px 20px;
     background-color: rgba(5, 5, 5, 0.7);
     margin: 50px auto;
 }
 
-#browser-unsupport img{
-    width:50px;
+#browser-unsupport img {
+    width: 50px;
     height: 50px;
 }

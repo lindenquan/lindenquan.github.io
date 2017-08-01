@@ -96,6 +96,11 @@ function Vertex() {
             }
         }
 
+        if (this.paintSeperator) {
+            this.paintSeperator(svg, isAnimated);
+            return;
+        }
+
         this.circle.addClass('draggable context-menu-node');
         this.circle.attr('cx', this.cx);
         this.circle.attr('cy', this.cy);
@@ -111,7 +116,7 @@ function Vertex() {
 
         svg.append(this.text);
 
-        if (Graph.info && this.cliqueInfo) {
+        if (this.cliqueInfo) {
             this.cliqueInfo(svg);
         }
 
@@ -162,7 +167,12 @@ function Clique() {
         text.attr('x', 2);
         text.attr('y', 2 + this.index * 15);
         text.attr('class', 'graph-info');
-        text.html(this.name + ':' + names + ' < ' + this.distName + ' >');
+        if (Graph.info) {
+            text.html(this.name + ':' + names + ' < ' + this.distName + ' >');
+        } else {
+            text.html(this.name + ':' + names);
+        }
+
         svg.prepend(text);
     }
 
@@ -180,6 +190,124 @@ function Clique() {
     }
 }
 
+function SeperatorG(name, from, to, options) {
+    $.extend(this, new Vertex());
+    options = (options) ? options : {};
+
+    this.name = name;
+    this.from = from;
+    this.to = to;
+    this.isDirected = (options['isDirected'] === true) ? true : false;
+    this.isAnimated = (options['isAnimated'] === false) ? false : true;
+
+    this.paintSeperator = function(svg, isAnimated) {
+        this.calcXY();
+        this.rect = $(document.createElementNS('http://www.w3.org/2000/svg', 'rect'));
+        this.rect.attr('x', this.cx - SeperatorG.width / 2);
+        this.rect.attr('y', this.cy - SeperatorG.height / 2);
+        this.rect.attr('width', SeperatorG.width);
+        this.rect.attr('height', SeperatorG.height);
+        this.rect.attr('name', this.name);
+
+        this.text = $(document.createElementNS('http://www.w3.org/2000/svg', 'text'));
+        this.text.attr('x', this.cx);
+        this.text.attr('y', this.cy);
+        this.text.attr('name', this.name);
+
+        var angle = toDegrees(Math.atan(Math.abs(from.cx - to.cx) / Math.abs(from.cy - to.cy)));
+
+        if (this.from.cy > this.to.cy) {
+            if (this.from.cx > this.to.cx) {
+                this.text.html(SeperatorG.upArrow);
+                // anticlockwise rotate angle
+                var rotate = 'rotate(-' + angle + ',' + this.cx + ',' + this.cy + ')';
+                this.text.attr('transform', rotate);
+                this.rect.attr('transform', rotate);
+            } else {
+                this.text.html(SeperatorG.upArrow);
+                // clockwise rotate angle
+                var rotate = 'rotate(' + angle + ',' + this.cx + ',' + this.cy + ')';
+                this.text.attr('transform', rotate);
+                this.rect.attr('transform', rotate);
+            }
+        } else {
+            if (this.from.cx > this.to.cx) {
+                this.text.html(SeperatorG.downArrow);
+                // clockwise rotate angle
+                var rotate = 'rotate(' + angle + ',' + this.cx + ',' + this.cy + ')';
+                this.text.attr('transform', rotate);
+                this.rect.attr('transform', rotate);
+
+            } else {
+                this.text.html(SeperatorG.downArrow);
+                // anticlockwise rotate angle
+                var rotate = 'rotate(-' + angle + ',' + this.cx + ',' + this.cy + ')';
+                this.text.attr('transform', rotate);
+                this.rect.attr('transform', rotate);
+            }
+        }
+
+        isAnimated = (isAnimated === true) ? true : false;
+
+        var r = this.rect;
+        var t = this.text;
+        if (isAnimated) {
+            setTimeout((function() {
+                var rect = r;
+                var text = t;
+                var canvas = svg;
+                var task = function() {
+                    canvas.append(rect);
+                    canvas.append(text);
+                }
+                return task;
+            })(), SeperatorG.time);
+            SeperatorG.time += SeperatorG.time;
+        } else {
+            svg.append(this.rect);
+            svg.append(this.text);
+        }
+    }
+
+    this.calcXY = function() {
+        var middleX = (this.from.cx + this.to.cx) / 2 | 0;
+        var middleY = (this.from.cy + this.to.cy) / 2 | 0;
+        var angle = Math.atan(Math.abs(from.cx - to.cx) / Math.abs(from.cy - to.cy));
+        var y = Math.sin(angle) * SeperatorG.d;
+        var x = Math.cos(angle) * SeperatorG.d;
+
+        if (this.from.cy > this.to.cy) {
+            if (this.from.cx > this.to.cx) {
+                this.cx = middleX - x;
+                this.cy = middleY + y;
+            } else {
+                this.cx = middleX + x;
+                this.cy = middleY + y;
+            }
+        } else {
+            if (this.from.cx > this.to.cx) {
+                this.cx = middleX - x;
+                this.cy = middleY - y;
+            } else {
+                this.cx = middleX + x;
+                this.cy = middleY - y;
+            }
+        }
+    }
+
+    function toDegrees(angle) {
+        return angle * (180 / Math.PI);
+    }
+}
+
+SeperatorG.d = 15;
+SeperatorG.upArrow = '&#8679;';
+SeperatorG.downArrow = '&#8681;';
+SeperatorG.width = 20;
+SeperatorG.height = 40;
+SeperatorG.time = 0;
+
+
 function Graph(name) {
     var vertices = [];
     var edges = [];
@@ -187,6 +315,8 @@ function Graph(name) {
     var cliqueEdges = [];
     var nameVertexMap = {};
     var order = []; // mcs order
+    var seperators = [];
+
     this.isMoral = false;
     this.isTriangulated = false;
     this.isJT = false;
@@ -357,6 +487,20 @@ function Graph(name) {
                 if (propagation.root) {
                     nameVertexMap[propagation.root.name].isRoot = true;
                 }
+                SeperatorG.time = 200;
+                var temp;
+                propagation.seperators.forEach(function(s) {
+                    var vertex1 = nameVertexMap[s.between[0].name];
+                    var vertex2 = nameVertexMap[s.between[1].name];
+
+                    temp = new SeperatorG(s.name, vertex1, vertex2);
+                    temp.paint(svg, true);
+                    seperators.push(temp);
+                });
+            } else {
+                seperators.forEach(function(s) {
+                    s.paint(svg);
+                });
             }
 
             cliques.forEach(function(c) {
@@ -829,6 +973,10 @@ function Graph(name) {
         }
 
         return order;
+    }
+
+    this.removeSeperators = function() {
+        seperators = [];
     }
 }
 Graph.info = true;

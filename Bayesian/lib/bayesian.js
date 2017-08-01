@@ -299,6 +299,7 @@ var Seperator = function Seperator(node1, node2) {
     this.between.push(node1);
     this.between.push(node2);
     this.distr = Distribution.UNIT;
+    this.name = this.between[0].name + '-' + this.between[1].name;
 };
 
 var ShaferSeperator = function ShaferSeperator(node1, node2) {
@@ -343,6 +344,9 @@ var Node = function () {
                 console.log("seperator between " + node1.varNames + " and " + node2.varNames);
                 seperator.distr.print();
             }
+            seperator.between[0] = this;
+            seperator.between[1] = node;
+
             return seperator;
         }
     }, {
@@ -1001,7 +1005,7 @@ var Tool = function () {
     }, {
         key: 'PRECISION',
         get: function get() {
-            return 7;
+            return 3;
         }
     }]);
 
