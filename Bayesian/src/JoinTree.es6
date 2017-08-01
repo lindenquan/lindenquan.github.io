@@ -16,16 +16,17 @@ class ShaferSeperator {
 }
 
 class Node {
-    constructor(distr, vars) {
+    constructor(distr, vars, name) {
+        this.name = name
         this.varNames = []
         vars.forEach(v => this.varNames.push(v.name))
 
         this.distr = distr
-            //edges contains all neighbour nodes
+        //edges contains all neighbour nodes
         this.edges = new Set()
-            // father is another Node
+        // father is another Node
         this.father = null
-            // childern is a set object containing children nodes
+        // childern is a set object containing children nodes
         this.children = new Set()
     }
 
@@ -40,7 +41,7 @@ class Node {
             console.log(`seperator between ${node1.varNames} and ${node2.varNames}`)
             seperator.distr.print()
         }
-
+        return seperator;
     }
 
     setShaferMessage(node, seperator, seps) {
@@ -64,8 +65,8 @@ class JoinTree {
         this.root = null
     }
 
-    addNode(distr, vars) {
-        this.nodes.push(new Node(distr, vars))
+    addNode(distr, vars, name) {
+        this.nodes.push(new Node(distr, vars, name))
     }
 
     addEdge(dis1, dis2) {
@@ -143,19 +144,31 @@ class JoinTree {
         }
     }
 
-    runHugin() {
-        this.root = this.nodes[0]
+    huginInward() {
+        let result = {}
+        let rootIndex = (this.nodes.length * Math.random()) | 0
+        let seperator;
+        this.root = this.nodes[rootIndex]
+        result.root = this.root;
+
         this.buildHierarchy()
         this.sort()
-
+        result.seperators = [];
         // set sperators from leaves to root
         this.nodes.forEach(node => {
             let father = node.father
             if (father != null) {
-                node.sendMessage(father, this.findSeperator(node, father))
+                seperator = node.sendMessage(father, this.findSeperator(node, father))
+                result.seperators.push(seperator);
             }
         })
 
+        result.nodes = this.nodes;
+
+        return result;
+    }
+
+    huginOutward() {
         // set sperators from root to leaves
         this.nodes.reverse().forEach(node => {
             let children = node.children
@@ -164,6 +177,11 @@ class JoinTree {
                 father.sendMessage(child, this.findSeperator(father, child))
             })
         })
+    }
+
+    runHugin() {
+        this.huginInward();
+        this.huginOutward();
     }
 
     /** ${from} a Node object denoting start node
@@ -300,9 +318,9 @@ class JoinTree {
         this.nodes.forEach(node => {
             let seps = this.findAllShaferSeperators(node)
             seps.forEach(sep => {
-                    node.distr = node.distr.multiply(sep.distr)
-                })
-                //node.distr.normalize()
+                node.distr = node.distr.multiply(sep.distr)
+            })
+            //node.distr.normalize()
         })
     }
 

@@ -82,14 +82,21 @@ function Vertex() {
         this.cy = y;
     }
 
-    this.paint = function(svg) {
+    this.paint = function(svg, isAnimated) {
         var svgId = svg.attr('id');
         this.circle = $(document.createElementNS('http://www.w3.org/2000/svg', 'circle'));
         if (this.cx < 0 || this.cy < 0) {
             this.calcXY(svg);
         }
 
-        this.circle.attr('class', 'draggable context-menu-node');
+        if (this.isRoot) {
+            this.circle.attr('root', 'true');
+            if (isAnimated) {
+                this.circle.addClass('line-animation');
+            }
+        }
+
+        this.circle.addClass('draggable context-menu-node');
         this.circle.attr('cx', this.cx);
         this.circle.attr('cy', this.cy);
         this.circle.attr('r', this.r);
@@ -104,7 +111,11 @@ function Vertex() {
 
         svg.append(this.text);
 
-        if (Graph.info && this.paintClique) {
+        if (Graph.info && this.cliqueInfo) {
+            this.cliqueInfo(svg);
+        }
+
+        if (this.paintClique) {
             this.paintClique(svg);
         }
     }
@@ -139,8 +150,9 @@ function Clique() {
     $.extend(this, new Vertex());
     this.vertices = [];
     this.index = 0;
-    this.distName = ''
-    this.paintClique = function(svg) {
+    this.distName = '';
+
+    this.cliqueInfo = function(svg) {
         var names = '';
         this.vertices.forEach(function(v) {
             names += v.name + ', ';
@@ -153,6 +165,8 @@ function Clique() {
         text.html(this.name + ':' + names + ' < ' + this.distName + ' >');
         svg.prepend(text);
     }
+
+    this.paintClique = function(svg) {}
 
     this.setDistName = function(name) {
         this.distName = name.slice(2);
@@ -170,6 +184,7 @@ function Graph(name) {
     var vertices = [];
     var edges = [];
     var cliques = [];
+    var cliqueEdges = [];
     var nameVertexMap = {};
     var order = []; // mcs order
     this.isMoral = false;
@@ -250,6 +265,17 @@ function Graph(name) {
         return edges;
     }
 
+    this.getCliqueEdges = function() {
+        if (cliqueEdges.length === 0) {
+            edges.forEach(function(e) {
+                if (e.from instanceof Clique) {
+                    cliqueEdges.push(e);
+                }
+            });
+        }
+        return cliqueEdges;
+    }
+
     // check if the edge is duplicate or not. default value is true
     this.addEdgeByName = function(pName, name, options, check) {
         var isDirected = (options['isDirected'] === true) ? true : false;
@@ -323,12 +349,18 @@ function Graph(name) {
         svg.prepend(text);
     }
 
-    this.paint = function(svg, isAnimated) {
+    this.paint = function(svg, isAnimated, propagation) {
         svg.html('');
 
         if (this.isJT) {
+            if (propagation) {
+                if (propagation.root) {
+                    nameVertexMap[propagation.root.name].isRoot = true;
+                }
+            }
+
             cliques.forEach(function(c) {
-                c.paint(svg);
+                c.paint(svg, isAnimated);
             });
 
             edges.forEach(function(item) {
@@ -780,7 +812,7 @@ function Graph(name) {
         });
 
         var len = vertices.length;
-        var random = unmarked[Math.random() * len | 0];
+        var random = unmarked[(Math.random() * len) | 0];
         order[0] = random;
         order[0].neighbor.forEach(function(item) {
             item.mcs++;

@@ -53,14 +53,17 @@ function MainController() {
     $(document).on('click', '#parents .confirm', onParentConfirm);
     $(document).on('click', '#modal-cpt .confirm', onCPTConfirm);
     $(document).on('change', '#parents :checkbox', onParentSelected);
+    $(document).on('click', '#btn-hugin-inward', onHuginInward);
+    $(document).on('click', '#btn-hugin-outward', onHuginOutward);
+    $(document).on('click', '#btn-hugin-rest', onHuginReset);
 
     var originalGraph = new Graph('original graph');
     $('#original-svg').setGraph(originalGraph);
     var selectorHTML = $('#div-selector').html();
     var optionList = [];
 
-    // CPT_var class
-    function CPT_var(name) {
+    // LogicNode class
+    function LogicNode(name) {
         this.name = name;
         this.var = null; // Variable object
         this.dist = null; // Distribution object
@@ -68,13 +71,14 @@ function MainController() {
         this.children = []; // children object list
     }
 
-    var c_var = null; // current CPT_var object
-    var CPT_vars = {}; // key is string variable name, value is a CPT_var object.
+    var c_node = null; // current LogicNode object
+    var LogicNodes = {}; // key is string variable name, value is a LogicNode object.
     var DAGChanged = false;
     var moralChanged = false;
     var triangleChanged = false;
     var jtChanged = false;
     var propagationChanged = false;
+    var h_joinTree, s_joinTree;
 
     function btn_start() {
         $('.b-page-3').css('visibility', 'visible');
@@ -142,8 +146,8 @@ function MainController() {
     function createCPTtable(parameter) {
         var table = $('#table-cpt');
         var str = '';
-        var c_name = c_var.name;
-        var dist = CPT_vars[c_name].dist;
+        var c_name = c_node.name;
+        var dist = LogicNodes[c_name].dist;
         var isNew = dist === null;
         var th, td;
         var disabled = true;
@@ -159,7 +163,7 @@ function MainController() {
         if (isNew) {
             var p_c = []; // parents + current variable
 
-            c_var.parents.forEach(function(p) {
+            c_node.parents.forEach(function(p) {
                 p_c.push(p.name);
             });
 
@@ -210,8 +214,8 @@ function MainController() {
         optionList.remove(up);
         resetOptions(optionList);
 
-        var varObj = new CPT_var(up);
-        CPT_vars[up] = varObj;
+        var varObj = new LogicNode(up);
+        LogicNodes[up] = varObj;
         addToQueryList(varObj);
 
         varObj.var = new Variable(up, [low, mLow]);
@@ -287,7 +291,7 @@ function MainController() {
         // initialize
         var svg = $('#original-svg');
         DAGChanged = true;
-        CPT_vars = [];
+        LogicNodes = [];
         $('#vars-list').html('');
         var map;
         originalGraph = new Graph();
@@ -310,10 +314,10 @@ function MainController() {
         var varB = insertNode('B', map, [varA], { cx: 120, cy: 140 });
 
         map = {};
-        map[['a', 'c']] = 0.2;
-        map[['a', '-c']] = 0.7;
-        map[['-a', 'c']] = 0.5;
-        map[['-a', '-c']] = 0.5;
+        map[['a', 'c']] = 0.7;
+        map[['a', '-c']] = 0.3;
+        map[['-a', 'c']] = 0.2;
+        map[['-a', '-c']] = 0.8;
         var varC = insertNode('C', map, [varA], { cx: 310, cy: 140 });
 
         map = {};
@@ -324,10 +328,10 @@ function MainController() {
         var varD = insertNode('D', map, [varB], { cx: 120, cy: 270 });
 
         map = {};
-        map[['c', 'e']] = 0.4;
-        map[['c', '-e']] = 0.6;
-        map[['-c', 'e']] = 0.7;
-        map[['-c', '-e']] = 0.3;
+        map[['c', 'e']] = 0.5;
+        map[['c', '-e']] = 0.5;
+        map[['-c', 'e']] = 0.4;
+        map[['-c', '-e']] = 0.6;
         var varE = insertNode('E', map, [varC], { cx: 310, cy: 270 });
 
         map = {};
@@ -361,12 +365,12 @@ function MainController() {
 
         selected = selected.toUpperCase();
         if (typeof selected === 'string') {
-            var varObj = CPT_vars[selected];
+            var varObj = LogicNodes[selected];
             if (varObj === undefined) {
-                c_var = new CPT_var(selected);
+                c_node = new LogicNode(selected);
 
-                var otherVars = Object.keys(CPT_vars);
-                CPT_vars[selected] = c_var;
+                var otherVars = Object.keys(LogicNodes);
+                LogicNodes[selected] = c_node;
 
                 var modal_body = $('#parents .modal-body');
                 modal_body.html('');
@@ -378,13 +382,13 @@ function MainController() {
                 });
 
                 var lowercase = selected.toLowerCase();
-                c_var.var = new Variable(selected, [lowercase, '-' + lowercase]);
+                c_node.var = new Variable(selected, [lowercase, '-' + lowercase]);
 
-                addToQueryList(c_var);
+                addToQueryList(c_node);
 
                 // add vertex
                 var vertex = new Vertex();
-                vertex.name = c_var.name;
+                vertex.name = c_node.name;
                 originalGraph.addVertex(vertex);
                 DAGChanged = true;
 
@@ -396,7 +400,7 @@ function MainController() {
                 console.log('already has this variable, select another one.');
             }
 
-            if (Object.keys(CPT_vars).length === 1) {
+            if (Object.keys(LogicNodes).length === 1) {
                 // first node
                 createCPTtable(false);
             } else {
@@ -450,19 +454,21 @@ function MainController() {
     }
 
 
-    function fromCliqueToCPT_var(c, used) {
-        var varObj = new CPT_var();
+    function fromCliqueToLogicNode(c, used) {
+        var varObj = new LogicNode();
         varObj.name = c.name;
         varObj.dist = Distribution.UNIT;
         var cliqueVarNames = [];
         var temp;
         var sub;
+        varObj.vars = [];
+
         c.vertices.forEach(function(v) {
             cliqueVarNames.push(v.name);
         });
 
         c.vertices.forEach(function(v) {
-            temp = CPT_vars[v.name];
+            temp = LogicNodes[v.name];
             if (used.indexOf(temp) === -1) {
                 sub = [];
                 sub.push(temp.name);
@@ -485,8 +491,8 @@ function MainController() {
         var varObj;
         var used = [];
         cliques.forEach(function(c) {
-            varObj = fromCliqueToCPT_var(c, used);
-            CPT_vars[c.name] = varObj;
+            varObj = fromCliqueToLogicNode(c, used);
+            LogicNodes[c.name] = varObj;
             c.setDistName(varObj.dist.name);
         });
     }
@@ -525,7 +531,7 @@ function MainController() {
     }
 
     function onParentConfirm() {
-        var c_obj = CPT_vars[c_var.name];
+        var c_obj = LogicNodes[c_node.name];
 
         var p = $('#parents input:checked');
 
@@ -534,7 +540,7 @@ function MainController() {
         }
         p.each(function(index, item) {
             var p = $(item).attr('id').slice(-1);
-            var p_obj = CPT_vars[p];
+            var p_obj = LogicNodes[p];
 
             c_obj.parents.push(p_obj);
             p_obj.children.push(c_obj);
@@ -557,7 +563,7 @@ function MainController() {
         var vars = [];
         ths.splice(-1);
         ths.forEach(function(item) {
-            vars.push(CPT_vars[item].var);
+            vars.push(LogicNodes[item].var);
         });
         return vars;
     }
@@ -589,9 +595,9 @@ function MainController() {
         var map = toDistMap(tds);
         var vars = toVar(ths);
 
-        c_var.dist = new Distribution(map, vars);
-        c_var.dist.isPotential = false;
-        setDistName(c_var);
+        c_node.dist = new Distribution(map, vars);
+        c_node.dist.isPotential = false;
+        setDistName(c_node);
         originalGraph.paint($('#original-svg'));
     }
 
@@ -602,7 +608,7 @@ function MainController() {
 
             var target = $(e.target);
             var name = target.attr('name');
-            c_var = CPT_vars[name];
+            c_node = LogicNodes[name];
 
             var svg = target.parent();
             var vertex = svg.getGraph().getVertex(name);
@@ -705,8 +711,8 @@ function MainController() {
         graph.deleteVertex(name);
         graph.paint(svg);
 
-        var varObj = CPT_vars[name];
-        CPT_vars[name] = undefined;
+        var varObj = LogicNodes[name];
+        LogicNodes[name] = undefined;
 
         varObj.parents.forEach(function(p) {
             p.children.remove(varObj);
@@ -885,6 +891,64 @@ function MainController() {
             queryUI.text('P(' + str + ')');
         }
     }
+
+    function fromGraphToTree(graph) {
+        var tree = new JoinTree();
+        var cliques = graph.getCliques();
+        var edges = graph.getCliqueEdges();
+        var varObj, vars;
+
+        cliques.forEach(function(c) {
+            varObj = LogicNodes[c.name];
+            vars = [];
+            c.vertices.forEach(function(v) {
+                vars.push(LogicNodes[v.name].var);
+            });
+            tree.addNode(varObj.dist, vars, c.name);
+        });
+
+        edges.forEach(function(e) {
+            tree.addEdge(LogicNodes[e.from.name].dist, LogicNodes[e.to.name].dist);
+        });
+
+        return tree;
+    }
+
+    function onHuginInward() {
+        $('#btn-hugin-inward').prop('disabled', true);
+        $('#btn-hugin-outward').prop('disabled', false);
+
+        var svg = $('#p-hugin-svg');
+        var graph = svg.getGraph();
+
+        h_joinTree = fromGraphToTree(graph);
+        var result = h_joinTree.huginInward();
+        graph.paint(svg, true, result);
+    }
+
+    function onHuginOutward() {
+        var svg = $('#p-hugin-svg');
+        var graph = svg.getGraph();
+
+        h_joinTree.huginOutward();
+        h_joinTree.printNodes();
+    }
+
+    function onHuginReset() {
+        $('#btn-hugin-inward').prop('disabled', false);
+        $('#btn-hugin-outward').prop('disabled', true);
+
+        var svg = $('#p-hugin-svg');
+        var graph = svg.getGraph();
+        var cliques = graph.getCliques();
+
+        cliques.forEach(function(c){
+            c.isRoot = false;
+        });
+
+        graph.paint(svg);
+    }
+
 
     this.onMoralization = function() {
         if (DAGChanged) {

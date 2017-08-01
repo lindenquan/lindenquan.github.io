@@ -310,11 +310,12 @@ var ShaferSeperator = function ShaferSeperator(node1, node2) {
 };
 
 var Node = function () {
-    function Node(distr, vars) {
+    function Node(distr, vars, name) {
         var _this = this;
 
         _classCallCheck(this, Node);
 
+        this.name = name;
         this.varNames = [];
         vars.forEach(function (v) {
             return _this.varNames.push(v.name);
@@ -342,6 +343,7 @@ var Node = function () {
                 console.log("seperator between " + node1.varNames + " and " + node2.varNames);
                 seperator.distr.print();
             }
+            return seperator;
         }
     }, {
         key: "setShaferMessage",
@@ -395,8 +397,8 @@ var JoinTree = function () {
 
     _createClass(JoinTree, [{
         key: "addNode",
-        value: function addNode(distr, vars) {
-            this.nodes.push(new Node(distr, vars));
+        value: function addNode(distr, vars, name) {
+            this.nodes.push(new Node(distr, vars, name));
         }
     }, {
         key: "addEdge",
@@ -565,30 +567,51 @@ var JoinTree = function () {
             }
         }
     }, {
-        key: "runHugin",
-        value: function runHugin() {
+        key: "huginInward",
+        value: function huginInward() {
             var _this2 = this;
 
-            this.root = this.nodes[0];
+            var result = {};
+            var rootIndex = this.nodes.length * Math.random() | 0;
+            var seperator = void 0;
+            this.root = this.nodes[rootIndex];
+            result.root = this.root;
+
             this.buildHierarchy();
             this.sort();
-
+            result.seperators = [];
             // set sperators from leaves to root
             this.nodes.forEach(function (node) {
                 var father = node.father;
                 if (father != null) {
-                    node.sendMessage(father, _this2.findSeperator(node, father));
+                    seperator = node.sendMessage(father, _this2.findSeperator(node, father));
+                    result.seperators.push(seperator);
                 }
             });
+
+            result.nodes = this.nodes;
+
+            return result;
+        }
+    }, {
+        key: "huginOutward",
+        value: function huginOutward() {
+            var _this3 = this;
 
             // set sperators from root to leaves
             this.nodes.reverse().forEach(function (node) {
                 var children = node.children;
                 children.forEach(function (child) {
                     var father = node;
-                    father.sendMessage(child, _this2.findSeperator(father, child));
+                    father.sendMessage(child, _this3.findSeperator(father, child));
                 });
             });
+        }
+    }, {
+        key: "runHugin",
+        value: function runHugin() {
+            this.huginInward();
+            this.huginOutward();
         }
 
         /** ${from} a Node object denoting start node
@@ -721,7 +744,7 @@ var JoinTree = function () {
     }, {
         key: "sortNodes",
         value: function sortNodes(nodes, root) {
-            var _this3 = this;
+            var _this4 = this;
 
             var array = null;
             var notArray = !Array.isArray(nodes);
@@ -740,8 +763,8 @@ var JoinTree = function () {
             }
 
             array.sort(function (a, b) {
-                a = _this3.length(a, root);
-                b = _this3.length(b, root);
+                a = _this4.length(a, root);
+                b = _this4.length(b, root);
                 return b - a;
             });
 
@@ -772,7 +795,7 @@ var JoinTree = function () {
     }, {
         key: "runShaferShenoy",
         value: function runShaferShenoy() {
-            var _this4 = this;
+            var _this5 = this;
 
             this.root = this.nodes[0];
             this.buildHierarchy();
@@ -782,7 +805,7 @@ var JoinTree = function () {
             this.nodes.forEach(function (node) {
                 var father = node.father;
                 if (father != null) {
-                    node.setShaferMessage(father, _this4.findShaferSeperator(node, father), _this4.findAllShaferSeperators(node));
+                    node.setShaferMessage(father, _this5.findShaferSeperator(node, father), _this5.findAllShaferSeperators(node));
                 }
             });
 
@@ -791,13 +814,13 @@ var JoinTree = function () {
                 var children = node.children;
                 children.forEach(function (child) {
                     var father = node;
-                    father.setShaferMessage(child, _this4.findShaferSeperator(father, child), _this4.findAllShaferSeperators(father));
+                    father.setShaferMessage(child, _this5.findShaferSeperator(father, child), _this5.findAllShaferSeperators(father));
                 });
             });
 
             // update each node's distribution
             this.nodes.forEach(function (node) {
-                var seps = _this4.findAllShaferSeperators(node);
+                var seps = _this5.findAllShaferSeperators(node);
                 seps.forEach(function (sep) {
                     node.distr = node.distr.multiply(sep.distr);
                 });
@@ -1108,7 +1131,7 @@ tree.addEdge(node4, node5);
 tree.addEdge(node5, node6);
 
 //tree.printTree()
-tree.runHugin();
+//tree.runHugin()
 //tree.printNodes()
 
 //console.log("Shafer Shenoy:")
@@ -1125,5 +1148,5 @@ tree.addEdge(node2, node3);
 tree.addEdge(node3, node4);
 tree.addEdge(node4, node5);
 tree.addEdge(node5, node6);
-tree.runShaferShenoy();
+//tree.runShaferShenoy()
 //tree.printNodes()

@@ -552,10 +552,15 @@ line[moral="true"] {
     stroke: orangered;
 }
 
+circle[root="true"] {
+    stroke: orangered;
+    stroke-width: 3;
+}
+
 .line-animation {
     stroke-dasharray: 1000;
     stroke-dashoffset: 1000;
-    animation: dash 5s linear forwards;
+    animation: dash 4s linear forwards;
 }
 
 @keyframes dash {
