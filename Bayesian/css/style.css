@@ -571,10 +571,8 @@ circle[root="true"] {
 }
 
 svg text {
-    stroke: black;
     stroke-width: 1;
     font-size: 2em;
-    fill: black;
     text-anchor: middle;
     alignment-baseline: middle;
     dominant-baseline: middle;
@@ -589,7 +587,6 @@ svg circle {
 svg rect {
     fill: white;
     stroke: black;
-    color: orangered;
     rx: 5;
     ry: 5;
 }

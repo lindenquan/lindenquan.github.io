@@ -153,7 +153,7 @@ class JoinTree {
         let rootIndex = (this.nodes.length * Math.random()) | 0
         let seperator;
         this.root = this.nodes[rootIndex]
-        result.root = this.root;
+        result.root = this.root
 
         this.buildHierarchy()
         this.sort()
@@ -163,24 +163,32 @@ class JoinTree {
             let father = node.father
             if (father != null) {
                 seperator = node.sendMessage(father, this.findSeperator(node, father))
-                result.seperators.push(seperator);
+                result.seperators.push(seperator)
             }
         })
 
         result.nodes = this.nodes;
-
         return result;
     }
 
     huginOutward() {
+        let result = {}
+        result.root = this.root
+        result.seperators = [];
+        let seperator;
+        
         // set sperators from root to leaves
         this.nodes.reverse().forEach(node => {
             let children = node.children
             children.forEach(child => {
                 let father = node
-                father.sendMessage(child, this.findSeperator(father, child))
+                seperator = father.sendMessage(child, this.findSeperator(father, child))
+                result.seperators.push(seperator)
             })
         })
+
+        result.nodes = this.nodes;
+        return result;
     }
 
     runHugin() {

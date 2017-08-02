@@ -213,6 +213,8 @@ function SeperatorG(name, from, to, options) {
         this.text.attr('x', this.cx);
         this.text.attr('y', this.cy);
         this.text.attr('name', this.name);
+        this.text.attr('stroke', 'orangered');
+        this.text.attr('fill', 'orangered');
 
         var angle = toDegrees(Math.atan(Math.abs(from.cx - to.cx) / Math.abs(from.cy - to.cy)));
 
@@ -494,7 +496,7 @@ function Graph(name) {
                     var vertex2 = nameVertexMap[s.between[1].name];
 
                     temp = new SeperatorG(s.name, vertex1, vertex2);
-                    temp.paint(svg, true);
+                    temp.paint(svg, false);
                     seperators.push(temp);
                 });
             } else {
@@ -978,6 +980,13 @@ function Graph(name) {
     this.removeSeperators = function() {
         seperators = [];
     }
+
+    this.removeRoot = function() {
+        cliques.forEach(function(c) {
+            c.isRoot = false;
+        });
+    }
+
 }
 Graph.info = true;
 Graph.svgGraphMap = {};

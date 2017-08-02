@@ -78,6 +78,7 @@ function MainController() {
 
     var c_node = null; // current LogicNode object
     var LogicNodes = {}; // key is string variable name, value is a LogicNode object.
+    var nameDistMap = {}; // key is name string, value is Distribution object
     var DAGChanged = false;
     var moralChanged = false;
     var triangleChanged = false;
@@ -182,6 +183,7 @@ function MainController() {
 
             td = toTableBody(dist, permute, true);
         } else {
+            dist.disabled = disabled;
             th = toTableHead(dist.varNames, dist.isPotential);
             var keys = Object.keys(dist.map);
             var permute = [];
@@ -574,6 +576,10 @@ function MainController() {
     }
 
     function onCPTConfirm(e) {
+        if (c_node.dist && c_node.dist.disabled) {
+            return;
+        }
+
         var rows = $('#table-cpt tr');
         var ths = [];
         var tds = [];
@@ -913,6 +919,7 @@ function MainController() {
             c.vertices.forEach(function(v) {
                 vars.push(LogicNodes[v.name].var);
             });
+            nameDistMap[c.name] = varObj.dist;
             tree.addNode(varObj.dist, vars, c.name);
         });
 
@@ -935,6 +942,7 @@ function MainController() {
         var result = h_joinTree.huginInward();
 
         result.nodes.forEach(function(node) {
+            node.distr.isPotential = true;
             LogicNodes[node.name].dist = node.distr;
         });
 
@@ -945,6 +953,7 @@ function MainController() {
             temp = new LogicNode();
             temp.name = s.name;
             temp.dist = s.distr;
+            temp.dist.isPotential = true;
             temp.cx = s.cx;
             temp.cy = s.cy;
             LogicNodes[temp.name] = temp;
@@ -956,8 +965,26 @@ function MainController() {
         var svg = $('#p-hugin-svg');
         var graph = svg.getGraph();
 
-        h_joinTree.huginOutward();
-        h_joinTree.printNodes();
+        graph.removeSeperators();
+        var result = h_joinTree.huginOutward();
+
+        result.nodes.forEach(function(node) {
+            node.distr.isPotential = true;
+            LogicNodes[node.name].dist = node.distr;
+        });
+
+        graph.paint(svg, true, result);
+
+        var temp;
+        result.seperators.forEach(function(s) {
+            temp = new LogicNode();
+            temp.name = s.name;
+            temp.dist = s.distr;
+            temp.dist.isPotential = true;
+            temp.cx = s.cx;
+            temp.cy = s.cy;
+            LogicNodes[temp.name] = temp;
+        });
     }
 
     function onHuginReset() {
@@ -967,16 +994,16 @@ function MainController() {
 
         var svg = $('#p-hugin-svg');
         var graph = svg.getGraph();
-        var cliques = graph.getCliques();
 
         graph.removeSeperators();
-        cliques.forEach(function(c) {
-            c.isRoot = false;
-        });
+        graph.removeRoot();
 
         graph.paint(svg);
-    }
 
+        graph.getCliques().forEach(function(c) {
+            LogicNodes[c.name].dist = nameDistMap[c.name];
+        });
+    }
 
     this.onMoralization = function() {
         if (DAGChanged) {
