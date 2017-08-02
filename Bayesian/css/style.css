@@ -152,6 +152,10 @@ button.gradient.active {
     background-position: 50% -41px;
 }
 
+.btn-pen:disabled {
+    color: grey;
+}
+
 .btn-pen-active {
     color: white;
     background-position: 50% -41px;
@@ -587,8 +591,6 @@ svg circle {
 svg rect {
     fill: white;
     stroke: black;
-    rx: 5;
-    ry: 5;
 }
 
 @media screen and (max-width: 30em) {

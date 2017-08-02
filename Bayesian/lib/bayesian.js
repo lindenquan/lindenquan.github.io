@@ -284,7 +284,7 @@ var Distribution = function () {
 
     return Distribution;
 }();
-"use strict";
+'use strict';
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
@@ -308,6 +308,8 @@ var ShaferSeperator = function ShaferSeperator(node1, node2) {
     this.from = node1;
     this.to = node2;
     this.distr = null;
+    this.name = this.from.name + '->' + this.to.name;
+    this.between = [];
 };
 
 var Node = function () {
@@ -332,7 +334,7 @@ var Node = function () {
     }
 
     _createClass(Node, [{
-        key: "sendMessage",
+        key: 'sendMessage',
         value: function sendMessage(node, seperator) {
             var commonVarNames = Tool.arrayIntersect(this.varNames, node.varNames);
             var distr = this.distr.sumOnto(commonVarNames);
@@ -341,7 +343,7 @@ var Node = function () {
             if (DEBUG) {
                 var node1 = seperator.between[0];
                 var node2 = seperator.between[1];
-                console.log("seperator between " + node1.varNames + " and " + node2.varNames);
+                console.log('seperator between ' + node1.varNames + ' and ' + node2.varNames);
                 seperator.distr.print();
             }
             seperator.between[0] = this;
@@ -350,7 +352,7 @@ var Node = function () {
             return seperator;
         }
     }, {
-        key: "setShaferMessage",
+        key: 'setShaferMessage',
         value: function setShaferMessage(node, seperator, seps) {
             var commonVarNames = Tool.arrayIntersect(this.varNames, node.varNames);
             var distr = Distribution.UNIT;
@@ -383,6 +385,11 @@ var Node = function () {
 
             distr = distr.multiply(this.distr);
             seperator.distr = distr.sumOnto(commonVarNames);
+
+            seperator.between[0] = this;
+            seperator.between[1] = node;
+
+            return seperator;
         }
     }]);
 
@@ -400,12 +407,12 @@ var JoinTree = function () {
     }
 
     _createClass(JoinTree, [{
-        key: "addNode",
+        key: 'addNode',
         value: function addNode(distr, vars, name) {
             this.nodes.push(new Node(distr, vars, name));
         }
     }, {
-        key: "addEdge",
+        key: 'addEdge',
         value: function addEdge(dis1, dis2) {
             var node1 = this.findNode(dis1);
             var node2 = this.findNode(dis2);
@@ -418,7 +425,7 @@ var JoinTree = function () {
             this.shaferSeperators.add(new ShaferSeperator(node2, node1));
         }
     }, {
-        key: "findNode",
+        key: 'findNode',
         value: function findNode(distr) {
             var node = this.nodes.filter(function (node) {
                 return node.distr === distr;
@@ -433,7 +440,7 @@ var JoinTree = function () {
         // return Set object which contains leaf nodes
 
     }, {
-        key: "buildHierarchyReturnLeaves",
+        key: 'buildHierarchyReturnLeaves',
         value: function buildHierarchyReturnLeaves(root) {
             var fatherPool = new Set();
             var newFatherPool = new Set();
@@ -507,7 +514,7 @@ var JoinTree = function () {
             return leaves;
         }
     }, {
-        key: "findSeperator",
+        key: 'findSeperator',
         value: function findSeperator(node1, node2) {
             var _iteratorNormalCompletion4 = true;
             var _didIteratorError4 = false;
@@ -541,7 +548,7 @@ var JoinTree = function () {
             }
         }
     }, {
-        key: "findShaferSeperator",
+        key: 'findShaferSeperator',
         value: function findShaferSeperator(from, to) {
             var _iteratorNormalCompletion5 = true;
             var _didIteratorError5 = false;
@@ -571,7 +578,7 @@ var JoinTree = function () {
             }
         }
     }, {
-        key: "huginInward",
+        key: 'huginInward',
         value: function huginInward() {
             var _this2 = this;
 
@@ -597,7 +604,7 @@ var JoinTree = function () {
             return result;
         }
     }, {
-        key: "huginOutward",
+        key: 'huginOutward',
         value: function huginOutward() {
             var _this3 = this;
 
@@ -620,7 +627,7 @@ var JoinTree = function () {
             return result;
         }
     }, {
-        key: "runHugin",
+        key: 'runHugin',
         value: function runHugin() {
             this.huginInward();
             this.huginOutward();
@@ -632,7 +639,7 @@ var JoinTree = function () {
          */
 
     }, {
-        key: "getPath",
+        key: 'getPath',
         value: function getPath(from, to) {
             if (from === to) {
                 return [from];
@@ -675,7 +682,7 @@ var JoinTree = function () {
                                 lastPath = np;
                             }();
 
-                            if ((typeof _ret === "undefined" ? "undefined" : _typeof(_ret)) === "object") return _ret.v;
+                            if ((typeof _ret === 'undefined' ? 'undefined' : _typeof(_ret)) === "object") return _ret.v;
                         }
                     }
                 } catch (err) {
@@ -697,7 +704,7 @@ var JoinTree = function () {
             return lastPath;
         }
     }, {
-        key: "findCenterNode",
+        key: 'findCenterNode',
         value: function findCenterNode() {
             var node1 = this.nodes[0];
             var path1 = this.getPath(node1, null);
@@ -708,7 +715,7 @@ var JoinTree = function () {
         // returen a Set ojbect containing all sperators to ${node}
 
     }, {
-        key: "findAllShaferSeperators",
+        key: 'findAllShaferSeperators',
         value: function findAllShaferSeperators(node) {
             var result = new Set();
             var _iteratorNormalCompletion7 = true;
@@ -741,7 +748,7 @@ var JoinTree = function () {
             return result;
         }
     }, {
-        key: "length",
+        key: 'length',
         value: function length(from, to) {
             if (from === to) {
                 return 0;
@@ -754,7 +761,7 @@ var JoinTree = function () {
         // ${nodes} is a Set object or an Array object containing Node objects
 
     }, {
-        key: "sortNodes",
+        key: 'sortNodes',
         value: function sortNodes(nodes, root) {
             var _this4 = this;
 
@@ -795,19 +802,23 @@ var JoinTree = function () {
             }
         }
     }, {
-        key: "sort",
+        key: 'sort',
         value: function sort() {
             this.sortNodes(this.nodes, this.root);
         }
     }, {
-        key: "buildHierarchy",
+        key: 'buildHierarchy',
         value: function buildHierarchy() {
             this.buildHierarchyReturnLeaves(this.root);
         }
     }, {
-        key: "runShaferShenoy",
+        key: 'runShaferShenoy',
         value: function runShaferShenoy() {
             var _this5 = this;
+
+            var result = {};
+            result.seperators = [];
+            var seperator = void 0;
 
             this.root = this.nodes[0];
             this.buildHierarchy();
@@ -817,7 +828,8 @@ var JoinTree = function () {
             this.nodes.forEach(function (node) {
                 var father = node.father;
                 if (father != null) {
-                    node.setShaferMessage(father, _this5.findShaferSeperator(node, father), _this5.findAllShaferSeperators(node));
+                    seperator = node.setShaferMessage(father, _this5.findShaferSeperator(node, father), _this5.findAllShaferSeperators(node));
+                    result.seperators.push(seperator);
                 }
             });
 
@@ -826,7 +838,8 @@ var JoinTree = function () {
                 var children = node.children;
                 children.forEach(function (child) {
                     var father = node;
-                    father.setShaferMessage(child, _this5.findShaferSeperator(father, child), _this5.findAllShaferSeperators(father));
+                    seperator = father.setShaferMessage(child, _this5.findShaferSeperator(father, child), _this5.findAllShaferSeperators(father));
+                    result.seperators.push(seperator);
                 });
             });
 
@@ -838,19 +851,22 @@ var JoinTree = function () {
                 });
                 //node.distr.normalize()
             });
+
+            result.nodes = this.nodes;
+            return result;
         }
     }, {
-        key: "printTree",
+        key: 'printTree',
         value: function printTree() {
             console.log("Join Tree:");
             this.nodes.forEach(function (node) {
                 node.edges.forEach(function (neig) {
-                    console.log(node.distr.name + " -- " + neig.distr.name);
+                    console.log(node.distr.name + ' -- ' + neig.distr.name);
                 });
             });
         }
     }, {
-        key: "printNodes",
+        key: 'printNodes',
         value: function printNodes() {
             console.log("Join Tree Nodes:");
             this.nodes.forEach(function (node) {

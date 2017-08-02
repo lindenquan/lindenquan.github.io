@@ -82,7 +82,7 @@ function Vertex() {
         this.cy = y;
     }
 
-    this.paint = function(svg, isAnimated) {
+    this.paint = function(svg, isAnimated, isInfo) {
         var svgId = svg.attr('id');
         this.circle = $(document.createElementNS('http://www.w3.org/2000/svg', 'circle'));
         if (this.cx < 0 || this.cy < 0) {
@@ -112,12 +112,18 @@ function Vertex() {
         this.text.attr('x', this.cx);
         this.text.attr('y', this.cy);
         this.text.attr('name', this.name);
-        this.text.html(this.name);
+        var name = this.name.split(':');
+        if (name.length === 1) {
+            name = name[0];
+        } else {
+            name = name[1];
+        }
+        this.text.html(name);
 
         svg.append(this.text);
 
         if (this.cliqueInfo) {
-            this.cliqueInfo(svg);
+            this.cliqueInfo(svg, isInfo);
         }
 
         if (this.paintClique) {
@@ -157,7 +163,7 @@ function Clique() {
     this.index = 0;
     this.distName = '';
 
-    this.cliqueInfo = function(svg) {
+    this.cliqueInfo = function(svg, isInfo) {
         var names = '';
         this.vertices.forEach(function(v) {
             names += v.name + ', ';
@@ -167,10 +173,17 @@ function Clique() {
         text.attr('x', 2);
         text.attr('y', 2 + this.index * 15);
         text.attr('class', 'graph-info');
-        if (Graph.info) {
-            text.html(this.name + ':' + names + ' < ' + this.distName + ' >');
+        var name = this.name.split(':');
+        if (name.length === 1) {
+            name = name[0];
         } else {
-            text.html(this.name + ':' + names);
+            name = name[1];
+        }
+
+        if (isInfo) {
+            text.html(name + ':' + names + ' < ' + this.distName + ' >');
+        } else {
+            text.html(name + ':' + names);
         }
 
         svg.prepend(text);
@@ -208,6 +221,8 @@ function SeperatorG(name, from, to, options) {
         this.rect.attr('width', SeperatorG.width);
         this.rect.attr('height', SeperatorG.height);
         this.rect.attr('name', this.name);
+        this.rect.attr('rx', SeperatorG.radius);
+        this.rect.attr('ry', SeperatorG.radius);
 
         this.text = $(document.createElementNS('http://www.w3.org/2000/svg', 'text'));
         this.text.attr('x', this.cx);
@@ -308,9 +323,9 @@ SeperatorG.downArrow = '&#8681;';
 SeperatorG.width = 20;
 SeperatorG.height = 40;
 SeperatorG.time = 0;
+SeperatorG.radius = 5;
 
-
-function Graph(name) {
+function Graph() {
     var vertices = [];
     var edges = [];
     var cliques = [];
@@ -322,7 +337,7 @@ function Graph(name) {
     this.isMoral = false;
     this.isTriangulated = false;
     this.isJT = false;
-    this.name = name;
+    this.isInfo = false;
 
     this.addClique = function(clique) {
         nameVertexMap[clique.name] = clique;
@@ -504,9 +519,9 @@ function Graph(name) {
                     s.paint(svg);
                 });
             }
-
+            var info = this.isInfo;
             cliques.forEach(function(c) {
-                c.paint(svg, isAnimated);
+                c.paint(svg, isAnimated, info);
             });
 
             edges.forEach(function(item) {
@@ -531,7 +546,7 @@ function Graph(name) {
                     }
                 }
             });
-            if (Graph.info) {
+            if (this.isInfo) {
                 paintMCSorder(svg);
             }
         }
@@ -541,8 +556,8 @@ function Graph(name) {
         return nameVertexMap[name];
     }
 
-    this.clone = function(name) {
-        var g = new Graph(name);
+    this.clone = function() {
+        var g = new Graph();
 
         vertices.forEach(function(item) {
             g.addVertex(item.clone());
@@ -695,7 +710,13 @@ function Graph(name) {
         return c;
     }
 
-    this.findAllCliques = function() {
+    this.findAllCliques = function(prefix) {
+        if (prefix == undefined) {
+            prefix = '';
+        } else {
+            prefix += ':';
+        }
+
         var c = [];
         var temp;
         var self = this;
@@ -717,7 +738,7 @@ function Graph(name) {
 
         c.forEach(function(item) { cliques.push(self.toClique(item)); });
         cliques.forEach(function(item, index) {
-            item.name = 'C' + (index + 1);
+            item.name = prefix + 'C' + (index + 1);
             item.index = index;
             self.addClique(item);
         });
@@ -836,9 +857,9 @@ function Graph(name) {
         return cliques;
     }
     // force: re-construct JT, even it's been constructed
-    this.constructJT = function(showInfo, force) {
+    this.constructJT = function(showInfo, force, prefix) {
         this.isJT = true;
-        Graph.info = (showInfo === false) ? false : true;
+        this.isInfo = (showInfo === false) ? false : true;
         force = (force === true) ? true : false;
 
         if (force === false) {
@@ -847,7 +868,7 @@ function Graph(name) {
             }
         }
 
-        this.findAllCliques();
+        this.findAllCliques(prefix);
         this.addEdgesForCliques();
         this.refineCliquePosition();
     }
@@ -870,7 +891,7 @@ function Graph(name) {
     }
 
     this.triangulate = function(showInfo) {
-        Graph.info = (showInfo === false) ? false : true;
+        this.isInfo = (showInfo === false) ? false : true;
 
         if (this.isTriangulated) {
             return this;
@@ -908,7 +929,7 @@ function Graph(name) {
     }
 
     this.detriangulate = function() {
-        Graph.info = false;
+        this.isInfo = false;
         if (!this.isTriangulated) {
             return this;
         }
@@ -988,7 +1009,6 @@ function Graph(name) {
     }
 
 }
-Graph.info = true;
 Graph.svgGraphMap = {};
 
 jQuery.fn.extend({

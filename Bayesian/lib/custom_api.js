@@ -17,6 +17,14 @@ jQuery.fn.extend({
 
     id: function() {
         return this.attr('id');
+    },
+
+    disable: function(){
+        return this.prop('disabled', true);
+    },
+
+    enable: function(){
+        return this.prop('disabled', false);
     }
 });
 
@@ -30,6 +38,11 @@ Array.prototype.remove = function(elem, all) {
     }
     return this;
 };
+
+String.prototype.norm = function() {
+    return this.replace(/\s/g, '').toLowerCase();
+};
+
 
 
 function detectIE() {

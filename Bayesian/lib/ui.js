@@ -61,6 +61,8 @@ function MainController() {
     $(document).on('click', '#btn-hugin-inward', onHuginInward);
     $(document).on('click', '#btn-hugin-outward', onHuginOutward);
     $(document).on('click', '#btn-hugin-reset', onHuginReset);
+    $(document).on('click', '#btn-shenoy-propagate', onShenoyPropagation);
+    $(document).on('click', '#btn-shenoy-reset', onShenoyReset);
 
     var originalGraph = new Graph('original graph');
     $('#original-svg').setGraph(originalGraph);
@@ -74,6 +76,13 @@ function MainController() {
         this.dist = null; // Distribution object
         this.parents = []; // parents object list
         this.children = []; // children object list
+
+        this.clone = function(name) {
+            var n = new LogicNode();
+            n.name = name;
+            n.var = this.var;
+            n.dist = this.dist.clone();
+        }
     }
 
     var c_node = null; // current LogicNode object
@@ -293,8 +302,32 @@ function MainController() {
         });
     }
 
+    // disable menu button from given button name to following all buttons
+    function disableMenu(name) {
+        var found = false;
+        $('.sideMenu button').each(function(i, item) {
+            if (found === false && name === $(item).text().norm()) {
+                found = true;
+            }
+            if (found) {
+                $(item).disable();
+            }
+        });
+    }
+
+    function enableMenu(names) {
+        var m;
+        $('.sideMenu button').each(function(i, item) {
+            m = $(item).text().norm();
+            if (names.indexOf(m) >= 0) {
+                $(item).enable();
+            }
+        });
+    }
+
     // display a sample DAG
     function onSample() {
+        disableMenu('step2');
         // initialize
         var svg = $('#original-svg');
         DAGChanged = true;
@@ -363,6 +396,7 @@ function MainController() {
     }
 
     function onSpawn() {
+        disableMenu('step2');
         var selector = $('#v-selector');
         var selected = selector.val();
 
@@ -382,6 +416,9 @@ function MainController() {
                 var modal_body = $('#parents .modal-body');
                 modal_body.html('');
                 otherVars.forEach(function(i) {
+                    if (i.length > 1) {
+                        return;
+                    }
                     var input = $('<input id="toggle_p_' + i + '" type="checkbox">');
                     var lable = $('<label for="toggle_p_' + i + '">' + i + '</label>');
                     modal_body.append(input);
@@ -645,6 +682,7 @@ function MainController() {
                 g.triangulate().paint(svg, true);
                 svg.data('triangulated', 'true');
                 triangleChanged = true;
+                disableMenu('step4');
             }
         }
     }
@@ -1005,12 +1043,71 @@ function MainController() {
         });
     }
 
+    function onShenoyPropagation() {
+        $('#btn-shenoy-propagate').prop('disabled', true);
+        $('#btn-shenoy-reset').prop('disabled', false);
+
+        var svg = $('#p-shenoy-svg');
+        var graph = svg.getGraph();
+
+        s_joinTree = fromGraphToTree(graph);
+        var result = s_joinTree.runShaferShenoy();
+
+        result.nodes.forEach(function(node) {
+            node.distr.isPotential = true;
+            LogicNodes[node.name].dist = node.distr;
+        });
+
+        graph.paint(svg, true, result);
+
+        var temp;
+        result.seperators.forEach(function(s) {
+            temp = new LogicNode();
+            temp.name = s.name;
+            temp.dist = s.distr;
+            temp.dist.isPotential = true;
+            temp.cx = s.cx;
+            temp.cy = s.cy;
+            LogicNodes[temp.name] = temp;
+        });
+    }
+
+    function onShenoyReset() {
+        $('#btn-shenoy-propagate').prop('disabled', false);
+        $('#btn-shenoy-reset').prop('disabled', true);
+
+        var svg = $('#p-shenoy-svg');
+        var graph = svg.getGraph();
+
+        graph.removeSeperators();
+
+        graph.paint(svg);
+
+        graph.getCliques().forEach(function(c) {
+            LogicNodes[c.name].dist = nameDistMap[c.name];
+        });
+    }
+
+    function addLogicNode(graph) {
+        var name;
+        graph.getCliques().forEach(function(c) {
+            name = c.name.split(':');
+            if (name.length === 1) {
+                name = name[0];
+            } else {
+                name = name[1];
+            }
+            LogicNodes[c.name] = LogicNodes[name].clone(c.name);
+        });
+    }
+
     this.onMoralization = function() {
         if (DAGChanged) {
+            enableMenu('[step2]');
             DAGChanged = false;
             moralChanged = true;
             var svg = $('#moral-svg');
-            var graph = originalGraph.clone('moral graph');
+            var graph = originalGraph.clone();
             svg.data('moralized', 'false');
             svg.setGraph(graph);
             graph.paint(svg);
@@ -1020,11 +1117,14 @@ function MainController() {
 
     this.onTriangulation = function() {
         if (moralChanged) {
+            enableMenu('[step3]');
             moralChanged = false;
             triangleChanged = true;
+
+            onMoralize();
             var svg = $('#triangle-svg');
-            var graph = $('#moral-svg').getGraph().clone('triangulated graph');
-            graph.moralize(false).normalize();
+            var graph = $('#moral-svg').getGraph().clone();
+            graph.normalize();
             svg.data('triangulated', 'false');
             svg.setGraph(graph);
             graph.paint(svg);
@@ -1034,11 +1134,14 @@ function MainController() {
 
     this.onJT = function() {
         if (triangleChanged) {
+            enableMenu('[step4]');
             triangleChanged = false;
             jtChanged = true;
+
+            onTriangulate();
             var svg = $('#jt-svg');
-            var graph = $('#triangle-svg').getGraph().clone('junction tree graph');
-            graph.triangulate(false).normalize();
+            var graph = $('#triangle-svg').getGraph().clone();
+            graph.normalize();
             svg.data('jt-constructed', 'false');
             svg.setGraph(graph);
             graph.paint(svg);
@@ -1051,17 +1154,27 @@ function MainController() {
             $('#btn-hugin-inward').prop('disabled', false);
             $('#btn-hugin-outward').prop('disabled', true);
             $('#btn-hugin-reset').prop('disabled', true);
+            $('#btn-shenoy-propagate').prop('disabled', false);
+            $('#btn-shenoy-reset').prop('disabled', true);
+
+            onConstructJT();
 
             jtChanged = false;
             propagationChanged = true;
+
             var h_svg = $('#p-hugin-svg');
             var s_svg = $('#p-shenoy-svg');
             var jtGraph = $('#jt-svg').getGraph();
-            var h_graph = jtGraph.clone('junction tree graph');
-            var s_graph = jtGraph.clone('junction tree graph');
+            var h_graph = jtGraph.clone();
+            var s_graph = jtGraph.clone();
 
-            h_graph.constructJT(false, true);
-            s_graph.constructJT(false, true);
+            var prefix = 'hp';
+            h_graph.constructJT(false, true, prefix);
+            addLogicNode(h_graph);
+
+            prefix = 'sp';
+            s_graph.constructJT(false, true, prefix);
+            addLogicNode(s_graph);
 
             assignCPTs(h_graph);
             assignCPTs(s_graph);
