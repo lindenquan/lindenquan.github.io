@@ -900,23 +900,6 @@ var JoinTree = function () {
             return result;
         }
     }, {
-        key: 'calcDist',
-        value: function calcDist(path, query, evidence) {
-            var total = [];
-
-            query.forEach(function (q) {
-                total.push(q);
-            });
-
-            evidence.forEach(function (e) {
-                total.push(e);
-            });
-
-            var dist = this.calcProbability(path, total);
-
-            return dist.divide(this.calcProbability(path, evidence));
-        }
-    }, {
         key: 'query',
         value: function query(_query, evidence) {
 
@@ -934,7 +917,8 @@ var JoinTree = function () {
                 total.push(e);
             });
 
-            var result = [];
+            var isEvidence = evidence.length !== 0;
+            var resultTotal = [];
             var len = this.nodes.length;
             var nodes = this.nodes;
             var path = void 0,
@@ -947,22 +931,27 @@ var JoinTree = function () {
                     varNames = [];
 
                     _path.forEach(function (n) {
-                        varNames = varNames.concat(n.varNames);
+                        varNames = Tool.varUnion(varNames, n.varNames);
                     });
 
                     if (Tool.isSubset(total, varNames)) {
-                        result.push(_path);
+                        resultTotal.push(_path);
                     }
                 }
             }
 
-            result.sort(function (a, b) {
+            var comparator = function comparator(a, b) {
                 return a.length - b.length;
-            });
+            };
 
-            path = result[0]; // shortest path
+            resultTotal.sort(comparator);
 
-            return this.calcDist(path, _query, evidence);
+            var result = this.calcProbability(resultTotal[0], total);
+            if (isEvidence) {
+                result = result.divide(result.sumOnto(evidence));
+            }
+
+            return result;
         }
     }, {
         key: 'printTree',

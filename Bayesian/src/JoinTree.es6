@@ -391,22 +391,6 @@ class JoinTree {
         return result
     }
 
-    calcDist(path, query, evidence) {
-        let total = []
-
-        query.forEach(function(q) {
-            total.push(q)
-        })
-
-        evidence.forEach(function(e) {
-            total.push(e)
-        })
-
-        let dist = this.calcProbability(path, total)
-
-        return dist.divide(this.calcProbability(path, evidence))
-    }
-
     query(query, evidence) {
 
         if (query.length === 0) {
@@ -423,7 +407,8 @@ class JoinTree {
             total.push(e)
         })
 
-        let result = []
+        let isEvidence = evidence.length !== 0
+        let resultTotal = []
         let len = this.nodes.length
         let nodes = this.nodes
         let path, varNames
@@ -435,22 +420,28 @@ class JoinTree {
                 varNames = []
 
                 path.forEach(function(n) {
-                    varNames = varNames.concat(n.varNames)
+                    varNames = Tool.varUnion(varNames, n.varNames)
                 })
 
                 if (Tool.isSubset(total, varNames)) {
-                    result.push(path)
+                    resultTotal.push(path)
                 }
+
             }
         }
 
-        result.sort(function(a, b) {
+        let comparator = function(a, b) {
             return a.length - b.length
-        })
+        }
 
-        path = result[0] // shortest path
+        resultTotal.sort(comparator)
 
-        return this.calcDist(path, query, evidence)
+        let result = this.calcProbability(resultTotal[0], total)
+        if (isEvidence) {
+            result = result.divide(result.sumOnto(evidence))
+        }
+
+        return result
     }
 
     printTree() {
