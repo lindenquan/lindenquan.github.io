@@ -593,18 +593,19 @@ function MainController() {
         var p = $('#parents input:checked');
 
         if (p.length === 0) {
-            //$('#parents .modal-hint').css('visibility', 'visible');
-        }
-        p.each(function(index, item) {
-            var p = $(item).attr('id').slice(-1);
-            var p_obj = LogicNodes[p];
+            $('#parents .modal-hint').css('visibility', 'visible');
+        } else {
+            p.each(function(index, item) {
+                var p = $(item).attr('id').slice(-1);
+                var p_obj = LogicNodes[p];
 
-            c_obj.parents.push(p_obj);
-            p_obj.children.push(c_obj);
-            originalGraph.addEdgeByName(p_obj.name, c_obj.name, { 'isDirected': true });
-        });
-        $('#parents').modal('hide');
-        createCPTtable(false);
+                c_obj.parents.push(p_obj);
+                p_obj.children.push(c_obj);
+                originalGraph.addEdgeByName(p_obj.name, c_obj.name, { 'isDirected': true });
+            });
+            $('#parents').modal('hide');
+            createCPTtable(false);
+        }
     }
 
     function toDistMap(tds) {
