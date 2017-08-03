@@ -1009,27 +1009,29 @@ function Graph() {
     }
 
     this.connected = function() {
-        if (vertices.length < 2) {
-            return true;
-        }
-
-        var vl = vertices.length;
-        var el = edges.length;
-
-        if (el + 1 < vl) {
-            return false;
-        }
-
-        var connected = [];
-
-        edges.forEach(function(e) {
-            connected.push(e.from);
-            connected.push(e.to);
-        })
-
+        var ids = [];
         var len = vertices.length;
-        for (var i = 0; i < len; i++) {
-            if (connected.indexOf(vertices[i]) < 0) {
+
+        for (i = 0; i < len; i++) {
+            vertices[i].id = i;
+        }
+
+        for (i = 0; i < len; i++) {
+            ids[i] = i;
+        }
+
+        var self = this;
+        edges.forEach(function(e) {
+            from = e.from;
+            to = e.to;
+            if (self.root(from.id, ids) !== self.root(to.id, ids)) {
+                self.union(from.id, to.id, ids);
+            }
+        });
+
+        var first = this.root(0, ids);
+        for (var i = 1; i < len; i++) {
+            if (this.root(i, ids) !== first) {
                 return false;
             }
         }
