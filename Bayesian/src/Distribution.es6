@@ -51,6 +51,7 @@ class Distribution {
                 this.map[key] = Tool.divisionDecimals(v, sum)
             }
         }
+        return this
     }
 
     static get UNIT() {
@@ -149,7 +150,6 @@ class Distribution {
             }
         }
         let dis = new Distribution(map, vars)
-        dis.normalize()
         dis.name = `ϕ(${vars.map((v)=>v.name)})`
         return dis
     }

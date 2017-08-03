@@ -806,7 +806,7 @@ function MainController() {
                 vars.push(p.var);
             });
             vars.push(c.var);
-            c.dist = c.dist.marginalOnto(vars);
+            c.dist = c.dist.marginalOnto(vars).normalize();
         });
 
         optionList.push(name.toUpperCase());

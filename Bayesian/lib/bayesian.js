@@ -69,6 +69,7 @@ var Distribution = function () {
                     this.map[_key] = Tool.divisionDecimals(v, sum);
                 }
             }
+            return this;
         }
     }, {
         key: 'indicesOn',
@@ -146,7 +147,6 @@ var Distribution = function () {
                 }
             }
             var dis = new Distribution(map, vars);
-            dis.normalize();
             dis.name = '\u03D5(' + vars.map(function (v) {
                 return v.name;
             }) + ')';
