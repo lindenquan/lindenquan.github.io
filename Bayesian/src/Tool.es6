@@ -11,7 +11,6 @@ class Tool {
         return Array.from(intersection);
     }
 
-    //arry1 and arry2 are arrays containing Variable objects
     static varUnion(arry1, arry2) {
         let set1 = new Set(arry1);
         let set2 = new Set(arry2);
@@ -125,5 +124,25 @@ class Tool {
             });
         }
         return result;
+    }
+
+    static isSubset(sub, full) {
+        var result = true;
+        sub.forEach(function(e) {
+            if (full.indexOf(e) === -1) {
+                result = false;
+            }
+        });
+        return result;
+    }
+
+    static hasCommon(arr1, arr2) {
+        var len = arr1.length
+        for (var i = 0; i < len; i++) {
+            if (arr2.indexOf(arr1[i]) >= 0) {
+                return true
+            }
+        }
+        return false
     }
 }

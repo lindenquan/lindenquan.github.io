@@ -27,7 +27,7 @@ class Node {
         this.distr = distr
         //edges contains all neighbour nodes
         this.edges = new Set()
-        // father is another Node
+        // father Node
         this.father = null
         // childern is a set object containing children nodes
         this.children = new Set()
@@ -350,6 +350,107 @@ class JoinTree {
 
         result.nodes = this.nodes
         return result
+    }
+
+    calcProbability(path, varNames) {
+        if (varNames.length === 0) {
+            return Distribution.UNIT
+        }
+
+        let len = path.length
+        let commonVarNames, node, node1, node2, seperator, result
+
+        if (len === 1) {
+            node = path[0]
+            commonVarNames = Tool.arrayIntersect(node.varNames, varNames)
+            return node.distr.sumOnto(commonVarNames)
+        }
+
+        node1 = path[0]
+        node2 = path[1]
+        commonVarNames = Tool.arrayIntersect(node1.varNames, node2.varNames)
+        seperator = node1.distr.sumOnto(commonVarNames)
+        result = node1.distr.multiply(node2.distr).divide(seperator)
+        commonVarNames = Tool.arrayIntersect(Tool.varUnion(node1.varNames, node2.varNames), varNames)
+        result = result.sumOnto(commonVarNames)
+
+
+        if (len === 2) {
+            return result
+        }
+
+        for (let i = 2; i < len; i++) {
+            node = path[i]
+            commonVarNames = Tool.arrayIntersect(result.varNames, node.varNames)
+            seperator = result.sumOnto(commonVarNames)
+            result = result.multiply(node.distr).divide(seperator)
+            commonVarNames = Tool.arrayIntersect(Tool.varUnion(result.varNames, node.varNames), varNames)
+            result = result.sumOnto(commonVarNames)
+        }
+
+        return result
+    }
+
+    calcDist(path, query, evidence) {
+        let total = []
+
+        query.forEach(function(q) {
+            total.push(q)
+        })
+
+        evidence.forEach(function(e) {
+            total.push(e)
+        })
+
+        let dist = this.calcProbability(path, total)
+
+        return dist.divide(this.calcProbability(path, evidence))
+    }
+
+    query(query, evidence) {
+
+        if (query.length === 0) {
+            return null
+        }
+
+        let total = []
+
+        query.forEach(function(q) {
+            total.push(q)
+        })
+
+        evidence.forEach(function(e) {
+            total.push(e)
+        })
+
+        let result = []
+        let len = this.nodes.length
+        let nodes = this.nodes
+        let path, varNames
+
+        for (let i = 0; i < len; i++) {
+            for (j = i; j < len; j++) {
+                let path = this.getPath(nodes[i], nodes[j])
+                let valid = true
+                varNames = []
+
+                path.forEach(function(n) {
+                    varNames = varNames.concat(n.varNames)
+                })
+
+                if (Tool.isSubset(total, varNames)) {
+                    result.push(path)
+                }
+            }
+        }
+
+        result.sort(function(a, b) {
+            return a.length - b.length
+        })
+
+        path = result[0] // shortest path
+
+        return this.calcDist(path, query, evidence)
     }
 
     printTree() {

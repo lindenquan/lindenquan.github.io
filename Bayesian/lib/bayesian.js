@@ -327,7 +327,7 @@ var Node = function () {
         this.distr = distr;
         //edges contains all neighbour nodes
         this.edges = new Set();
-        // father is another Node
+        // father Node
         this.father = null;
         // childern is a set object containing children nodes
         this.children = new Set();
@@ -856,6 +856,115 @@ var JoinTree = function () {
             return result;
         }
     }, {
+        key: 'calcProbability',
+        value: function calcProbability(path, varNames) {
+            if (varNames.length === 0) {
+                return Distribution.UNIT;
+            }
+
+            var len = path.length;
+            var commonVarNames = void 0,
+                node = void 0,
+                node1 = void 0,
+                node2 = void 0,
+                seperator = void 0,
+                result = void 0;
+
+            if (len === 1) {
+                node = path[0];
+                commonVarNames = Tool.arrayIntersect(node.varNames, varNames);
+                return node.distr.sumOnto(commonVarNames);
+            }
+
+            node1 = path[0];
+            node2 = path[1];
+            commonVarNames = Tool.arrayIntersect(node1.varNames, node2.varNames);
+            seperator = node1.distr.sumOnto(commonVarNames);
+            result = node1.distr.multiply(node2.distr).divide(seperator);
+            commonVarNames = Tool.arrayIntersect(Tool.varUnion(node1.varNames, node2.varNames), varNames);
+            result = result.sumOnto(commonVarNames);
+
+            if (len === 2) {
+                return result;
+            }
+
+            for (var i = 2; i < len; i++) {
+                node = path[i];
+                commonVarNames = Tool.arrayIntersect(result.varNames, node.varNames);
+                seperator = result.sumOnto(commonVarNames);
+                result = result.multiply(node.distr).divide(seperator);
+                commonVarNames = Tool.arrayIntersect(Tool.varUnion(result.varNames, node.varNames), varNames);
+                result = result.sumOnto(commonVarNames);
+            }
+
+            return result;
+        }
+    }, {
+        key: 'calcDist',
+        value: function calcDist(path, query, evidence) {
+            var total = [];
+
+            query.forEach(function (q) {
+                total.push(q);
+            });
+
+            evidence.forEach(function (e) {
+                total.push(e);
+            });
+
+            var dist = this.calcProbability(path, total);
+
+            return dist.divide(this.calcProbability(path, evidence));
+        }
+    }, {
+        key: 'query',
+        value: function query(_query, evidence) {
+
+            if (_query.length === 0) {
+                return null;
+            }
+
+            var total = [];
+
+            _query.forEach(function (q) {
+                total.push(q);
+            });
+
+            evidence.forEach(function (e) {
+                total.push(e);
+            });
+
+            var result = [];
+            var len = this.nodes.length;
+            var nodes = this.nodes;
+            var path = void 0,
+                varNames = void 0;
+
+            for (var i = 0; i < len; i++) {
+                for (j = i; j < len; j++) {
+                    var _path = this.getPath(nodes[i], nodes[j]);
+                    var valid = true;
+                    varNames = [];
+
+                    _path.forEach(function (n) {
+                        varNames = varNames.concat(n.varNames);
+                    });
+
+                    if (Tool.isSubset(total, varNames)) {
+                        result.push(_path);
+                    }
+                }
+            }
+
+            result.sort(function (a, b) {
+                return a.length - b.length;
+            });
+
+            path = result[0]; // shortest path
+
+            return this.calcDist(path, _query, evidence);
+        }
+    }, {
         key: 'printTree',
         value: function printTree() {
             console.log("Join Tree:");
@@ -900,9 +1009,6 @@ var Tool = function () {
             }));
             return Array.from(intersection);
         }
-
-        //arry1 and arry2 are arrays containing Variable objects
-
     }, {
         key: 'varUnion',
         value: function varUnion(arry1, arry2) {
@@ -1025,6 +1131,28 @@ var Tool = function () {
                 });
             }
             return result;
+        }
+    }, {
+        key: 'isSubset',
+        value: function isSubset(sub, full) {
+            var result = true;
+            sub.forEach(function (e) {
+                if (full.indexOf(e) === -1) {
+                    result = false;
+                }
+            });
+            return result;
+        }
+    }, {
+        key: 'hasCommon',
+        value: function hasCommon(arr1, arr2) {
+            var len = arr1.length;
+            for (var i = 0; i < len; i++) {
+                if (arr2.indexOf(arr1[i]) >= 0) {
+                    return true;
+                }
+            }
+            return false;
         }
     }, {
         key: 'PRECISION',

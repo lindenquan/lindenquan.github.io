@@ -63,7 +63,6 @@
             <p>This site is for tutorial purpose, not for the real-world application.</p>
             <ul class="instruction-list">
                 <li>In "DAG" step, you need to draw a DAG and enter the corresponding CPTs.</li>
-                <li>In "Query" step, you need to enter a query.</li>
                 <li>In the following steps, you will learn how the inference algorithem is performed.</li>
             </ul>
             <p>
@@ -103,83 +102,6 @@
                     </svg>
                 </div>
             </div>
-        </div>
-        <div data-menu="Query">
-            <button type="button" class="btn prevPage">Prev</button>
-            <h1>Enter a query</h1>
-            <p>The general form of a query is P(Q|E=e)?</p>
-            <div>
-                <ul class="instruction-list">
-                    <li>Q is a set of query variables.</li>
-                    <li>E is a set of evidence variables,and e is the specific observed value</li>
-                </ul>
-            </div>
-            <p>
-                For example: P(C, E|A=a,B=-b)
-                <br> This query means "what is the probability of the event C and E happen together given A is a and B is -b.
-                <br>This query is also equivalent to the following table.(assume all of the variables are binary-valued.)
-            </p>
-            <div>
-                <table class="table-page">
-                    <tr>
-                        <th>C</th>
-                        <th>E</th>
-                        <th>A</th>
-                        <th>B</th>
-                        <th>P(C, E|A=a,B=-b)</th>
-                    </tr>
-                    <tr>
-                        <td>c</td>
-                        <td>e</td>
-                        <td>a</td>
-                        <td>-b</td>
-                        <td>?</td>
-                    </tr>
-                    <tr>
-                        <td>c</td>
-                        <td>-e</td>
-                        <td>a</td>
-                        <td>-b</td>
-                        <td>?</td>
-                    </tr>
-                    <tr>
-                        <td>-c</td>
-                        <td>e</td>
-                        <td>a</td>
-                        <td>-b</td>
-                        <td>?</td>
-                    </tr>
-                    <tr>
-                        <td>-c</td>
-                        <td>-e</td>
-                        <td>a</td>
-                        <td>-b</td>
-                        <td>?</td>
-                    </tr>
-                </table>
-            </div>
-        </div>
-        <div id="page-query">
-            <button type="button" class="btn nextPage">Next</button>
-            <p>Drag the variables into the query set or evidence set. For the sake of simplicity, you can't specify any value.
-            </p>
-            <div>
-                <p>
-                    Variables spawned in step 1:
-                </p>
-                <div id="vars-list" class="p node-box"> </div>
-            </div>
-            <div>
-                <div class="p">
-                    Query Set:
-                    <div id="query-box" class="node-box"></div>
-                </div>
-                <div class="p">
-                    Evidence Set:
-                    <div id="evidence-box" class="node-box"></div>
-                </div>
-            </div>
-            <div id="query-str" class="p">P()</div>
         </div>
         <div data-menu="Step 1">
             <button type="button" class="btn prevPage">Prev</button>
@@ -304,6 +226,34 @@
                         </div>
                     </div>
                 </div>
+            </div>
+        </div>
+        <div data-menu="Query" id="page-query">
+            <button type="button" class="btn prevPage">Prev</button>
+            <h1>Query</h1>
+            <p>Drag the variables into the query set or evidence set. For the sake of simplicity, you can't specify any value.
+            </p>
+            <div>
+                <p>
+                    Variables spawned in step 1:
+                </p>
+                <div id="vars-list" class="p node-box"> </div>
+            </div>
+            <div>
+                <div class="p">
+                    Query Set:
+                    <div id="query-box" class="node-box"></div>
+                </div>
+                <div class="p">
+                    Evidence Set:
+                    <div id="evidence-box" class="node-box"></div>
+                </div>
+            </div>
+        </div>
+        <div class="full-height">
+            <div id="query-str" class="p">P()</div>
+            <div id="div-query-table">
+            <table id="table-query"></table>
             </div>
         </div>
     </div>

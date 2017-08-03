@@ -11,7 +11,7 @@ $(function() {
         height: 550, // container height
         next: $('#btn-start'),
         finish: onFinish,
-        onPage: { 6: mc.onMoralization, 8: mc.onTriangulation, 10: mc.onJT, 12: mc.onPropagation }
+        onPage: { 4: mc.onMoralization, 6: mc.onTriangulation, 8: mc.onJT, 10: mc.onPropagation, 12: mc.onQuery }
     });
 
     function onFinish() {
@@ -93,13 +93,13 @@ function MainController() {
     var triangleChanged = false;
     var jtChanged = false;
     var propagationChanged = false;
-    var h_joinTree, s_joinTree;
+    var h_joinTree, s_joinTree, joinTree;
 
     function btn_start() {
         $('.b-page-3').css('visibility', 'visible');
     };
 
-    function toTableHead(arr, isPotential) {
+    function toTableHead(arr, isPotential, hide) {
         var th, str = '';
         var last_th;
         var c_name = arr[arr.length - 1]
@@ -137,11 +137,17 @@ function MainController() {
             last_th += ')</th>';
         }
 
-        th = '<tr>' + str + last_th + '</tr>';
+        if (hide) {
+            th = '<tr>' + str + '<th></th></tr>';
+
+        } else {
+            th = '<tr>' + str + last_th + '</tr>';
+
+        }
         return th;
     }
 
-    function toTableBody(dist, permute, isNew) {
+    function toTableBody(dist, permute, isNew, disabled) {
         var str = '';
         var default_p = 0.5;
         permute.forEach(function(tr, index) {
@@ -149,13 +155,36 @@ function MainController() {
             tr.forEach(function(td) {
                 str += '<td>' + td + '</td>'
             });
-            if (isNew) {
-                str += '<td><input type="text" value="' + default_p + '"></td></tr>';
+            if (disabled) {
+                if (isNew) {
+                    str += '<td>' + default_p + '</td></tr>';
+                } else {
+                    str += '<td>' + dist.getMapValue(index) + '</tr>';
+                }
             } else {
-                str += '<td><input type="text" value="' + dist.getMapValue(index) + '"></td></tr>';
+                if (isNew) {
+                    str += '<td><input type="text" value="' + default_p + '"></td></tr>';
+                } else {
+                    str += '<td><input type="text" value="' + dist.getMapValue(index) + '"></td></tr>';
+                }
             }
         });
         return str;
+    }
+
+    function getTableFromDist(dist, hide, disabled) {
+        th = toTableHead(dist.varNames, dist.isPotential, hide);
+        var keys = Object.keys(dist.map);
+        var permute = [];
+        keys.forEach(function(key) {
+            permute.push(key.split(','));
+        });
+        td = toTableBody(dist, permute, false, disabled);
+
+        var result = {};
+        result.td = td;
+        result.th = th;
+        return result;
     }
 
     function createCPTtable(parameter) {
@@ -190,20 +219,15 @@ function MainController() {
                 return x.toLowerCase()
             }));
 
-            td = toTableBody(dist, permute, true);
+            td = toTableBody(null, permute, true, disabled);
         } else {
             dist.disabled = disabled;
-            th = toTableHead(dist.varNames, dist.isPotential);
-            var keys = Object.keys(dist.map);
-            var permute = [];
-            keys.forEach(function(key) {
-                permute.push(key.split(','));
-            });
-            td = toTableBody(dist, permute, false);
+            var thtd = getTableFromDist(dist, false, disabled);
+            th = thtd.th;
+            td = thtd.td;
         }
 
         table.html(th + td);
-        $("#modal-cpt table input").prop('disabled', disabled);
         $('#modal-cpt').modal({
             keyboard: false,
             backdrop: 'static'
@@ -315,11 +339,11 @@ function MainController() {
         });
     }
 
-    function enableMenu(names) {
+    function enableMenu(name) {
         var m;
         $('.sideMenu button').each(function(i, item) {
             m = $(item).text().norm();
-            if (names.indexOf(m) >= 0) {
+            if (name === m) {
                 $(item).enable();
             }
         });
@@ -487,17 +511,6 @@ function MainController() {
         }
     }
 
-    function isSubset(sub, full) {
-        var result = true;
-        sub.forEach(function(e) {
-            if (full.indexOf(e) === -1) {
-                result = false;
-            }
-        });
-        return result;
-    }
-
-
     function fromCliqueToLogicNode(c, used) {
         var varObj = new LogicNode();
         varObj.name = c.name;
@@ -519,7 +532,7 @@ function MainController() {
                 temp.parents.forEach(function(p) {
                     sub.push(p.name);
                 });
-                if (isSubset(sub, cliqueVarNames)) {
+                if (Tool.isSubset(sub, cliqueVarNames)) {
                     used.push(temp);
                     varObj.dist = varObj.dist.multiply(temp.dist);
                 }
@@ -895,6 +908,8 @@ function MainController() {
             }
         }
 
+        updateQueryResultTable(query, evidence);
+
         if (query.length > 0) {
             result = query[0];
             query.splice(0, 1);
@@ -912,6 +927,16 @@ function MainController() {
         }
 
         return result;
+    }
+
+    function updateQueryResultTable(query, evidence) {
+        var result = joinTree.query(query, evidence);
+        if (result === null) {
+            $('#table-query').html('');
+        } else {
+            result = getTableFromDist(result, true, true);
+            $('#table-query').html(result.th + result.td);
+        }
     }
 
     function circleInListDrop(e) {
@@ -932,15 +957,17 @@ function MainController() {
             var str = messUpStr(str);
             switch (id) {
                 case 'vars-list':
-                    str = cleanUpStr(str + '-' + varName);
+                    str += '-' + varName;
                     break;
                 case 'query-box':
-                    str = cleanUpStr(str + '+' + varName);
+                    str += '+' + varName;
                     break;
                 case 'evidence-box':
-                    str = cleanUpStr(str + '|' + varName);
+                    str += '|' + varName;
                     break;
             }
+
+            str = cleanUpStr(str);
             queryUI.text('P(' + str + ')');
         }
     }
@@ -1103,7 +1130,7 @@ function MainController() {
 
     this.onMoralization = function() {
         if (DAGChanged) {
-            enableMenu('[step2]');
+            enableMenu('step2');
             DAGChanged = false;
             moralChanged = true;
             var svg = $('#moral-svg');
@@ -1117,7 +1144,7 @@ function MainController() {
 
     this.onTriangulation = function() {
         if (moralChanged) {
-            enableMenu('[step3]');
+            enableMenu('step3');
             moralChanged = false;
             triangleChanged = true;
 
@@ -1134,7 +1161,6 @@ function MainController() {
 
     this.onJT = function() {
         if (triangleChanged) {
-            enableMenu('[step4]');
             triangleChanged = false;
             jtChanged = true;
 
@@ -1145,6 +1171,7 @@ function MainController() {
             svg.data('jt-constructed', 'false');
             svg.setGraph(graph);
             graph.paint(svg);
+            enableMenu('step4');
         }
         $('svg line.line-animation').removeClass('line-animation');
     }
@@ -1189,6 +1216,17 @@ function MainController() {
 
             h_graph.paint(h_svg);
             s_graph.paint(s_svg);
+            enableMenu('query');
+        }
+    }
+
+    this.onQuery = function() {
+        if (propagationChanged) {
+            propagationChanged = false;
+            var svg = $('#p-shenoy-svg');
+            var graph = svg.getGraph();
+            joinTree = fromGraphToTree(graph);
+            joinTree.runShaferShenoy();
         }
     }
 }
