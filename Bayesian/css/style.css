@@ -295,7 +295,7 @@ div.cs-skin-boxes {
 .modal-title {
     font-size: 2em;
     font-weight: bold;
-    color: #13386a;
+    color: white;
 }
 
 .modal-footer {
@@ -416,12 +416,8 @@ tr th {
     width: 5em;
 }
 
-#table-cpt tr:nth-child(even) {
-    background-color: #f2f2f2;
-}
-
-#table-cpt tr:hover {
-    background-color: #ddd;
+#table-cpt {
+    box-shadow: 0 4px 10px 0 rgba(255, 253, 253, 0.2), 0 4px 20px 0 rgba(255, 253, 253, 0.4);
 }
 
 #table-cpt th {
@@ -432,6 +428,14 @@ tr th {
     color: white;
     overflow: auto;
     position: relative;
+}
+
+#table-cpt tr:nth-child(odd) {
+    background-color: rgba(255, 255, 255, 0.95);
+}
+
+#table-cpt tr:nth-child(even) {
+    background-color: rgba(255, 255, 255, 0.9);
 }
 
 #table-cpt input[type=text] {
@@ -652,12 +656,21 @@ blockquote:before {
     transform: translateY(-0.3em);
 }
 
+.modal-content {
+    background: rgba(0, 0, 0, .8) !important;
+}
+
 .modal-hint {
     display: block;
     text-align: center;
-    font-size: 1.3em;
-    color: orangered;
-    visibility: hidden;
+    font-size: 1.5em;
+    font-weight: bold;
+    color: white;
+    margin-top: 2em;
+}
+
+.modal-backdrop.in {
+    opacity: 0 !important;
 }
 
 .tab-content {
@@ -691,7 +704,7 @@ ul.nav-pills {
     height: 50px;
 }
 
-#div-query-table{
+#div-query-table {
     height: calc(100% - 80px);
     overflow: auto;
 }

@@ -412,8 +412,8 @@ class JoinTree {
         let len = this.nodes.length
         let nodes = this.nodes
         let path, varNames
-
-        for (let i = 0; i < len; i++) {
+        let i, j
+        for (i = 0; i < len; i++) {
             for (j = i; j < len; j++) {
                 let path = this.getPath(nodes[i], nodes[j])
                 let valid = true

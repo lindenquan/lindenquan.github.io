@@ -149,6 +149,7 @@ class Distribution {
             }
         }
         let dis = new Distribution(map, vars)
+        dis.normalize()
         dis.name = `ϕ(${vars.map((v)=>v.name)})`
         return dis
     }

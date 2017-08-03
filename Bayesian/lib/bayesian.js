@@ -146,6 +146,7 @@ var Distribution = function () {
                 }
             }
             var dis = new Distribution(map, vars);
+            dis.normalize();
             dis.name = '\u03D5(' + vars.map(function (v) {
                 return v.name;
             }) + ')';
@@ -923,8 +924,9 @@ var JoinTree = function () {
             var nodes = this.nodes;
             var path = void 0,
                 varNames = void 0;
-
-            for (var i = 0; i < len; i++) {
+            var i = void 0,
+                j = void 0;
+            for (i = 0; i < len; i++) {
                 for (j = i; j < len; j++) {
                     var _path = this.getPath(nodes[i], nodes[j]);
                     var valid = true;

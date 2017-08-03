@@ -65,9 +65,6 @@
                 <li>In "DAG" step, you need to draw a DAG and enter the corresponding CPTs.</li>
                 <li>In the following steps, you will learn how the inference algorithem is performed.</li>
             </ul>
-            <p>
-                You can also use the arrow keys to turn pages forward or backward.
-            </p>
             <p> If you require any further information, feel free to contact me. linden.quan@hotmail.com</p>
             <button id="btn-start" type="button" class="btn nextPage">Let's start!</button>
         </div>
@@ -86,7 +83,7 @@
                 </ul>
             </div>
         </div>
-        <div class="full-height">
+        <div id="draw-dag" class="full-height">
             <button type="button" class="btn nextPage">Next</button>
             <div class='page-wrapper'>
                 <div class='page-head'>
@@ -253,17 +250,16 @@
         <div class="full-height">
             <div id="query-str" class="p">P()</div>
             <div id="div-query-table">
-            <table id="table-query"></table>
+                <table id="table-query"></table>
             </div>
         </div>
     </div>
-    <div class="modal" id="parents" role="dialog" data-easein="expandIn">
+    <div class="modal" id="parents" role="dialog" data-easein="flipBounceXIn">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
                     <span class="modal-title">Select parents</span>
                 </div>
-                <span class="modal-hint">You must select parent nodes.</span>
                 <div class="modal-body">
                 </div>
                 <div class="modal-footer">
@@ -272,12 +268,22 @@
             </div>
         </div>
     </div>
-    <div class="modal" id="modal-cpt" role="dialog" data-easein="expandIn">
+    <div class="modal" id="connect-hint" role="dialog" data-easein="bounceIn">
         <div class="modal-dialog">
-            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-body">
+                    <span class="modal-hint">All nodes must be connected.</span>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default confirm" data-dismiss="modal">OK</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal" id="modal-cpt" role="dialog" data-easein="flipYIn">
+        <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <!--<button type="button" class="close" data-dismiss="modal">&times;</button>-->
                     <span class="modal-title">Probability Distribution</span>
                 </div>
                 <div class="modal-body">

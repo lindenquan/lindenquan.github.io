@@ -4,18 +4,23 @@ $(function() {
         $('#browser-unsupport').css('display', 'block');
         return;
     }
+
     var mc = new MainController();
     book = $('.book:first');
+
     book.booklet({
         width: 900, // container width
         height: 550, // container height
         next: $('#btn-start'),
+        keyboard: false,
         finish: onFinish,
         onPage: { 4: mc.onMoralization, 6: mc.onTriangulation, 8: mc.onJT, 10: mc.onPropagation, 12: mc.onQuery }
     });
 
     function onFinish() {
         window.location.hash = '#/page/1';
+
+        mc.onBookReady();
 
         $('.book .prevPage').click(function() {
             book.booklet('prev');
@@ -94,6 +99,7 @@ function MainController() {
     var jtChanged = false;
     var propagationChanged = false;
     var h_joinTree, s_joinTree, joinTree;
+    var q_graph; // this graph for query step
 
     function btn_start() {
         $('.b-page-3').css('visibility', 'visible');
@@ -238,10 +244,16 @@ function MainController() {
         var str = '<span id="circle-in-list-' + varObj.name + '" ';
         var varCircle = $(str + 'class="var-in-list" draggable="true">' + varObj.name + '</span>');
         $('#vars-list').append(varCircle);
+        str = $('#vars-list').html();
+        resetQuery();
+        $('#vars-list').html(str);
     }
 
     function removeFromQueryList(varObj) {
         $('#vars-list span[id="circle-in-list-' + varObj.name + '"]').remove();
+        var str = $('#vars-list').html();
+        resetQuery();
+        $('#vars-list').html(str);
     }
 
     // insert node in DAG
@@ -349,6 +361,12 @@ function MainController() {
         });
     }
 
+    function resetQuery() {
+        $('.node-box').html('');
+        $('#query-str').text('P()');
+        $('#table-query').html('');
+    }
+
     // display a sample DAG
     function onSample() {
         disableMenu('step2');
@@ -361,52 +379,51 @@ function MainController() {
         originalGraph = new Graph();
         svg.setGraph(originalGraph);
         resetOptions();
-        $('.node-box').html('');
-        $('#query-str').text('P()');
+        resetQuery();
 
         // -------------
         map = {};
-        map[['a']] = 0.1;
-        map[['-a']] = 0.9;
+        map[['a']] = 0.7;
+        map[['-a']] = 0.3;
         var varA = insertNode('A', map, [], { cx: 215, cy: 70 });
 
         map = {};
-        map[['a', 'b']] = 0.1;
-        map[['a', '-b']] = 0.9;
-        map[['-a', 'b']] = 0.9;
-        map[['-a', '-b']] = 0.1;
+        map[['a', 'b']] = 0.5;
+        map[['a', '-b']] = 0.5;
+        map[['-a', 'b']] = 0.7;
+        map[['-a', '-b']] = 0.3;
         var varB = insertNode('B', map, [varA], { cx: 120, cy: 140 });
 
         map = {};
-        map[['a', 'c']] = 0.7;
-        map[['a', '-c']] = 0.3;
-        map[['-a', 'c']] = 0.2;
-        map[['-a', '-c']] = 0.8;
+        map[['a', 'c']] = 0.2;
+        map[['a', '-c']] = 0.8;
+        map[['-a', 'c']] = 0.9;
+        map[['-a', '-c']] = 0.1;
         var varC = insertNode('C', map, [varA], { cx: 310, cy: 140 });
 
         map = {};
-        map[['b', 'd']] = 0.4;
-        map[['b', '-d']] = 0.6;
-        map[['-b', 'd']] = 0.7;
-        map[['-b', '-d']] = 0.3;
+        map[['b', 'd']] = 0.6;
+        map[['b', '-d']] = 0.4;
+        map[['-b', 'd']] = 0.6;
+        map[['-b', '-d']] = 0.4;
         var varD = insertNode('D', map, [varB], { cx: 120, cy: 270 });
 
         map = {};
-        map[['c', 'e']] = 0.5;
-        map[['c', '-e']] = 0.5;
-        map[['-c', 'e']] = 0.4;
-        map[['-c', '-e']] = 0.6;
+        map[['c', 'e']] = 0.1;
+        map[['c', '-e']] = 0.9;
+        map[['-c', 'e']] = 0.2;
+        map[['-c', '-e']] = 0.8;
         var varE = insertNode('E', map, [varC], { cx: 310, cy: 270 });
 
         map = {};
-        map[['d', 'e', 'f']] = 0.1;
-        map[['d', 'e', '-f']] = 0.9;
-        map[['d', '-e', 'f']] = 0.5;
-        map[['d', '-e', '-f']] = 0.5;
-        map[['-d', 'e', 'f']] = 0.4;
-        map[['-d', 'e', '-f']] = 0.6;
-        map[['-d', '-e', 'f']] = 0.8;
-        map[['-d', '-e', '-f']] = 0.2;
+        map[['d', 'e', 'f']] = 0.2;
+        map[['d', 'e', '-f']] = 0.8;
+        map[['d', '-e', 'f']] = 0.8;
+        map[['d', '-e', '-f']] = 0.2;
+        map[['-d', 'e', 'f']] = 0.5;
+        map[['-d', 'e', '-f']] = 0.5;
+        map[['-d', '-e', 'f']] = 0.5;
+        map[['-d', '-e', '-f']] = 0.5;
         var varF = insertNode('F', map, [varD, varE], { cx: 215, cy: 350 });
 
         originalGraph.addEdgeByName(varA.name, varB.name, { 'isDirected': true });
@@ -592,20 +609,16 @@ function MainController() {
 
         var p = $('#parents input:checked');
 
-        if (p.length === 0) {
-            $('#parents .modal-hint').css('visibility', 'visible');
-        } else {
-            p.each(function(index, item) {
-                var p = $(item).attr('id').slice(-1);
-                var p_obj = LogicNodes[p];
+        p.each(function(index, item) {
+            var p = $(item).attr('id').slice(-1);
+            var p_obj = LogicNodes[p];
 
-                c_obj.parents.push(p_obj);
-                p_obj.children.push(c_obj);
-                originalGraph.addEdgeByName(p_obj.name, c_obj.name, { 'isDirected': true });
-            });
-            $('#parents').modal('hide');
-            createCPTtable(false);
-        }
+            c_obj.parents.push(p_obj);
+            p_obj.children.push(c_obj);
+            originalGraph.addEdgeByName(p_obj.name, c_obj.name, { 'isDirected': true });
+        });
+        $('#parents').modal('hide');
+        createCPTtable(false);
     }
 
     function toDistMap(tds) {
@@ -774,12 +787,13 @@ function MainController() {
         var name = circle.attr('name');
         var svg = circle.parent();
         var graph = svg.getGraph();
+        var vars;
 
         graph.deleteVertex(name);
         graph.paint(svg);
 
         var varObj = LogicNodes[name];
-        LogicNodes[name] = undefined;
+        delete LogicNodes[name];
 
         varObj.parents.forEach(function(p) {
             p.children.remove(varObj);
@@ -787,6 +801,12 @@ function MainController() {
 
         varObj.children.forEach(function(c) {
             c.parents.remove(varObj);
+            vars = [];
+            c.parents.forEach(function(p) {
+                vars.push(p.var);
+            });
+            vars.push(c.var);
+            c.dist = c.dist.marginalOnto(vars);
         });
 
         optionList.push(name.toUpperCase());
@@ -1129,6 +1149,17 @@ function MainController() {
         });
     }
 
+    function onDAGnext(e) {
+        if (!originalGraph.connected()) {
+            e.stopImmediatePropagation();
+            $('#connect-hint').modal();
+        }
+    }
+
+    this.onBookReady = function() {
+        $('#draw-dag .nextPage').click(onDAGnext);
+    }
+
     this.onMoralization = function() {
         if (DAGChanged) {
             enableMenu('step2');
@@ -1195,6 +1226,8 @@ function MainController() {
             var jtGraph = $('#jt-svg').getGraph();
             var h_graph = jtGraph.clone();
             var s_graph = jtGraph.clone();
+            q_graph = jtGraph.clone();
+            q_graph.constructJT(false, true);
 
             var prefix = 'hp';
             h_graph.constructJT(false, true, prefix);
@@ -1224,9 +1257,7 @@ function MainController() {
     this.onQuery = function() {
         if (propagationChanged) {
             propagationChanged = false;
-            var svg = $('#p-shenoy-svg');
-            var graph = svg.getGraph();
-            joinTree = fromGraphToTree(graph);
+            joinTree = fromGraphToTree(q_graph);
             joinTree.runShaferShenoy();
         }
     }

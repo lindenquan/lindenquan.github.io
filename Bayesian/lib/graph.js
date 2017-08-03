@@ -1008,6 +1008,33 @@ function Graph() {
         });
     }
 
+    this.connected = function() {
+        if (vertices.length < 2) {
+            return true;
+        }
+
+        var vl = vertices.length;
+        var el = edges.length;
+
+        if (el + 1 < vl) {
+            return false;
+        }
+
+        var connected = [];
+
+        edges.forEach(function(e) {
+            connected.push(e.from);
+            connected.push(e.to);
+        })
+
+        var len = vertices.length;
+        for (var i = 0; i < len; i++) {
+            if (connected.indexOf(vertices[i]) < 0) {
+                return false;
+            }
+        }
+        return true;
+    }
 }
 Graph.svgGraphMap = {};
 
