@@ -1148,7 +1148,7 @@ var Tool = function () {
     }, {
         key: 'PRECISION',
         get: function get() {
-            return 3;
+            return 10;
         }
     }]);
 
