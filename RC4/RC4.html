@@ -2,9 +2,10 @@
 <html>
 
 <head>
-    <script src="./algorithm.js"></script>
-    <script src="./ui.js"></script>
+    <script src="./algorithm.js" defer></script>
+    <script src="./ui.js" defer></script>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
 
 <body>
@@ -12,48 +13,47 @@
     <span id="invalidASCII" class="tooltiptext">Only ASCII codes are allowed</span>
     <span id="generate-packets" class="tooltiptext">Generate packets first!</span>
     <span id="invalidInt" class="tooltiptext">Only 0-9 are allowed</span>
-
     <p>
         <fieldset>
             <legend><strong>Sender</strong></legend>
             <br>
             <strong>Input:</strong>
-            <input type="radio" name="format" value="Hex" id="ra-hex" checked> 
+            <input type="radio" name="format" value="Hex" id="ra-hex" checked>
             <label for="ra-hex">Hex</label>
             <input type="radio" name="format" value="ASCII" id="ra-ascii">
             <label for="ra-ascii">ASCII</label>
             <br>
             <input id="input" size="100%" type="text">
             <br>
-            <strong>Input Size:</strong> <input id="input-size" size="5px" type="text" readonly=""> bytes
+            <strong>Input Size:</strong>
+            <input id="input-size" size="5px" type="text" readonly=""> bytes
             <br>
             <strong>Key(Hex):</strong>
             <br>
             <input id="key" size="100%" type="text">
             <br>
             <strong>Offset Value:</strong>
-                <input type="radio" name="s-ov-format" value="Hex" id="ra-s-ov-hex" checked> 
-                <label for="ra-s-ov-hex">Hex</label>
-                <input type="radio" name="s-ov-format"  value="Int" id="ra-s-ov-int">
-                <label for="ra-s-ov-int">Int</label>
+            <input type="radio" name="s-ov-format" value="Hex" id="ra-s-ov-hex" checked>
+            <label for="ra-s-ov-hex">Hex</label>
+            <input type="radio" name="s-ov-format" value="Int" id="ra-s-ov-int">
+            <label for="ra-s-ov-int">Int</label>
             <br>
             <input id="offsetValue" size="100%" type="text">
             <br>
             <strong>Data Segment Size:</strong>
             <input id="data-size" size="5 px" type="text" value="252"> bytes
-
             <div style="text-align:center;">
                 <button id="btn-g-packet" class="btn">Generate Packets</button>
                 <button id="btn-e-packet" class="btn">Encrypt Packets</button>
             </div>
             <div>
-                <div id="e-head"  class="head"> 
+                <div id="e-head" class="head">
                     <span class="sc">SC(Hex)</span>
                     <span class="data">Data Segment(Hex)</span>
                     <span class="hv">HV(Hex)</span>
                 </div>
                 <div id="e-body">
-                <!--
+                    <!--
                     <div class="row">
                         <input class="sc" type="text" ></span>
                         <input class="data" type="text" ></span>
@@ -63,13 +63,13 @@
                 </div>
             </div>
         </fieldset>
-
     </p>
     <p>
         <div id="button">
             <div>
-                <input type="radio" name="mode" value="random" id="ra-random" checked> 
-                <label for="ra-random">Random sequence</label><br>
+                <input type="radio" name="mode" value="random" id="ra-random" checked>
+                <label for="ra-random">Random sequence</label>
+                <br>
                 <input type="radio" name="mode" value="case-1" id="ra-case1">
                 <label for="ra-case1">Case 1: the sequence of the packets received is 0, 1, 2 and 3</label>
                 <br>
@@ -80,7 +80,7 @@
                 <label for="ra-case3">Case 3: the sequence of the packet received is 3, 2, 1 and 0</label>
                 <br>
                 <input type="radio" name="mode" value="case-4" id="ra-case4">
-                <label for="ra-case4">Case 4: input message is 1800 bytes long, sent in increased order</label> 
+                <label for="ra-case4">Case 4: input message is 1800 bytes long, sent in increased order</label>
                 <br>
             </div>
             <div>
@@ -95,7 +95,7 @@
             <strong>Ciphertext:</strong> <span id="c-status" class="status"></span>
             <br>
             <div>
-                <div id="c-head" class="head"> 
+                <div id="c-head" class="head">
                     <span class="sc">SC(Hex)</span>
                     <span class="data">Data Segment(Hex)</span>
                     <span class="hv">HV(Hex)</span>
@@ -109,34 +109,48 @@
             <input id="c-key" size="100%" type="text">
             <br>
             <strong>Offset Value:</strong>
-                <input type="radio" name="c-ov-format" value="Hex" id="ra-c-ov-hex" checked> 
-                <label for="ra-c-ov-hex">Hex</label>
-                <input type="radio" name="c-ov-format"  value="Int" id="ra-c-ov-int">
-                <label for="ra-c-ov-int">Int</label>
+            <input type="radio" name="c-ov-format" value="Hex" id="ra-c-ov-hex" checked>
+            <label for="ra-c-ov-hex">Hex</label>
+            <input type="radio" name="c-ov-format" value="Int" id="ra-c-ov-int">
+            <label for="ra-c-ov-int">Int</label>
             <br>
             <input id="c-offsetValue" size="100%" type="text">
             <br>
             <div style="text-align:center;">
                 <button id="btn-d-packet" class="btn">Decrypt Packets</button>
-                <button id="btn-g-message" class="btn">Generate Message</button>
+            </div>
+            <div>
+                <div id="hv-table">
+                    <span class="hv">Hashvalue Received</span>
+                    <span class="hv">Hashvalue calculated</span>
+                    <span class="match">Match</span>
+                    <div id="hv-body">
+                    </div>
+                </div>
+            </div>
+            <div style="text-align:center;">
+                <button id="btn-check-hv" class="btn">Check Hashvalue</button>
             </div>
             <strong>Original Message:</strong>
             <br>
             <input class="fadeable" id="message" size="100%" type="text">
+            <div style="text-align:center;">
+                <button id="btn-g-message" class="btn">Generate Message</button>
+            </div>
         </fieldset>
     </p>
-
 </body>
+
 </html>
-
 <style type="text/css">
-
 input {
     margin: 5px 0px;
 }
 
 body {
-    padding: 1% 10%;
+    width:900px;
+    margin:auto;
+    background-color: #eee;
 }
 
 button::-moz-focus-inner {
@@ -148,22 +162,26 @@ button::-moz-focus-inner {
     visibility: hidden;
 }
 
-.c-row{
+.c-row {}
 
-}
-
-.head .data, .row .data{
+.head .data,
+.row .data {
     display: inline-block;
     width: 55%
 }
-.head .sc, .row .sc{
+
+.head .sc,
+.row .sc {
     display: inline-block;
     width: 8%
 }
-.head .hv, .row .hv{
+
+.head .hv,
+.row .hv {
     display: inline-block;
     width: 27%
 }
+
 #format {
     position: relative;
     left: 25px;
@@ -180,7 +198,7 @@ button::-moz-focus-inner {
     margin-top: 15px;
     display: flex;
     align-items: center;
-    justify-content:center;
+    justify-content: center;
 }
 
 .btn {
@@ -199,20 +217,10 @@ button::-moz-focus-inner {
     border-radius: 10px;
     box-shadow: 0 4px #999;
     transition: all 0.3s;
-    outline: none;
 }
 
-.btn:active:focus {
-    outline: none;
-    box-shadow: 0 5px #666;
-    transform: translateY(4px);
-}
-
-.btn:hover,
-.btn:focus {
+.btn:hover {
     background-color: #ff0000;
-    outline: none;
-    color: #ffffff;
 }
 
 .btn:hover:after {
@@ -228,8 +236,14 @@ button::-moz-focus-inner {
     background-color: #dddddd;
 }
 
+.btn:active {
+    box-shadow: 0 5px #666;
+    transform: translateY(4px);
+}
+
 
 /* Tooltip text */
+
 .tooltiptext {
     visibility: visible;
     background-color: #555;
@@ -246,7 +260,12 @@ button::-moz-focus-inner {
     transition: opacity 1s;
 }
 
+
+
+
+
 /* Tooltip arrow */
+
 .tooltiptext::after {
     content: "";
     position: absolute;
@@ -264,16 +283,31 @@ button::-moz-focus-inner {
 
 .fade-in {
     opacity: 1;
-    transition:             opacity 1s;
-        -moz-transition:    opacity 1s;
-        -ms-transition:     opacity 1s;
-        -o-transition:      opacity 1s;
-        -webkit-transition: opacity 1s;
+    transition: opacity 1s;
+    -moz-transition: opacity 1s;
+    -ms-transition: opacity 1s;
+    -o-transition: opacity 1s;
+    -webkit-transition: opacity 1s;
 }
 
-.status{
+.status {
     font-weight: 200;
     color: OrangeRed
 }
 
+#hv-table {
+    margin-top: 10px;
+    padding: 10px 10px;
+}
+
+#hv-table .hv,
+#hv-table .row .hv {
+    display: inline-block;
+    width: 40%
+}
+
+#hv-table .match {
+    display: inline-block;
+    width: 10%
+}
 </style>

@@ -301,7 +301,7 @@ function btn_send() {
     vars.btn_d_packet.disabled = false;
     vars.btn_g_packet.disabled = false;
     vars.btn_e_packet.disabled = false;
-    vars.c_status.innerHTML='Received';
+    vars.c_status.innerHTML = 'Received';
 }
 
 function showToolTip(target, toolTip, time) {
@@ -358,7 +358,7 @@ function showPackets(div, packets) {
     for (var i = 0; i < children.length; i++) {
         window.setTimeout((function(x) {
             return function() {
-                if(children[x]!==undefined){
+                if (children[x] !== undefined) {
                     children[x].className = 'row fade-in';
                 }
             };
@@ -406,25 +406,8 @@ function btn_d_packet() {
     vars.d_packets = decryptPackets(vars.r_packets);
     showPackets(vars.c_body, vars.d_packets);
 
-    var packetError = false;
-    vars.d_packets.forEach(function(p) {
-        var sc = toValue(p.sc);
-        if (!isSameArray(calcHV(p.sc, p.data, vars.c_offset), p.hv)) {
-            alert("Packet " + sc + " has wrong hash value, please resend.");
-            packetError = true;
-        } else {
-            console.log("packet " + sc + " is ok.");
-        }
-    });
-
-    if (!packetError) {
-        vars.btn_g_message.disabled = false;
-    } else {
-        vars.btn_g_message.disabled = true;
-    }
-
     vars.c_status.innerHTML = 'Decrypted';
-
+    vars.btn_check_hv.disabled = false;
 }
 
 function inputModeChange(e) {
@@ -499,6 +482,65 @@ function onRadio_ov(e) {
         dismissToolTip(vars.toolTipInvalidInput);
     }
 }
+
+function btn_check_hv(e) {
+    var packetError = false;
+    var rows = []; 
+    var row;
+    vars.d_packets.forEach(function(p) {
+        row = {};
+        row.received = p.hv;
+        row.calculated = calcHV(p.sc, p.data, vars.c_offset);
+        row.isMatch = isSameArray(row.received, row.calculated);
+        if (!row.isMatch) {
+            packetError = true;
+        }
+        rows.push(row);
+    });
+
+    showHV(rows)
+
+    if (!packetError) {
+        vars.btn_g_message.disabled = false;
+    } else {
+        vars.btn_g_message.disabled = true;
+    }
+}
+
+function toIcon(bool){
+    if(bool){
+        return '&#10004;';
+    }else {
+        return '&#10007;';
+    }
+}
+
+function showHV(rows) {
+    var div = vars.hv_body;
+    div.innerHTML = '';
+    var len = rows.length;
+    var row, data;
+    for (var i = 0; i < len; i++) {
+        row = document.createElement('div')
+        data = rows[i];
+        row.innerHTML = '<input class="hv" type="text" value="' + toHexStr(data.received) + '"></span> ' +
+            '<input class="hv mono" type="text" value="' + toHexStr(data.calculated) + '"></span>' +
+            '<input class="match" type="text" value="' + toIcon(data.isMatch) + '"></span>';
+        row.className = 'row fadeable';
+        div.appendChild(row)
+    }
+
+    var children = div.children;
+    for (var i = 0; i < children.length; i++) {
+        window.setTimeout((function(x) {
+            return function() {
+                if (children[x] !== undefined) {
+                    children[x].className = 'row fade-in';
+                }
+            };
+        })(i), i * 100);
+    }
+}
 /**
  *  initialize global variables $vars
  */
@@ -549,6 +591,8 @@ document.addEventListener("DOMContentLoaded", function() {
     vars.ra_s_ov_int = document.getElementById("ra-s-ov-int");
     vars.ra_c_ov_hex = document.getElementById("ra-c-ov-hex");
     vars.ra_c_ov_int = document.getElementById("ra-c-ov-int");
+    vars.btn_check_hv = document.getElementById("btn-check-hv");
+    vars.hv_body = document.getElementById("hv-body");
 
     if (DEFAULT_INPUT_MODE === HEX_STR) {
         vars.ra_ascii.checked = false;
@@ -614,5 +658,6 @@ document.addEventListener("DOMContentLoaded", function() {
 
     vars.btn_d_packet.onclick = btn_d_packet;
     vars.btn_g_message.onclick = btn_g_message;
-
+    vars.btn_check_hv.onclick = btn_check_hv;
+    vars.btn_check_hv.disabled = true;
 });
