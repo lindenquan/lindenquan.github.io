@@ -23,14 +23,14 @@
             <input type="radio" name="format" value="ASCII" id="ra-ascii">
             <label for="ra-ascii">ASCII</label>
             <br>
-            <input id="input" size="100%" type="text">
+            <input class="fullwidth" id="input" size="100%" type="text">
             <br>
             <strong>Input Size:</strong>
             <input id="input-size" size="5px" type="text" readonly=""> bytes
             <br>
             <strong>Key(Hex):</strong>
             <br>
-            <input id="key" size="100%" type="text">
+            <input class="fullwidth" id="key" size="100%" type="text">
             <br>
             <strong>Offset Value:</strong>
             <input type="radio" name="s-ov-format" value="Hex" id="ra-s-ov-hex" checked>
@@ -38,28 +38,32 @@
             <input type="radio" name="s-ov-format" value="Int" id="ra-s-ov-int">
             <label for="ra-s-ov-int">Int</label>
             <br>
-            <input id="offsetValue" size="100%" type="text">
+            <input class="fullwidth" id="offsetValue" size="100%" type="text">
             <br>
             <strong>Data Segment Size:</strong>
             <input id="data-size" size="5 px" type="text" value="252"> bytes
             <div style="text-align:center;">
                 <button id="btn-g-packet" class="btn">Generate Packets</button>
+            </div>
+            <div class="table">
+                <div class="head">
+                    <span class="sc">SC(Hex)</span>
+                    <span class="data">Data Segment(Hex)</span>
+                    <span class="hv">HV(Hex)</span>
+                </div>
+                <div id="g-body">
+                </div>
+            </div>
+            <div style="text-align:center;">
                 <button id="btn-e-packet" class="btn">Encrypt Packets</button>
             </div>
-            <div>
-                <div id="e-head" class="head">
+            <div class="table">
+                <div class="head">
                     <span class="sc">SC(Hex)</span>
                     <span class="data">Data Segment(Hex)</span>
                     <span class="hv">HV(Hex)</span>
                 </div>
                 <div id="e-body">
-                    <!--
-                    <div class="row">
-                        <input class="sc" type="text" ></span>
-                        <input class="data" type="text" ></span>
-                        <input class="hv" type="text" ></span>
-                    </div>
-                -->
                 </div>
             </div>
         </fieldset>
@@ -94,7 +98,7 @@
             <br>
             <strong>Ciphertext:</strong> <span id="c-status" class="status"></span>
             <br>
-            <div>
+            <div class="table">
                 <div id="c-head" class="head">
                     <span class="sc">SC(Hex)</span>
                     <span class="data">Data Segment(Hex)</span>
@@ -106,7 +110,7 @@
             <br>
             <strong>Key(Hex):</strong>
             <br>
-            <input id="c-key" size="100%" type="text">
+            <input class="fullwidth" id="c-key" size="100%" type="text">
             <br>
             <strong>Offset Value:</strong>
             <input type="radio" name="c-ov-format" value="Hex" id="ra-c-ov-hex" checked>
@@ -114,18 +118,25 @@
             <input type="radio" name="c-ov-format" value="Int" id="ra-c-ov-int">
             <label for="ra-c-ov-int">Int</label>
             <br>
-            <input id="c-offsetValue" size="100%" type="text">
+            <input class="fullwidth" id="c-offsetValue" size="100%" type="text">
             <br>
             <div style="text-align:center;">
                 <button id="btn-d-packet" class="btn">Decrypt Packets</button>
             </div>
-            <div>
-                <div id="hv-table">
-                    <span class="hv">Hashvalue Received</span>
-                    <span class="hv">Hashvalue calculated</span>
-                    <span class="match">Match</span>
-                    <div id="hv-body">
-                    </div>
+            <div class="table">
+                <div class="head">
+                    <span class="sc">SC(Hex)</span>
+                    <span class="data">Data Segment(Hex)</span>
+                    <span class="hv">HV(Hex)</span>
+                </div>
+                <div id="d-body">
+                </div>
+            </div>
+            <div id="hv-table">
+                <span class="hv">Hashvalue Received</span>
+                <span class="hv">Hashvalue calculated</span>
+                <span class="match">Match</span>
+                <div id="hv-body">
                 </div>
             </div>
             <div style="text-align:center;">
@@ -133,7 +144,7 @@
             </div>
             <strong>Original Message:</strong>
             <br>
-            <input class="fadeable" id="message" size="100%" type="text">
+            <input class="fullwidth fadeable" id="message" size="100%" type="text">
             <div style="text-align:center;">
                 <button id="btn-g-message" class="btn">Generate Message</button>
             </div>
@@ -167,7 +178,7 @@ button::-moz-focus-inner {
 .head .data,
 .row .data {
     display: inline-block;
-    width: 55%
+    width: 62%
 }
 
 .head .sc,
@@ -179,7 +190,17 @@ button::-moz-focus-inner {
 .head .hv,
 .row .hv {
     display: inline-block;
-    width: 27%
+    width: 27%;
+    margin-left: 5px;
+}
+
+div.table {
+    margin: 10px 0;
+}
+
+.fullwidth {
+    box-sizing: border-box;
+    width: 100%;
 }
 
 #format {
@@ -262,6 +283,7 @@ button::-moz-focus-inner {
 }
 
 
+
 /* Tooltip arrow */
 
 .tooltiptext::after {
@@ -295,19 +317,20 @@ button::-moz-focus-inner {
 
 #hv-table {
     margin-top: 10px;
-    padding: 10px 10px;
 }
 
 #hv-table .hv,
 #hv-table .row .hv {
     display: inline-block;
-    width: 40%;
+    width: 46%;
+    margin-left: 0;
 }
 
 #hv-table .match {
     display: inline-block;
-    width: 10%;
+    width: 5%;
     text-align: center;
+    margin-left: 5px;
 }
 
 .match[value="✔"] {

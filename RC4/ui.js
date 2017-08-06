@@ -395,8 +395,7 @@ function btn_g_packet() {
         console.log("message:" + vars.packets);
     }
 
-    vars.e_head.style.visibility = "visible";
-    showPackets(vars.e_body, vars.packets);
+    showPackets(vars.g_body, vars.packets);
 }
 
 function btn_d_packet() {
@@ -404,9 +403,8 @@ function btn_d_packet() {
     vars.SC_B = 0;
 
     vars.d_packets = decryptPackets(vars.r_packets);
-    showPackets(vars.c_body, vars.d_packets);
+    showPackets(vars.d_body, vars.d_packets);
 
-    vars.c_status.innerHTML = 'Decrypted';
     vars.btn_check_hv.disabled = false;
 }
 
@@ -458,7 +456,7 @@ function btn_g_message() {
 
     vars.message.className = 'fadeable';
     setTimeout(function() {
-        vars.message.className = 'fade-in';
+        vars.message.className = 'fade-in fullwidth';
     }, 100);
 }
 
@@ -523,7 +521,7 @@ function showHV(rows) {
     for (var i = 0; i < len; i++) {
         row = document.createElement('div')
         data = rows[i];
-        row.innerHTML = '<input class="hv" type="text" value="' + toHexStr(data.received) + '"></span> ' +
+        row.innerHTML = '<input class="hv mono" type="text" value="' + toHexStr(data.received) + '"></span> ' +
             '<input class="hv mono" type="text" value="' + toHexStr(data.calculated) + '"></span>' +
             '<input class="match" type="text" value="' + toIcon(data.isMatch) + '"></span>';
         row.className = 'row fadeable';
@@ -562,10 +560,10 @@ document.addEventListener("DOMContentLoaded", function() {
     vars.btn_e_packet = document.getElementById("btn-e-packet");
     vars.btn_e_packet.addEventListener("click", btn_e_packet);
 
-    vars.e_head = document.getElementById("e-head");
     vars.e_body = document.getElementById("e-body");
-    vars.c_head = document.getElementById("c-head");
     vars.c_body = document.getElementById("c-body");
+    vars.g_body = document.getElementById("g-body");
+    vars.d_body = document.getElementById("d-body");
 
     vars.state_A = {}; // sender's state inculding state array, i and j.
 
