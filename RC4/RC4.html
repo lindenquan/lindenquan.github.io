@@ -148,8 +148,8 @@ input {
 }
 
 body {
-    width:900px;
-    margin:auto;
+    width: 900px;
+    margin: auto;
     background-color: #eee;
 }
 
@@ -242,6 +242,7 @@ button::-moz-focus-inner {
 }
 
 
+
 /* Tooltip text */
 
 .tooltiptext {
@@ -259,9 +260,6 @@ button::-moz-focus-inner {
     opacity: 0;
     transition: opacity 1s;
 }
-
-
-
 
 
 /* Tooltip arrow */
@@ -292,7 +290,7 @@ button::-moz-focus-inner {
 
 .status {
     font-weight: 200;
-    color: OrangeRed
+    color: OrangeRed;
 }
 
 #hv-table {
@@ -303,11 +301,20 @@ button::-moz-focus-inner {
 #hv-table .hv,
 #hv-table .row .hv {
     display: inline-block;
-    width: 40%
+    width: 40%;
 }
 
 #hv-table .match {
     display: inline-block;
-    width: 10%
+    width: 10%;
+    text-align: center;
+}
+
+.match[value="✔"] {
+    color: green;
+}
+
+.match[value="✗"] {
+    color: red;
 }
 </style>

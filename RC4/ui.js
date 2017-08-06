@@ -485,7 +485,7 @@ function onRadio_ov(e) {
 
 function btn_check_hv(e) {
     var packetError = false;
-    var rows = []; 
+    var rows = [];
     var row;
     vars.d_packets.forEach(function(p) {
         row = {};
@@ -507,10 +507,10 @@ function btn_check_hv(e) {
     }
 }
 
-function toIcon(bool){
-    if(bool){
+function toIcon(bool) {
+    if (bool) {
         return '&#10004;';
-    }else {
+    } else {
         return '&#10007;';
     }
 }
