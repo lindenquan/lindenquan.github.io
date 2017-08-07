@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 
-<head>
+  <head>
     <title>Bayesian Inference</title>
     <meta charset="UTF-8">
     <meta name="author" content="Linden Quan">
@@ -31,270 +31,262 @@
     <link rel="stylesheet" type="text/css" href="css/cs-select.css" />
     <link rel="stylesheet" type="text/css" href="css/cs-skin-boxes.css" />
     <link rel="stylesheet" type="text/css" href="css/style.css" />
-    <link rel="icon" href="data:text/plain;charset=utf-8;base64,TFE=">
-</head>
+    <link rel="icon" href="data:text/plain;charset=utf-8;base64,TFE="> </head>
 
-<body>
+  <body>
     <div class="loading">Loading the book...</div>
     <div style="text-align:center;">
-        <div id="browser-unsupport">Sorry, This website doesn't support IE browsers, please use Firefox or google chrome or opera. Thanks! <img src="res/img/Smiling_with_Sweat_Emoji.png"></div>
+      <div id="browser-unsupport">Sorry, This website doesn't support IE browsers, please use Firefox or google chrome or opera. Thanks!
+        <img src="res/img/Smiling_with_Sweat_Emoji.png"> </div>
     </div>
     <div class="book">
-        <div data-menu="Intro">
-            <h1>Introduction</h1>
-            <h4><strong>Bayesian network</strong></h4>
-            <blockquote>
-                <p>A Bayesian network, also called Bayes network, belief network, Bayes(ian) model or probabilistic directed acyclic graphical model is a probabilistic graphical model (a type of statistical model) that represents a set of random variables and their conditional dependencies via a directed acyclic graph (DAG).<a href="https://en.wikipedia.org/wiki/Bayesian_network" target="_blank">[From Wikipedia]</a></p>
-            </blockquote>
-            <h4><strong>Bayesian inference</strong></h4>
+      <div data-menu="Intro">
+        <h1>Introduction</h1>
+        <h4>
+          <strong>Bayesian network</strong>
+        </h4>
+        <blockquote>
+          <p>A Bayesian network, also called Bayes network, belief network, Bayes(ian) model or probabilistic directed acyclic graphical model is a probabilistic graphical model (a type of statistical model) that represents a set of random variables and their conditional dependencies via a directed acyclic graph (DAG).
+            <a href="https://en.wikipedia.org/wiki/Bayesian_network" target="_blank">[From Wikipedia]</a>
+          </p>
+        </blockquote>
+        <h4>
+          <strong>Bayesian inference</strong>
+        </h4>
+        <p> Bayesian inference is an approach to answer probability queries about the underlying probability distribution. </p>
+        <h4>
+          <strong>Junction tree algorithm</strong>
+        </h4>
+        <blockquote>
+          <p> The junction tree algorithm (also known as 'Clique Tree' or 'Join Tree') is a method to extract marginalization. In essence, it entails performing belief propagation on a modified graph called a junction tree.
+            <a href="https://en.wikipedia.org/wiki/Junction_tree_algorithm" target="_blank">[From Wikipedia]</a>
+          </p>
+        </blockquote>
+      </div>
+      <div>
+        <h1>The purpose of this site</h1>
+        <p>This site is supposed to help you understand the junction tree algorithms in terms of Hugin propagation and Shafer-Shenoy propagation.</p>
+        <p>This site is for tutorial purpose, not for the real-world application.</p>
+        <ul class="instruction-list">
+          <li>In "DAG" step, you need to draw a DAG and enter the corresponding CPTs.</li>
+          <li>In the following steps, you will learn how the inference algorithem is performed.</li>
+        </ul>
+        <p> If you require any further information, feel free to contact me. linden.quan@hotmail.com</p>
+        <button id="btn-start" type="button" class="btn nextPage">Let's start!</button>
+      </div>
+      <div data-menu="DAG">
+        <button type="button" class="btn prevPage">Prev</button>
+        <h1>Draw a DAG and enter CPTs</h1>
+        <p>For the sake of simplicity, the name of a variable must be a single letter in uppercase, which means there are 26 variables at most. All of the variables are binary-valued, and all value is in lowercase.</p>
+        <p>For example: A = {a, -a}, T = {t, -t}.</p>
+        <div>
+          <h3>Instructions:</h3>
+          <ul class="instruction-list">
+            <li>select a variable name from a to z, and create a new variable by clicking "spawn" button.</li>
+            <li>Click on a node, hold and drag in the dotted area.</li>
+            <li>Double click on a node to display CPT.</li>
+            <li>Right click a node to show the context menu. In the menu, you can choose to edit the CPT or delte the node.</li>
+          </ul>
+        </div>
+      </div>
+      <div id="draw-dag" class="full-height">
+        <button type="button" class="btn nextPage">Next</button>
+        <div class='page-wrapper'>
+          <div class='page-head'>
+            <div id="div-selector" class="p">
+              <select id="v-selector" class="cs-select cs-skin-boxes"> </select>
+            </div>
+            <button id="btn-spawn" class="hvr-back-pulse">spawn</button>
+            <button id="btn-sample" class="hvr-back-pulse">sample</button>
+          </div>
+          <div id="original-canvas" class="canvas">
+            <svg id="original-svg"> </svg>
+          </div>
+        </div>
+      </div>
+      <div data-menu="Step 1">
+        <button type="button" class="btn prevPage">Prev</button>
+        <h1>Moralization</h1>
+        <p>To answer the query, we need to generate the junction tree.</p>
+        <p>The first step of generating a junction tree is moralizing the original DAG.</p>
+        <p>To transform a DAG to the moral graph, add edges between all pairs of nodes that have a common child, and remove all directions. </p>
+      </div>
+      <div class="full-height">
+        <button type="button" class="btn nextPage">Next</button>
+        <div class='page-wrapper'>
+          <div class='page-head'>
             <p>
-                Bayesian inference is an approach to answer probability queries about the underlying probability distribution.
+              <button id="btn-demoralize" class="hvr-back-pulse float-left">Demoralize</button>
+              <button id="btn-moralize" class="hvr-back-pulse float-right">Moralize</button>
             </p>
-            <h4><strong>Junction tree algorithm</strong></h4>
-            <blockquote>
+          </div>
+          <div id="moral-canvas" class='canvas'>
+            <svg id="moral-svg"> </svg>
+          </div>
+        </div>
+      </div>
+      <div data-menu="Step 2">
+        <button type="button" class="btn prevPage">Prev</button>
+        <h1>Triangulation</h1>
+        <p>In this step, we need to transform the moralized graph to the triangulated graph. To do so, we need perform maximum cardinality search(MCS) algorithm to determin the ordering. After obtaining the ordering, make the ordering perfect by adding edges to the moral graph. The new graph with perfect ordering is the triangulated graph. </p>
+        <p>MCS algorithm and the concept of perfect ordering can be found online. You can also read the source code of all alorithms.</p>
+      </div>
+      <div class="full-height">
+        <button type="button" class="btn nextPage">Next</button>
+        <div class='page-wrapper'>
+          <div class='page-head'>
+            <p>
+              <button id="btn-detriangulate" class="hvr-back-pulse float-left">Detriangulate</button>
+              <button id="btn-triangulate" class="hvr-back-pulse float-right">Triangulate</button>
+            </p>
+          </div>
+          <div id="triangle-canvas" class='canvas'>
+            <svg id="triangle-svg"> </svg>
+          </div>
+        </div>
+      </div>
+      <div data-menu="Step 3">
+        <button type="button" class="btn prevPage">Prev</button>
+        <h1>Junction Tree</h1>
+        <p>A junction tree is constructed from a triangulated graph. The process contains three steps. </p>
+        <div>
+          <ul class="instruction-list">
+            <li>Step 1: Transform the triangulated graph to the
+              <a href="http://mathworld.wolfram.com/CliqueGraph.html" target="_blank">clique graph</a>.</li>
+            <li>Step 2: Construct a maximum-weight spanning tree from the clique graph.</li>
+            <li>Step 3: Assign CPTs to cliques to become their potentials &Phi;.</li>
+          </ul>
+        </div>
+        <p>The weight of an edge of a spanning tree is the number of common nodes shared between the cliques.</p>
+        <p>If a clique includes all variables in a CPT, then that CPT is assigned to the clique. For example, CPT of A is P(C|B,A), and a clique consists of variable A,B,C,D, then CPT of A is assigned to the clique. Because {C,B,A}&sube;{A,B,C,D}.</p>
+      </div>
+      <div class="full-height">
+        <button type="button" class="btn nextPage">Next</button>
+        <div class='page-wrapper'>
+          <div class='page-head'>
+            <p>
+              <button id="btn-decons-jt" class="hvr-back-pulse float-left">Deconstruct</button>
+              <button id="btn-cons-jt" class="hvr-back-pulse float-right">Construct</button>
+            </p>
+          </div>
+          <div id="jt-canvas" class='canvas'>
+            <svg id="jt-svg"> </svg>
+          </div>
+        </div>
+      </div>
+      <div data-menu="Step 4">
+        <button type="button" class="btn prevPage">Prev</button>
+        <h1>Propagation</h1>
+        <p>After the junction tree is obtained, we can start to propagate messages to get marginals. In this tutorial, two propagation algorithms are mentioned - Hugin and Shenoy-Shafer. </p>
+        <p>In Hugin propagation. For each edge, there is a seperator whose domain is the intersection of the two cliques. There is a root node, and it involves two phases - inward and outward. After the propagation is done, all cliques and seperators become marginals. For example, &Phi;(C,D) => P(C, D) </p>
+        <p> In Shenoy-Shafer propagation, For each edge, there are two seperators for each direction. There is no root node. After propagation is done, all cliques become marginals. </p>
+        <div class="p">
+          <ul class="nav nav-pills">
+            <li class="active">
+              <a data-toggle="pill" href="#p-hugin">Hugin</a>
+            </li>
+            <li>
+              <a data-toggle="pill" href="#p-shenoy">Shenoy-Shafer</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+      <div class="full-height">
+        <button type="button" class="btn nextPage">Next</button>
+        <div class="tab-content">
+          <div id="p-hugin" class="tab-pane fade in active">
+            <div class='page-wrapper'>
+              <div class='page-head'>
                 <p>
-                    The junction tree algorithm (also known as 'Clique Tree' or 'Join Tree') is a method to extract marginalization. In essence, it entails performing belief propagation on a modified graph called a junction tree.<a href="https://en.wikipedia.org/wiki/Junction_tree_algorithm" target="_blank">[From Wikipedia]</a>
+                  <button id="btn-hugin-reset" class="hvr-back-pulse float-right" disabled="true">Reset</button>
+                  <button id="btn-hugin-inward" class="hvr-back-pulse" disabled="true">Inward</button>
+                  <button id="btn-hugin-outward" class="hvr-back-pulse" disabled="true">Outward</button>
                 </p>
-            </blockquote>
+              </div>
+              <div id="p-hugin-canvas" class='canvas'>
+                <svg id="p-hugin-svg"> </svg>
+              </div>
+            </div>
+          </div>
+          <div id="p-shenoy" class="tab-pane fade">
+            <div class='page-wrapper'>
+              <div class='page-head'>
+                <p>
+                  <button id="btn-shenoy-reset" class="hvr-back-pulse float-right" disabled="true">Reset</button>
+                  <button id="btn-shenoy-propagate" class="hvr-back-pulse float-left" disabled="true">Propagate</button>
+                </p>
+              </div>
+              <div id="p-shenoy-canvas" class='canvas'>
+                <svg id="p-shenoy-svg"> </svg>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div data-menu="Query" id="page-query">
+        <button type="button" class="btn prevPage">Prev</button>
+        <h1>Query</h1>
+        <p>Drag the variables into the query set or evidence set. For the sake of simplicity, you can't specify any value. </p>
+        <div>
+          <p> Variables spawned in step 1: </p>
+          <div id="vars-list" class="p node-box"> </div>
         </div>
         <div>
-            <h1>The purpose of this site</h1>
-            <p>This site is supposed to help you understand the junction tree algorithms in terms of Hugin propagation and Shafer-Shenoy propagation.</p>
-            <p>This site is for tutorial purpose, not for the real-world application.</p>
-            <ul class="instruction-list">
-                <li>In "DAG" step, you need to draw a DAG and enter the corresponding CPTs.</li>
-                <li>In the following steps, you will learn how the inference algorithem is performed.</li>
-            </ul>
-            <p> If you require any further information, feel free to contact me. linden.quan@hotmail.com</p>
-            <button id="btn-start" type="button" class="btn nextPage">Let's start!</button>
+          <div class="p"> Query Set:
+            <div id="query-box" class="node-box"></div>
+          </div>
+          <div class="p"> Evidence Set:
+            <div id="evidence-box" class="node-box"></div>
+          </div>
         </div>
-        <div data-menu="DAG">
-            <button type="button" class="btn prevPage">Prev</button>
-            <h1>Draw a DAG and enter CPTs</h1>
-            <p>For the sake of simplicity, the name of a variable must be a single letter in uppercase, which means there are 26 variables at most. All of the variables are binary-valued, and all value is in lowercase.</p>
-            <p>For example: A = {a, -a}, T = {t, -t}.</p>
-            <div>
-                <h3>Instructions:</h3>
-                <ul class="instruction-list">
-                    <li>select a variable name from a to z, and create a new variable by clicking "spawn" button.</li>
-                    <li>Click on a node, hold and drag in the dotted area.</li>
-                    <li>Double click on a node to display CPT.</li>
-                    <li>Right click a node to show the context menu. In the menu, you can choose to edit the CPT or delte the node.</li>
-                </ul>
-            </div>
+      </div>
+      <div class="full-height">
+        <div id="query-str" class="p">P()</div>
+        <div id="div-query-table">
+          <table id="table-query"></table>
         </div>
-        <div id="draw-dag" class="full-height">
-            <button type="button" class="btn nextPage">Next</button>
-            <div class='page-wrapper'>
-                <div class='page-head'>
-                    <div id="div-selector" class="p">
-                        <select id="v-selector" class="cs-select cs-skin-boxes">
-                        </select>
-                    </div>
-                    <button id="btn-spawn" class="hvr-back-pulse">spawn</button>
-                    <button id="btn-sample" class="hvr-back-pulse">sample</button>
-                </div>
-                <div id="original-canvas" class="canvas">
-                    <svg id="original-svg">
-                    </svg>
-                </div>
-            </div>
-        </div>
-        <div data-menu="Step 1">
-            <button type="button" class="btn prevPage">Prev</button>
-            <h1>Moralization</h1>
-            <p>To answer the query, we need to generate the junction tree.</p>
-            <p>The first step of generating a junction tree is moralizing the original DAG.</p>
-            <p>To transform a DAG to the moral graph, add edges between all pairs of nodes that have a common child, and remove all directions. </p>
-        </div>
-        <div class="full-height">
-            <button type="button" class="btn nextPage">Next</button>
-            <div class='page-wrapper'>
-                <div class='page-head'>
-                    <p>
-                        <button id="btn-demoralize" class="hvr-back-pulse float-left">Demoralize</button>
-                        <button id="btn-moralize" class="hvr-back-pulse float-right">Moralize</button>
-                    </p>
-                </div>
-                <div id="moral-canvas" class='canvas'>
-                    <svg id="moral-svg">
-                    </svg>
-                </div>
-            </div>
-        </div>
-        <div data-menu="Step 2">
-            <button type="button" class="btn prevPage">Prev</button>
-            <h1>Triangulation</h1>
-            <p>In this step, we need to transform the moralized graph to the triangulated graph. To do so, we need perform maximum cardinality search(MCS) algorithm to determin the ordering. After obtaining the ordering, make the ordering perfect by adding edges to the moral graph. The new graph with perfect ordering is the triangulated graph.
-            </p>
-            <p>MCS algorithm and the concept of perfect ordering can be found online. You can also read the source code of all alorithms.</p>
-        </div>
-        <div class="full-height">
-            <button type="button" class="btn nextPage">Next</button>
-            <div class='page-wrapper'>
-                <div class='page-head'>
-                    <p>
-                        <button id="btn-detriangulate" class="hvr-back-pulse float-left">Detriangulate</button>
-                        <button id="btn-triangulate" class="hvr-back-pulse float-right">Triangulate</button>
-                    </p>
-                </div>
-                <div id="triangle-canvas" class='canvas'>
-                    <svg id="triangle-svg">
-                    </svg>
-                </div>
-            </div>
-        </div>
-        <div data-menu="Step 3">
-            <button type="button" class="btn prevPage">Prev</button>
-            <h1>Junction Tree</h1>
-            <p>A junction tree is constructed from a triangulated graph. The process contains three steps.
-            </p>
-            <div>
-                <ul class="instruction-list">
-                    <li>Step 1: Transform the triangulated graph to the <a href="http://mathworld.wolfram.com/CliqueGraph.html" target="_blank">clique graph</a>.</li>
-                    <li>Step 2: Construct a maximum-weight spanning tree from the clique graph.</li>
-                    <li>Step 3: Assign CPTs to cliques to become their potentials &Phi;.</li>
-                </ul>
-            </div>
-            <p>The weight of an edge of a spanning tree is the number of common nodes shared between the cliques.</p>
-            <p>If a clique includes all variables in a CPT, then that CPT is assigned to the clique. For example, CPT of A is P(C|B,A), and a clique consists of variable A,B,C,D, then CPT of A is assigned to the clique. Because {C,B,A}&sube;{A,B,C,D}.</p>
-        </div>
-        <div class="full-height">
-            <button type="button" class="btn nextPage">Next</button>
-            <div class='page-wrapper'>
-                <div class='page-head'>
-                    <p>
-                        <button id="btn-decons-jt" class="hvr-back-pulse float-left">Deconstruct</button>
-                        <button id="btn-cons-jt" class="hvr-back-pulse float-right">Construct</button>
-                    </p>
-                </div>
-                <div id="jt-canvas" class='canvas'>
-                    <svg id="jt-svg">
-                    </svg>
-                </div>
-            </div>
-        </div>
-        <div data-menu="Step 4">
-            <button type="button" class="btn prevPage">Prev</button>
-            <h1>Propagation</h1>
-            <p>After the junction tree is obtained, we can start to propagate messages to get marginals. In this tutorial, two propagation algorithms are mentioned - Hugin and Shenoy-Shafer.
-            </p>
-            <p>In Hugin propagation. For each edge, there is a seperator whose domain is the intersection of the two cliques. There is a root node, and it involves two phases - inward and outward. After the propagation is done, all cliques and seperators become marginals. For example, &Phi;(C,D) => P(C, D)
-            </p>
-            <p>
-                In Shenoy-Shafer propagation, For each edge, there are two seperators for each direction. There is no root node. After propagation is done, all cliques become marginals.
-            </p>
-            <div class="p">
-                <ul class="nav nav-pills">
-                    <li class="active"><a data-toggle="pill" href="#p-hugin">Hugin</a></li>
-                    <li><a data-toggle="pill" href="#p-shenoy">Shenoy-Shafer</a></li>
-                </ul>
-            </div>
-        </div>
-        <div class="full-height">
-            <button type="button" class="btn nextPage">Next</button>
-            <div class="tab-content">
-                <div id="p-hugin" class="tab-pane fade in active">
-                    <div class='page-wrapper'>
-                        <div class='page-head'>
-                            <p>
-                                <button id="btn-hugin-reset" class="hvr-back-pulse float-right" disabled="true">Reset</button>
-                                <button id="btn-hugin-inward" class="hvr-back-pulse" disabled="true">Inward</button>
-                                <button id="btn-hugin-outward" class="hvr-back-pulse" disabled="true">Outward</button>
-                            </p>
-                        </div>
-                        <div id="p-hugin-canvas" class='canvas'>
-                            <svg id="p-hugin-svg">
-                            </svg>
-                        </div>
-                    </div>
-                </div>
-                <div id="p-shenoy" class="tab-pane fade">
-                    <div class='page-wrapper'>
-                        <div class='page-head'>
-                            <p>
-                                <button id="btn-shenoy-reset" class="hvr-back-pulse float-right" disabled="true">Reset</button>
-                                <button id="btn-shenoy-propagate" class="hvr-back-pulse float-left" disabled="true">Propagate</button>
-                            </p>
-                        </div>
-                        <div id="p-shenoy-canvas" class='canvas'>
-                            <svg id="p-shenoy-svg">
-                            </svg>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div data-menu="Query" id="page-query">
-            <button type="button" class="btn prevPage">Prev</button>
-            <h1>Query</h1>
-            <p>Drag the variables into the query set or evidence set. For the sake of simplicity, you can't specify any value.
-            </p>
-            <div>
-                <p>
-                    Variables spawned in step 1:
-                </p>
-                <div id="vars-list" class="p node-box"> </div>
-            </div>
-            <div>
-                <div class="p">
-                    Query Set:
-                    <div id="query-box" class="node-box"></div>
-                </div>
-                <div class="p">
-                    Evidence Set:
-                    <div id="evidence-box" class="node-box"></div>
-                </div>
-            </div>
-        </div>
-        <div class="full-height">
-            <div id="query-str" class="p">P()</div>
-            <div id="div-query-table">
-                <table id="table-query"></table>
-            </div>
-        </div>
+      </div>
     </div>
     <div class="modal" id="parents" role="dialog" data-easein="flipBounceXIn">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <span class="modal-title">Select parents</span>
-                </div>
-                <div class="modal-body">
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-default confirm">Confirm</button>
-                </div>
-            </div>
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <span class="modal-title">Select parents</span>
+          </div>
+          <div class="modal-body"> </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default confirm">Confirm</button>
+          </div>
         </div>
+      </div>
     </div>
     <div class="modal" id="connect-hint" role="dialog" data-easein="bounceIn">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-body">
-                    <span class="modal-hint">All nodes must be connected.</span>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-default confirm" data-dismiss="modal">OK</button>
-                </div>
-            </div>
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-body">
+            <span class="modal-hint">All nodes must be connected.</span>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default confirm" data-dismiss="modal">OK</button>
+          </div>
         </div>
+      </div>
     </div>
     <div class="modal" id="modal-cpt" role="dialog" data-easein="flipYIn">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <span class="modal-title">Probability Distribution</span>
-                </div>
-                <div class="modal-body">
-                    <table id="table-cpt"></table>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-default confirm" data-dismiss="modal">Confirm</button>
-                </div>
-            </div>
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <span class="modal-title">Probability Distribution</span>
+          </div>
+          <div class="modal-body">
+            <table id="table-cpt"></table>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default confirm" data-dismiss="modal">Confirm</button>
+          </div>
         </div>
+      </div>
     </div>
-</body>
+  </body>
 
 </html>
