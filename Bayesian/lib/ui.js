@@ -68,6 +68,7 @@ function MainController() {
   $(document).on('click', '#btn-hugin-reset', onHuginReset);
   $(document).on('click', '#btn-shenoy-propagate', onShenoyPropagation);
   $(document).on('click', '#btn-shenoy-reset', onShenoyReset);
+  $(document).on('change', '#table-cpt input', onCPTInputChange);
 
   var originalGraph = new Graph('original graph');
   $('#original-svg').setGraph(originalGraph);
@@ -250,10 +251,15 @@ function MainController() {
   }
 
   function removeFromQueryList(varObj) {
-    $('#vars-list span[id="circle-in-list-' + varObj.name + '"]').remove();
-    var str = $('#vars-list').html();
+    var list = $('#vars-list');
+    list.append($('#query-box').children());
+    list.append($('#evidence-box').children());
+    if (varObj) {
+      $('span[id="circle-in-list-' + varObj.name + '"]', list).remove();
+    }
+    var str = list.html();
     resetQuery();
-    $('#vars-list').html(str);
+    list.html(str);
   }
 
   // insert node in DAG
@@ -369,10 +375,9 @@ function MainController() {
 
   // display a sample DAG
   function onSample() {
-    disableMenu('step2');
+    onDAGChanged();
     // initialize
     var svg = $('#original-svg');
-    DAGChanged = true;
     LogicNodes = [];
     $('#vars-list').html('');
     var map;
@@ -437,7 +442,6 @@ function MainController() {
   }
 
   function onSpawn() {
-    disableMenu('step2');
     var selector = $('#v-selector');
     var selected = selector.val();
 
@@ -475,11 +479,13 @@ function MainController() {
         var vertex = new Vertex();
         vertex.name = c_node.name;
         originalGraph.addVertex(vertex);
-        DAGChanged = true;
 
         // remove option
         optionList.remove(selected);
         resetOptions(optionList);
+
+        // DAG changed
+        onDAGChanged();
       } else {
         // already has this variable, select another one.
         console.log('already has this variable, select another one.');
@@ -784,6 +790,8 @@ function MainController() {
   }
 
   function deleteVertex(circle) {
+    onDAGChanged();
+
     var name = circle.attr('name');
     var svg = circle.parent();
     var graph = svg.getGraph();
@@ -814,7 +822,11 @@ function MainController() {
     resetOptions(optionList);
 
     removeFromQueryList(varObj);
+  }
+
+  function onDAGChanged() {
     DAGChanged = true;
+    disableMenu('step2');
   }
 
   this.addContextMenu = function() {
@@ -1154,6 +1166,11 @@ function MainController() {
       e.stopImmediatePropagation();
       $('#connect-hint').modal();
     }
+  }
+
+  function onCPTInputChange(e) {
+    onDAGChanged();
+    removeFromQueryList(null);
   }
 
   this.onBookReady = function() {

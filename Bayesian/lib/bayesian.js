@@ -1166,6 +1166,37 @@ var Variable = function Variable(name, domain) {
     // domain is an arry containing strings
     this.domain = domain.slice();
 };
-"use strict";
+'use strict';
 
 var DEBUG = false;
+
+var A = new Variable('A', ['a', '-a']);
+var B = new Variable('B', ['b', '-b']);
+var C = new Variable('C', ['c', '-c']);
+var D = new Variable('D', ['d', '-d']);
+
+var map = {};
+map[['a']] = 0.8;
+map[['-a']] = 0.2;
+var pa = new Distribution(map, [A]);
+
+map = {};
+map[['a', 'b']] = 0.2;
+map[['a', '-b']] = 0.8;
+map[['-a', 'b']] = 0.1;
+map[['-a', '-b']] = 0.9;
+var pb = new Distribution(map, [A, B]);
+
+map = {};
+map[['b', 'c']] = 0.7;
+map[['b', '-c']] = 0.3;
+map[['-b', 'c']] = 0.5;
+map[['-b', '-c']] = 0.5;
+var pc = new Distribution(map, [B, C]);
+
+map = {};
+map[['c', 'd']] = 0.1;
+map[['c', '-d']] = 0.9;
+map[['-c', 'd']] = 0.7;
+map[['-c', '-d']] = 0.3;
+var pd = new Distribution(map, [C, D]);
