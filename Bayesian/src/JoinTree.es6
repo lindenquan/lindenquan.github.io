@@ -115,6 +115,7 @@ class JoinTree {
         })
         let leaves = new Set()
         while (childPool.size != 0) {
+            newFatherPool = new Set()
             for (let father of fatherPool) {
                 for (let neighbour of father.edges) {
                     if (childPool.has(neighbour)) {
