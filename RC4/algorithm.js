@@ -263,6 +263,11 @@ function calcLen(m, offset) {
   return (tmp === 0) ? offset : tmp;
 }
 
+function calcHVASC(input, offset) {
+  input = ASCIItoHexArray(input);
+  return toHexStr(calcHV(input, [], offset), 100);
+}
+
 function calcHV(sc, data, offset) {
   var input = sc.concat(data);
   // step 1 Append Padding Bits and Length, and Divide the Padded Message
@@ -286,14 +291,24 @@ function calcHV(sc, data, offset) {
     state = PRGA_Star(len, state_m);
   }
   var state_n = state.slice(0);
-  var hv = KSA(state);
-  hv.s = hv;
-  hv.i = 0;
-  hv.j = 0;
+  state = KSA(state);
+  var s = {};
+  s.s = state;
+  s.i = 0;
+  s.j = 0;
+
   for (var i = 0; i < 256; i++) {
-    hv = prga(hv.s, hv.i, hv.j);
+    s = prga(s.s, s.i, s.j);
   }
-  hv = blockXOR(hv.s, state_n);
+  var streamkey = [];
+
+  for (i = 0; i < 256; i++) {
+    s = prga(s.s, s.i, s.j);
+    streamkey.push(s.s[(s.s[s.i] + s.s[s.j]) % 256]);
+  }
+
+  var hv = blockXOR(streamkey, state_n);
+
   hv = collectLSB(hv, true);
   return hv;
 }
