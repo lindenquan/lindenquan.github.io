@@ -77,10 +77,28 @@ function toHexStr(array, column) {
   return hexStr.toUpperCase();
 }
 
+/**
+ * @summary convert an array of unicode number to a string.
+ *
+ * @param int[] $array 
+ *      an int array. For example "[65,66,67]"
+ *                      
+ * @return string 
+ *      For input [65,66], the returned value is "AB"
+ */
 function toASCIIStr(array) {
   return String.fromCharCode.apply(null, array);
 }
 
+/**
+ * @summary convert a hex format string to int number
+ *
+ * @param string $str 
+ *      a hex format string. For example "4DEA"
+ *                      
+ * @return int 
+ *      For input "A", the returned value is 10
+ */
 function hexStrToInt(str) {
   if (str.match(/^[\d a-f]*$/i)) {
     return parseInt(str.replace(/\s/g, ''), HEX_SIZE);
@@ -89,6 +107,15 @@ function hexStrToInt(str) {
   }
 }
 
+/**
+ * @summary convert a decimal format string to hex format string in uppercase
+ *
+ * @param string $str 
+ *      a decimal format string. For example "123"
+ *                      
+ * @return string 
+ *      For input "10", the returned value is "A"
+ */
 function intStrToHexStr(str) {
   if (str.match(/^\d+$/i)) {
     return parseInt(str.replace(/\s/g, '')).toString(HEX_SIZE).toUpperCase();
@@ -97,12 +124,23 @@ function intStrToHexStr(str) {
   }
 }
 
+/**
+ * @summary convert a decimal format string to int number
+ *
+ * @param string $str 
+ *      a decimal format string. For example "123"
+ *                      
+ * @return int 
+ *      For input "10", the returned value is 10
+ */
 function intStrToInt(str) {
   return parseInt(str.replace(/\s/g, ''));
 }
+
 Packet.prototype.toString = function() {
   return "[SC:" + this.sc + ", DATA:" + this.data + ", HV:" + this.hv + "]\n";
 }
+
 /**
  * @summary convert string to hex array.
  *
@@ -125,11 +163,31 @@ function toHexArray(hexStr) {
   }
   return hexArray;
 }
-// convert hex arry to int value
+
+/**
+ * @summary convert a byte array to the corresponding int value
+ *
+ * @param byte[] $arr 
+ *      a byte array. For example [12,44,6]
+ *                      
+ * @return int 
+ *      For input [1,1], the returned value is 17
+ */
 function toValue(arr) {
   return parseInt(toHexStr(arr).replace(/\s/g, ''), HEX_SIZE);
 }
 
+/**
+ * @summary compare two array
+ *
+ * @param array $a 
+ *      any array. For example [12,44,6]
+ * @param array $b
+ *      any array. 
+ *                  
+ * @return boolean 
+ *      return true if a is equal to b in shallow comparison. otherwise, return false
+ */
 function isSameArray(a, b) {
   var a_len = a.length;
   var b_len = b.length;
@@ -147,8 +205,15 @@ function isSameArray(a, b) {
   }
   return false;
 }
+
 /**
  * @summary convert ASCII to hex array. It keeps white spaces.
+ *
+ * @param string $str 
+ *      hex format string. For example "AB9"
+ *
+ * @return byte[] 
+ *      for input "message", return [109, 101, 115, 115, 97, 103, 101]
  */
 function ASCIItoHexArray(str) {
   var hexArray = [];
@@ -157,15 +222,29 @@ function ASCIItoHexArray(str) {
   }
   return hexArray;
 }
-//padding: a single "1" bit || 0...0||L
+
+/**
+ * @summary add padding bits
+ *
+ * @param byte[] $input
+ *      a byte array the length of which is less than $BLOCK_SIZE in bits
+ *      in this project $BLOCK_SIZE is 512 bits
+ *
+ * @return byte[] 
+ *      padded byte array. padding rule a single "1" bit || 0...0||L
+ *      The length of $L is 2 bytes.
+ */
 function padBits(input) {
   var len = input.length;
   var lenArr = toArray(len, L_SIZE);
   var real = ((L_SIZE + len) * BYTE_SIZE + 1) % BLOCK_SIZE;
+
+  // the total number of zeros in bits
   var zero_size = BLOCK_SIZE - real;
   len = (zero_size + 1) / BYTE_SIZE;
   for (var i = 0; i < len; i++) {
     if (i === 0) {
+      // add one 1 bit and seven 0 bits
       input.push(parseInt('10000000', 2));
     } else {
       input.push(0);
@@ -174,6 +253,18 @@ function padBits(input) {
   return input.concat(lenArr);
 }
 
+/**
+ * @summary convert a long byte array into an array of blocks
+ *
+ * @param byte[] $arr
+ *      a byte array. for example: [1,2,3,4,5,6,7]
+ *
+ * @param size $size
+ *      the size of a block in bits
+ *
+ * @return block[] 
+ *     for input $arr=[1,2,3,4] $size=16, the output is [[1,2],[3,4]]
+ */
 function getBlocks(arr, size) {
   var b_size = size / BYTE_SIZE;
   var len = arr.length;
@@ -189,6 +280,18 @@ function getBlocks(arr, size) {
   return blocks;
 }
 
+/**
+ * @summary perform PRGA* function
+ *
+ * @param int $len
+ *      $len indicates how many times PRGA* runs
+ *
+ * @param byte[] $s
+ *      the state array
+ *
+ * @return byte[] 
+ *     after permuted array
+ */
 function PRGA_Star(len, s) {
   var j = 0,
     tmp, i;
@@ -202,6 +305,18 @@ function PRGA_Star(len, s) {
   return s;
 }
 
+/**
+ * @summary perform KSA* function
+ *
+ * @param byte[] $m
+ *      a block array
+ *
+ * @param byte[] $s
+ *      the state array
+ *
+ * @return byte[] 
+ *     after permuted array
+ */
 function KSA_Star(m, s) {
   var j = 0;
   var tmp;
@@ -214,6 +329,18 @@ function KSA_Star(m, s) {
   return s;
 }
 
+/**
+ * @summary calculate $m mod $v
+ *
+ * @param byte[] $m
+ *      a block array as modulo
+ *
+ * @param int $v
+ *      the modulus
+ *
+ * @return int 
+ *     the remainder
+ */
 function blockMod(m, v) {
   var len = m.length;
   var sum = 0;
@@ -223,6 +350,18 @@ function blockMod(m, v) {
   return sum % v;
 }
 
+/**
+ * @summary perform XOR operation on two blocks
+ *
+ * @param byte[] $a
+ *      a block array
+ *
+ * @param byte[] $b
+ *      another block array
+ *
+ * @return byte[] 
+ *     the result byte array after XOR
+ */
 function blockXOR(a, b) {
   var len = a.length;
   var result = [];
@@ -232,6 +371,19 @@ function blockXOR(a, b) {
   return result;
 }
 
+/**
+ * @summary collect last significant bits from blocks
+ *
+ * @param block[] $arr
+ *      an array of blocks
+ *
+ * @param boolean $odd
+ *      if $odd is true, collects LSB from odd number blocks only.
+ *      if $odd is false, collects LSB from all blocks
+ *
+ * @return byte[] 
+ *     the result byte array.
+ */
 function collectLSB(arr, odd) {
   var len = arr.length;
   var count = BYTE_SIZE - 1;
@@ -240,7 +392,10 @@ function collectLSB(arr, odd) {
   var byte = 0;
   for (var i = 0; i < len; i++) {
     if (odd) {
+      // if odd number then skip collecting.
       if (i % 2 === 1) {
+        // since index starts from zero, if the index is a even number
+        // the block is the odd number in sequence.
         continue;
       }
     }
@@ -249,6 +404,7 @@ function collectLSB(arr, odd) {
     tmp <<= count;
     byte |= tmp;
     if (count === 0) {
+      // collect 8 bits
       count = BYTE_SIZE;
       result.push(byte);
       byte = 0;
@@ -258,23 +414,64 @@ function collectLSB(arr, odd) {
   return result;
 }
 
+/**
+ * @summary calculate length used for PRGA*
+ *
+ * @param byte[] $m
+ *      an array of block
+ *
+ * @param int $offset
+ *      an offset value
+ *
+ * @return int 
+ *     the result length.
+ */
 function calcLen(m, offset) {
   var tmp = blockMod(m, 256);
   return (tmp === 0) ? offset : tmp;
 }
 
+/**
+ * @summary RC4-BHF function
+ *
+ * @param string $input
+ *      an string of ASCII code
+ *
+ * @param int $offset
+ *      an offset value
+ *
+ * @return string 
+ *     the hash value in hex format.
+ */
 function calcHVASC(input, offset) {
   input = ASCIItoHexArray(input);
   return toHexStr(calcHV(input, [], offset), 100);
 }
 
+/**
+ * @summary RC4-BHF function
+ *
+ * @param byte[] $sc
+ *      sequence count array
+ *
+ * @param byte[] $data
+ *      data array
+ *
+ * @param int $offset
+ *      offset value
+ *
+ * @return byte[] 
+ *     the hash value byte array.
+ */
 function calcHV(sc, data, offset) {
   var input = sc.concat(data);
+
   // step 1 Append Padding Bits and Length, and Divide the Padded Message
   input = padBits(input);
   var blocks = getBlocks(input, BLOCK_SIZE);
   var block_len = blocks.length;
-  // step 2
+
+  // step 2 Compression
   var tmp;
   var m1 = blocks[0];
   var state_m1 = PRGA_Star(offset, KSA(m1));
@@ -290,6 +487,8 @@ function calcHV(sc, data, offset) {
     state_m = KSA_Star(m, state);
     state = PRGA_Star(len, state_m);
   }
+
+  // step 3 output
   var state_n = state.slice(0);
   state = KSA(state);
   var s = {};
@@ -306,13 +505,23 @@ function calcHV(sc, data, offset) {
     s = prga(s.s, s.i, s.j);
     streamkey.push(s.s[(s.s[s.i] + s.s[s.j]) % 256]);
   }
-
+  // XORing STATE n with the last 256 bytes of the PRGA output
   var hv = blockXOR(streamkey, state_n);
 
+  //collect last significant bit of each odd number block
   hv = collectLSB(hv, true);
   return hv;
 }
 
+/**
+ * @summary get a byte array with each value 0
+ *
+ * @param int $data_size
+ *      array size
+ *
+ * @return byte[] 
+ *     array with the length of $data_size.
+ */
 function getNullData(data_size) {
   var data = [];
   for (var i = 0; i < data_size; i++) {
@@ -320,9 +529,19 @@ function getNullData(data_size) {
   }
   return data;
 }
-// v: int value
-// size: the length of hex array.
-// return hex array
+
+/**
+ * @summary convert int value to hex array
+ *
+ * @param int $v
+ *      input value in decimal format
+ *
+ * @param int $size
+ *      the length of hex array.
+ *
+ * @return byte[] 
+ *     the converted hex array
+ */
 function toArray(v, size) {
   var arr = toHexArray(v.toString(16));
   var len = arr.length;
@@ -336,6 +555,7 @@ function toArray(v, size) {
     return result.concat(arr);
   }
 }
+
 /**
  * @summary convert hex array to packets. 
  * If the size of the last packet is less than 252, then pad a 1 followed by as many 0 as necessary
@@ -366,6 +586,7 @@ function toPackets(message, data_size) {
   var real = (len + 1) % data_size;
   var zero_size = data_size - real;
   if (zero_size === data_size) {
+    // add a packet with zero
     packet.data.push(1);
     packet.hv = calcHV(packet.sc, packet.data, vars.offset);
     packets.push(packet);
@@ -375,6 +596,7 @@ function toPackets(message, data_size) {
     last_packet.hv = calcHV(last_packet.sc, last_packet.data, vars.offset);
     packets.push(last_packet);
   } else if (zero_size === data_size - 1) {
+    // add a packet that 1 folloed by zeros
     var last_packet = new Packet();
     last_packet.sc = toArray(count, SC_LEN);
     last_packet.data = getNullData(data_size);
@@ -382,6 +604,7 @@ function toPackets(message, data_size) {
     last_packet.hv = calcHV(last_packet.sc, last_packet.data, vars.offset);
     packets.push(last_packet);
   } else {
+    // the most common case
     packet.data.push(1);
     for (var i = 0; i < zero_size; i++) {
       packet.data.push(0);
@@ -391,6 +614,7 @@ function toPackets(message, data_size) {
   }
   return packets
 }
+
 /**
  * @summary compute next RC4 state.
  *
@@ -477,6 +701,7 @@ function initializeState(state, key) {
   state.i = 0;
   state.j = 0;
 }
+
 /**
  * @summary encrypt message byte. then push the ciphertext to the global value $vars.cipher
  *
@@ -493,6 +718,15 @@ function encrypt(message) {
   return message ^ s.s[t];
 }
 
+/**
+ * @summary encrypt an byte array
+ *
+ * @param byte[] $arr 
+ *      the byte array to be encrypted
+ *
+ * @return byte[] 
+ *      encrypted byte array
+ */
 function encryptArray(arr) {
   var cipher = [];
   arr.forEach(function(m) {
@@ -501,6 +735,15 @@ function encryptArray(arr) {
   return cipher;
 }
 
+/**
+ * @summary encrypt packets
+ *
+ * @param Packet[] $packets 
+ *      the Packet array to be encrypted
+ *
+ * @return Packet[] 
+ *      encrypted Packet array
+ */
 function encryptPackets(packets) {
   var len = packets.length;
   var e_packets = [];
@@ -515,6 +758,15 @@ function encryptPackets(packets) {
   return e_packets;
 }
 
+/**
+ * @summary decrypt a byte value
+ *
+ * @param byte $c 
+ *      the byte value to be decrypted
+ *
+ * @return byte
+ *      decrypted byte value
+ */
 function decrypt(c) {
   var s = vars.state_B;
   s = prga(s.s, s.i, s.j);
@@ -523,10 +775,23 @@ function decrypt(c) {
   return c ^ s.s[t];
 }
 
+/**
+ * @summary decrypt a byte array
+ *
+ * @param int $sc 
+ *      the sequence count value
+ *
+ * @param byte[] $arr 
+ *      the byte array to be decrypted
+ *
+ * @return byte[]
+ *      decrypted byte array
+ */
 function decryptArray(sc, arr) {
   var plaintext = [];
   sc = toValue(sc);
   if (sc > vars.SC_B) {
+    // use prga to move forward the state to the sc corresponding state
     var len = (sc - vars.SC_B) * arr.length;
     for (var i = 0; i < len; i++) {
       var s = vars.state_B;
@@ -535,6 +800,7 @@ function decryptArray(sc, arr) {
     }
   }
   if (sc < vars.SC_B) {
+    // use iprga to move backward the state to the sc corresponding state
     var len = (vars.SC_B - sc) * arr.length;
     for (i = 0; i < len; i++) {
       var s = vars.state_B;
@@ -550,6 +816,15 @@ function decryptArray(sc, arr) {
   return plaintext;
 }
 
+/**
+ * @summary decrypt a Packet array
+ *
+ * @param Packet[] $packets 
+ *      the Packet array to be decrypted
+ *
+ * @return Packet[]
+ *      decrypted Packet array
+ */
 function decryptPackets(packets) {
   var len = packets.length;
   var d_packets = [];
@@ -566,6 +841,7 @@ function decryptPackets(packets) {
   }
   return d_packets;
 }
+
 /**
  * @summary the main RC4 function
  *
@@ -602,6 +878,15 @@ function rc4(key, message) {
   return toHexStr(cipher);
 }
 
+/**
+ * @summary sort the received packets. This function doesn't modify original array.
+ *
+ * @param Packet[] $packets 
+ *      received Packet array
+ *
+ * @return Packet[]
+ *      return sorted array.
+ */
 function sortPackets(packets) {
   var compare = function(a, b) { return toValue(a.sc) - toValue(b.sc); };
   var sorted = packets.slice(0);

@@ -3,6 +3,7 @@ Object.defineProperty(Element.prototype, 'y', {
     return this.offsetTop + (this.offsetParent ? this.offsetParent.y : 0);
   }
 });
+
 Object.defineProperty(Element.prototype, 'x', {
   get: function() {
     return this.offsetLeft + (this.offsetParent ? this.offsetParent.x : 0);
@@ -15,6 +16,7 @@ function getScroll() {
     left: window.pageXOffset || document.documentElement.scrollLeft
   }
 }
+
 /**
  * @summary check if the string is a valid hex format string.
  *
