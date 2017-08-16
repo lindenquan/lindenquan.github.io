@@ -879,7 +879,7 @@ function rc4(key, message) {
 }
 
 /**
- * @summary sort the received packets. This function doesn't modify original array.
+ * @summary sort the received packets in sc ascending order.. This function doesn't modify original array.
  *
  * @param Packet[] $packets 
  *      received Packet array
