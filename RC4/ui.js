@@ -32,17 +32,29 @@ function isValidHex(str) {
   return str.match(/^[\d a-f]*$/i);
 }
 
+/**
+ * @summary check if the string is a valid decimal format string.
+ *
+ * @param string $str 
+ *      the string will be tested.
+ *
+ * @return boolean 
+ *      if the $str is a valid decimal string then return true, otherwise, return false.
+ *      A valid decimal string only contains 0-9 and space.
+ */
 function isValidInt(str) {
   return str.match(/^\d+$/);
 }
 
-function initialize() {
-  vars.state_s.innerHTML = "";
-  vars.state_i.innerHTML = 0;
-  vars.state_j.innerHTML = 0;
-  vars.cipherText.innerHTML = "";
-}
-
+/**
+ * @summary check if the string is a valid ASCII code string.
+ *
+ * @param string $str 
+ *      the string will be tested.
+ *
+ * @return boolean 
+ *      if the $str is a valid ASCII code string then return true, otherwise, return false.
+ */
 function isValidASCII(str) {
   // check the str by regular expression
   return /^[\x00-\x7F]*$/.test(str);
@@ -82,6 +94,13 @@ function isASCIIMode() {
   return getFormat('format') === ASCII_STR
 }
 
+/**
+ * @summary hide the given $toolTip
+ *
+ * @param DOM Object $toolTip 
+ *      the toolTip DOM Object will be hidden.
+ *
+ */
 function dismissToolTip(toolTip) {
   toolTip.style.visibility = "hidden";
   toolTip.style.opacity = 0;
@@ -95,6 +114,10 @@ function updateInputSize() {
   }
 }
 
+/**
+ * @summary this function will be invoked when the input in plaintext is valid
+ *
+ */
 function onValidInput() {
   updateInputSize();
   vars.btn_g_packet.disabled = false;
@@ -102,12 +125,20 @@ function onValidInput() {
   vars.btn_g_message.disabled = true;
 }
 
+/**
+ * @summary this function will be invoked when the input in plaintext is not valid
+ *
+ */
 function onInvalidInput() {
   vars.btn_g_packet.disabled = true;
   vars.btn_d_packet.disabled = false;
   vars.btn_g_message.disabled = false;
 }
 
+/**
+ * @summary this function will be invoked when a user inputs anything in sender's offset value textbox
+ *
+ */
 function handleOVChangeEvent(e) {
   if (isOVmodeHex()) {
     if (!isValidHex(e.target.value)) {
@@ -134,6 +165,10 @@ function handleOVChangeEvent(e) {
   }
 }
 
+/**
+ * @summary this function will be invoked when a user inputs anything in recipient's offset value textbox
+ *
+ */
 function handle_C_OVChangeEvent(e) {
   if (is_C_OVmodeHex()) {
     if (!isValidHex(e.target.value)) {
@@ -307,6 +342,10 @@ function showToolTip(target, toolTip, time) {
   }
 }
 
+/**
+ * @summary this a callback function. 
+ *    this function will be invoked whenever "Encrypt Packets" button is clicked
+ */
 function btn_e_packet() {
   initializeState(vars.state_A, toHexArray(vars.key.value));
   if (vars.packets === undefined) {
@@ -329,6 +368,15 @@ function btn_e_packet() {
   }
 }
 
+/**
+ * @summary show $pakets in $div
+ *
+ * @param DOM object $div 
+ *      the div DOM object, in which packets information will be shown
+ *
+ * @return Pakcet[] $packets 
+ *      Packet array containing pakcets information
+ */
 function showPackets(div, packets) {
   div.innerHTML = '';
   var len = packets.length;
@@ -350,7 +398,10 @@ function showPackets(div, packets) {
     })(i), i * 100);
   }
 }
-
+/**
+ * @summary this a callback function. 
+ *    this function will be invoked whenever "Generate Packets" button is clicked
+ */
 function btn_g_packet() {
   dismissToolTip(vars.toolTipGeneratePackets);
   var message = vars.input.value;
@@ -378,6 +429,10 @@ function btn_g_packet() {
   showPackets(vars.g_body, vars.packets);
 }
 
+/**
+ * @summary this a callback function. 
+ *    this function will be invoked whenever "Decrypt Packets" button is clicked
+ */
 function btn_d_packet() {
   initializeState(vars.state_B, toHexArray(vars.c_key.value));
   vars.SC_B = 0;
@@ -410,6 +465,10 @@ function removePad(arr) {
   }
 }
 
+/**
+ * @summary this a callback function. 
+ *    this function will be invoked whenever "Generate Message" button is clicked
+ */
 function btn_g_message() {
   vars.o_packets = sortPackets(vars.d_packets);
   var arr = [];
@@ -452,6 +511,10 @@ function onRadio_ov(e) {
   }
 }
 
+/**
+ * @summary this a callback function. 
+ *    this function will be invoked whenever "Check Hashvalues" button is clicked
+ */
 function btn_check_hv(e) {
   var packetError = false;
   var rows = [];
@@ -505,6 +568,7 @@ function showHV(rows) {
     })(i), i * 100);
   }
 }
+
 /**
  *  initialize global variables $vars
  */
